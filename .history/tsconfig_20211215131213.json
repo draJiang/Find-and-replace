@@ -1,0 +1,20 @@
+// {
+//   "compilerOptions": {
+//     "target": "es6",
+//     "lib": ["es6","DOM"],
+//     "jsx": "react",
+//     "moduleResolution": "node",
+//     "typeRoots": [
+//       "./node_modules/@types",
+//       "./node_modules/@figma"
+//     ]
+//   }
+// }
+
+{
+  "compilerOptions": {
+    "target": "es6",
+    "jsx": "react",
+    "skipLibCheck": true
+  }
+}
