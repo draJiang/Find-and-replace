@@ -9,13 +9,10 @@ figma.on("selectionchange", () => { onSelectionChange() })
 figma.ui.onmessage = msg => {
 
   if (msg.type === 'search') {
-    
-    figma.ui.postMessage({ 'type': 'find_loading' })
-
     console.log('search');
     console.log(msg);
     
-    find_and_replace(msg.data)
+    new Promise(()=>find_and_replace(msg.data))
     console.log('search target_Text_Node:');
     
     console.log(target_Text_Node);
@@ -167,9 +164,9 @@ async function myLoadFontAsync(myFont) {
   await figma.loadFontAsync(myFont)
 }
 
-function find_and_replace(data) {
+async function find_and_replace(data) {
   console.log('conde.ts:find_and_replace:');
-  
+  figma.ui.postMessage({ 'type': 'find_loading' })
   target_Text_Node = []
   var selection = figma.currentPage.selection
 
@@ -189,7 +186,7 @@ function find_and_replace(data) {
 
     // var textNode = myFindTextAll(selection[i])
     console.log(selection[i]);
-    node_list = myFindTextAll(selection[i], node_list)
+    node_list = await myFindTextAll(selection[i], node_list)
 
   }
 

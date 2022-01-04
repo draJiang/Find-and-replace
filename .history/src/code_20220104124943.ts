@@ -9,9 +9,6 @@ figma.on("selectionchange", () => { onSelectionChange() })
 figma.ui.onmessage = msg => {
 
   if (msg.type === 'search') {
-    
-    figma.ui.postMessage({ 'type': 'find_loading' })
-
     console.log('search');
     console.log(msg);
     
@@ -169,7 +166,7 @@ async function myLoadFontAsync(myFont) {
 
 function find_and_replace(data) {
   console.log('conde.ts:find_and_replace:');
-  
+  figma.ui.postMessage({ 'type': 'find_loading' })
   target_Text_Node = []
   var selection = figma.currentPage.selection
 

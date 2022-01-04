@@ -56,16 +56,14 @@ body {
     text-align: center;
     line-height: 15px;
     vertical-align: middle;
-    width: 32%;
-    cursor:pointer;
-    float: right;
-    margin-right: 0;
+    width: 80px;
+    
   }
   #topBox{
     /* height:30% */
   }
   .find_result_list{
-    height: 60%;
+    height: 64%;
     overflow-y: auto;
     margin-top: 10px;
 

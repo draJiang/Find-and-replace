@@ -159,10 +159,6 @@ class SearchResultsList extends React.Component
       )
     }
 
-    return(
-      <div className='find_result_list'></div>
-    )
-
   }
 }
 

@@ -56,10 +56,8 @@ body {
     text-align: center;
     line-height: 15px;
     vertical-align: middle;
-    width: 32%;
+    width: 80px;
     cursor:pointer;
-    float: right;
-    margin-right: 0;
   }
   #topBox{
     /* height:30% */

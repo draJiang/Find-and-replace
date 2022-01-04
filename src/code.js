@@ -8,18 +8,41 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 /// <reference path="../node_modules/@figma/plugin-typings/index.d.ts" />
-var target_Text_Node = [];
+let target_Text_Node = [];
 figma.showUI(__html__, { width: 300, height: 340 });
 // console.log('hello2')
 onSelectionChange();
 figma.on("selectionchange", () => { onSelectionChange(); });
 figma.ui.onmessage = msg => {
     if (msg.type === 'search') {
+        figma.ui.postMessage({ 'type': 'find_loading' });
         console.log('search');
         console.log(msg);
-        var toUIHTML = find_and_replace(msg.data);
+        find_and_replace(msg.data);
         console.log('search target_Text_Node:');
-        console.log(toUIHTML);
+        console.log(target_Text_Node);
+        console.log('console.log(target_Text_Node.length);' + target_Text_Node.length.toString());
+        let toUIHTML = [];
+        if (target_Text_Node.length >= 0) {
+            target_Text_Node.forEach(item => {
+                console.log('target_Text_Node.forEach:');
+                var position = 0;
+                while (true) {
+                    var index = item.characters.indexOf(msg.data.keyword, position);
+                    console.log('index:');
+                    console.log(index);
+                    if (index > -1) {
+                        toUIHTML.push({ 'id': item.id, 'characters': item.characters, 'start': index, 'end': index + msg.data.keyword.length });
+                        position = index + msg.data.keyword.length;
+                    }
+                    else {
+                        break;
+                    }
+                }
+            });
+            console.log('if :toUIHTML:');
+            console.log(toUIHTML);
+        }
         figma.ui.postMessage({ 'type': 'find', 'target_Text_Node': toUIHTML });
         // figma.closePlugin()
     }
@@ -107,66 +130,42 @@ function myLoadFontAsync(myFont) {
     });
 }
 function find_and_replace(data) {
-    return __awaiter(this, void 0, void 0, function* () {
-        console.log('conde.ts:find_and_replace:');
-        figma.ui.postMessage({ 'type': 'find_loading' });
-        target_Text_Node = [];
-        var selection = figma.currentPage.selection;
-        var node_list = []; // 存储目标值 —— 选中图层中，所有文本图层
-        // 当前未选中图层，则在当前页面搜索
-        if (selection.length == 0) {
-            selection = figma.currentPage.children;
+    console.log('conde.ts:find_and_replace:');
+    target_Text_Node = [];
+    var selection = figma.currentPage.selection;
+    var node_list = []; // 存储目标值 —— 选中图层中，所有文本图层
+    // 当前未选中图层，则在当前页面搜索
+    if (selection.length == 0) {
+        selection = figma.currentPage.children;
+    }
+    else {
+        // 当前有选中图层，则在选中的图层中搜索
+    }
+    console.log('selection:');
+    console.log(selection);
+    // 在当前选中的图层中，搜索文本图层
+    for (var i = 0; i < selection.length; i++) {
+        console.log('find_and_replace:for selection');
+        // var textNode = myFindTextAll(selection[i])
+        console.log(selection[i]);
+        node_list = myFindTextAll(selection[i], node_list);
+    }
+    console.log('Find end:');
+    console.log(node_list);
+    // 获取所有文本图层的文本，批量关键字，获取符合关键字的图层列表
+    // var target_Text_Node =[]
+    for (var j = 0; j < node_list.length; j++) {
+        if (node_list[j]['characters'].indexOf(data.keyword) > -1) {
+            // 找到关键词
+            target_Text_Node.push(node_list[j]);
         }
-        else {
-            // 当前有选中图层，则在选中的图层中搜索
-        }
-        console.log('selection:');
-        console.log(selection);
-        // 在当前选中的图层中，搜索文本图层
-        for (var i = 0; i < selection.length; i++) {
-            console.log('find_and_replace:for selection');
-            // var textNode = myFindTextAll(selection[i])
-            console.log(selection[i]);
-            node_list = yield myFindTextAll(selection[i], node_list);
-        }
-        console.log('Find end:');
-        console.log(node_list);
-        // 获取所有文本图层的文本，批量关键字，获取符合关键字的图层列表
-        // var target_Text_Node =[]
-        for (var j = 0; j < node_list.length; j++) {
-            if (node_list[j]['characters'].indexOf(data.keyword) > -1) {
-                // 找到关键词
-                target_Text_Node.push(node_list[j]);
-            }
-        }
-        // figma.loadFontAsync(target_Text_Node[0].fontName)
-        console.log('target_Text_Node:');
-        console.log(target_Text_Node);
-        if (target_Text_Node.length > 0) {
-            var toUIHTML = [];
-            target_Text_Node.forEach(item => {
-                console.log('target_Text_Node.forEach:');
-                var position = 0;
-                while (true) {
-                    var index = item.characters.indexOf(data.keyword, position);
-                    console.log('index:');
-                    console.log(index);
-                    if (index > -1) {
-                        toUIHTML.push({ 'id': item.id, 'characters': item.characters, 'start': index, 'end': index + data.keyword.length });
-                        position = index + data.keyword.length;
-                        console.log(toUIHTML);
-                        console.log(position);
-                    }
-                    else {
-                        break;
-                    }
-                }
-            });
-            console.log('toUIHTML:');
-            console.log(toUIHTML);
-        }
-        return toUIHTML;
-    });
+    }
+    // figma.loadFontAsync(target_Text_Node[0].fontName)
+    console.log('target_Text_Node:');
+    console.log(target_Text_Node);
+    console.log('target_Text_Node:');
+    console.log(target_Text_Node);
+    // return target_Text_Node
 }
 function replace(data) {
     return __awaiter(this, void 0, void 0, function* () {

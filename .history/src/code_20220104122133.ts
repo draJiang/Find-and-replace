@@ -1,56 +1,21 @@
 /// <reference path="../node_modules/@figma/plugin-typings/index.d.ts" />
-let target_Text_Node: Array<TextNode> = []
+var target_Text_Node: Array<TextNode> = []
 figma.showUI(__html__, { width: 300, height: 340 })
 
 // console.log('hello2')
 onSelectionChange()
 figma.on("selectionchange", () => { onSelectionChange() })
 
+
 figma.ui.onmessage = msg => {
 
   if (msg.type === 'search') {
-    
-    figma.ui.postMessage({ 'type': 'find_loading' })
-
     console.log('search');
     console.log(msg);
-    
-    find_and_replace(msg.data)
+
+    let toUIHTML = find_and_replace(msg.data)
     console.log('search target_Text_Node:');
-    
-    console.log(target_Text_Node);
-    
-    console.log('console.log(target_Text_Node.length);'+target_Text_Node.length.toString());
-    
-    let toUIHTML: any = []
-    if (target_Text_Node.length >= 0) {
-
-      target_Text_Node.forEach(item => {
-        console.log('target_Text_Node.forEach:');
-
-        var position = 0
-        while (true) {
-          var index = item.characters.indexOf(msg.data.keyword, position)
-          console.log('index:');
-          console.log(index);
-
-          if (index > -1) {
-            toUIHTML.push({ 'id': item.id, 'characters': item.characters, 'start': index, 'end': index + msg.data.keyword.length })
-            position = index + msg.data.keyword.length
-
-          } else {
-            break
-          }
-        }
-
-
-      })
-      console.log('if :toUIHTML:');
-      console.log(toUIHTML);
-
-
-    }
-
+    console.log(toUIHTML);
     figma.ui.postMessage({ 'type': 'find', 'target_Text_Node': toUIHTML })
     // figma.closePlugin()
   }
@@ -167,9 +132,9 @@ async function myLoadFontAsync(myFont) {
   await figma.loadFontAsync(myFont)
 }
 
-function find_and_replace(data) {
+async function find_and_replace(data) {
   console.log('conde.ts:find_and_replace:');
-  
+  figma.ui.postMessage({ 'type': 'find_loading'})
   target_Text_Node = []
   var selection = figma.currentPage.selection
 
@@ -189,7 +154,7 @@ function find_and_replace(data) {
 
     // var textNode = myFindTextAll(selection[i])
     console.log(selection[i]);
-    node_list = myFindTextAll(selection[i], node_list)
+    node_list = await myFindTextAll(selection[i], node_list)
 
   }
 
@@ -208,11 +173,36 @@ function find_and_replace(data) {
   // figma.loadFontAsync(target_Text_Node[0].fontName)
   console.log('target_Text_Node:');
   console.log(target_Text_Node);
+  
+  let toUIHTML = []
+  if (target_Text_Node.length > 0) {
+    
+    target_Text_Node.forEach(item => {
+      console.log('target_Text_Node.forEach:');
+
+      var position = 0
+      while (true) {
+        var index = item.characters.indexOf(data.keyword, position)
+        console.log('index:');
+        console.log(index);
+
+        if (index > -1) {
+          toUIHTML.push({ 'id': item.id, 'characters': item.characters, 'start': index, 'end': index + data.keyword.length })
+          position = index + data.keyword.length
+
+        } else {
+          break
+        }
+      }
 
 
-  console.log('target_Text_Node:');
-  console.log(target_Text_Node);
-  // return target_Text_Node
+    })
+    console.log('toUIHTML:');
+    console.log(toUIHTML);
+
+
+  }
+  return toUIHTML
 
 }
 

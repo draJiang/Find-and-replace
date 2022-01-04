@@ -44,13 +44,13 @@ class SearchResultsList extends React.Component
     data?: Array<object>;
     list_state?: string;
     result_list_emty?: Function;
-    find_loading?: boolean;
+    find_loading?:boolean;
   },
   {
     data?: Array<object>;
     list_state?: string;
     result_list_emty?: Function;
-    find_loading?: boolean;
+    find_loading?:boolean;
   }>
 {
   constructor(props) {
@@ -60,7 +60,7 @@ class SearchResultsList extends React.Component
     };
   }
 
-  listItemHandleClick(item) {
+  listItemHandleClick(item){
     console.log('listItemHandleClick');
     console.log('this:');
     console.log(this);
@@ -81,21 +81,19 @@ class SearchResultsList extends React.Component
     var list = this.props.data
     console.log(list);
     console.log(this.props['list_state']);
-
-    // 搜索加载状态
-    if (this.props['list_state'] == 'find_loading') {
+    
+    if (this.props['list_state']=='find_loading'){
       console.log('find_loading:');
       this.result_list_emty(true)
       console.log(this.props['find_loading']);
       console.log('return:find_loading...div');
-
+      
       return (
         <div className='find_result_list_info'>find_loading...</div>
       )
     }
 
-    // 替换
-    if (this.props['list_state'] == 'replace') {
+    if (this.props['list_state']=='replace') {
       console.log('list_state');
       this.result_list_emty(true)
       return (
@@ -103,66 +101,57 @@ class SearchResultsList extends React.Component
       )
     }
 
+    if (list == undefined) {
+      this.result_list_emty(true)
+      return (
+        <div className='find_result_list_info'>😅 No results found</div>
+      )
+    } else if (list.length) {
+      this.result_list_emty(false)
+    }
 
-    if (this.props['list_state'] == 'find') {
 
-      if (list == undefined || list.length == 0) {
-        this.result_list_emty(true)
-        return (
-          <div className='find_result_list_info'>😅 No results found</div>
-        )
-      } else if (list.length) {
-        this.result_list_emty(false)
+    list.forEach((node) => {
+
+      console.log('list.forEach:');
+
+      var this_start = node['start'] - 14 // 关键词前 x 个字符开始截取
+      if (this_start < 0) {
+        this_start = 0
+      }
+
+      console.log(node['characters']);
+      console.log(node['characters'].indexOf('<span class="heightLight">'));
+
+      if (node['characters'].indexOf('<span class="heightLight">') < 0) {
+        if (this_start > 0) {
+          node['characters'] = '...' + node['characters'].substring(this_start, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end'])
+        } else {
+          node['characters'] = node['characters'].substring(0, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end'])
+        }
       }
 
 
-      list.forEach((node) => {
+    })
 
-        console.log('list.forEach:');
+    console.log(list);
 
-        var this_start = node['start'] - 14 // 关键词前 x 个字符开始截取
-        if (this_start < 0) {
-          this_start = 0
-        }
+    const listItems = list.map((node, index) =>
 
-        console.log(node['characters']);
-        console.log(node['characters'].indexOf('<span class="heightLight">'));
-
-        if (node['characters'].indexOf('<span class="heightLight">') < 0) {
-          if (this_start > 0) {
-            node['characters'] = '...' + node['characters'].substring(this_start, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end'])
-          } else {
-            node['characters'] = node['characters'].substring(0, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end'])
-          }
-        }
-
-
-      })
-
-      console.log(list);
-
-      const listItems = list.map((node, index) =>
-
-        <li onClick={this.listItemHandleClick.bind(node)} key={node['id'] + ':' + index.toString()} dangerouslySetInnerHTML={{ __html: node['characters'] }} ></li>
-        // <li>123</li>
-      )
-      console.log('listItems:')
-      console.log(listItems);
-
-      // const listItems = list.forEach((node)=>{
-      //   <li key = {node.id}>{node.characters}</li>
-      // })
-
-      return (
-        // 可点击状态
-        <div className='find_result_list'>{listItems}</div>
-      )
-    }
-
-    return(
-      <div className='find_result_list'></div>
+      <li onClick={this.listItemHandleClick.bind(node)} key={node['id'] + ':' + index.toString()} dangerouslySetInnerHTML={{ __html: node['characters'] }} ></li>
+      // <li>123</li>
     )
+    console.log('listItems:')
+    console.log(listItems);
 
+    // const listItems = list.forEach((node)=>{
+    //   <li key = {node.id}>{node.characters}</li>
+    // })
+
+    return (
+      // 可点击状态
+      <div className='find_result_list'>{listItems}</div>
+    )
   }
 }
 
@@ -177,7 +166,7 @@ class App extends React.Component {
       findButtonDisable: true,
       replaceButtonDisable: true,
       result_list_emty: true,
-      find_loading: false,
+      find_loading:false,
     };
   }
 
@@ -203,9 +192,9 @@ class App extends React.Component {
       if (event.data.pluginMessage['type'] == 'find') {
         var target_Text_Node = event.data.pluginMessage.target_Text_Node
         console.log('code.ts: onmessage find');
-
+        
         console.log(target_Text_Node);
-        if (target_Text_Node == {}) {
+        if(target_Text_Node=={}){
           target_Text_Node == []
         }
         this.setState({
@@ -214,9 +203,9 @@ class App extends React.Component {
         })
       }
 
-      if (event.data.pluginMessage['type'] == 'find_loading') {
+      if (event.data.pluginMessage['type'] == 'find_loading'){
         console.log('code.js onmessage find_loading');
-
+        
         this.setState({
           list_state: 'find_loading'
         })
@@ -259,7 +248,7 @@ class App extends React.Component {
     console.log(e.nativeEvent.data);
     console.log(e.nativeEvent.path[0]);
     console.log(e.nativeEvent.path[0].value);
-
+    
     if (e.nativeEvent.path[0].value == '') {
       // 文本框为空
 

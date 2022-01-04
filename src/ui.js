@@ -42,6 +42,7 @@ class SearchResultsList extends React.Component {
         var list = this.props.data;
         console.log(list);
         console.log(this.props['list_state']);
+        // 搜索加载状态
         if (this.props['list_state'] == 'find_loading') {
             console.log('find_loading:');
             this.result_list_emty(true);
@@ -49,47 +50,51 @@ class SearchResultsList extends React.Component {
             console.log('return:find_loading...div');
             return (React.createElement("div", { className: 'find_result_list_info' }, "find_loading..."));
         }
+        // 替换
         if (this.props['list_state'] == 'replace') {
             console.log('list_state');
             this.result_list_emty(true);
             return (React.createElement("div", { className: 'find_result_list_info' }, "\u2705 has all been replaced with the target text"));
         }
-        if (list == undefined || list == [] || list.length == 0) {
-            this.result_list_emty(true);
-            return (React.createElement("div", { className: 'find_result_list_info' }, "\uD83D\uDE05 No results found"));
-        }
-        else if (list.length) {
-            this.result_list_emty(false);
-        }
-        list.forEach((node) => {
-            console.log('list.forEach:');
-            var this_start = node['start'] - 14; // 关键词前 x 个字符开始截取
-            if (this_start < 0) {
-                this_start = 0;
+        if (this.props['list_state'] == 'find') {
+            if (list == undefined || list.length == 0) {
+                this.result_list_emty(true);
+                return (React.createElement("div", { className: 'find_result_list_info' }, "\uD83D\uDE05 No results found"));
             }
-            console.log(node['characters']);
-            console.log(node['characters'].indexOf('<span class="heightLight">'));
-            if (node['characters'].indexOf('<span class="heightLight">') < 0) {
-                if (this_start > 0) {
-                    node['characters'] = '...' + node['characters'].substring(this_start, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end']);
-                }
-                else {
-                    node['characters'] = node['characters'].substring(0, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end']);
-                }
+            else if (list.length) {
+                this.result_list_emty(false);
             }
-        });
-        console.log(list);
-        const listItems = list.map((node, index) => React.createElement("li", { onClick: this.listItemHandleClick.bind(node), key: node['id'] + ':' + index.toString(), dangerouslySetInnerHTML: { __html: node['characters'] } })
-        // <li>123</li>
-        );
-        console.log('listItems:');
-        console.log(listItems);
-        // const listItems = list.forEach((node)=>{
-        //   <li key = {node.id}>{node.characters}</li>
-        // })
-        return (
-        // 可点击状态
-        React.createElement("div", { className: 'find_result_list' }, listItems));
+            list.forEach((node) => {
+                console.log('list.forEach:');
+                var this_start = node['start'] - 14; // 关键词前 x 个字符开始截取
+                if (this_start < 0) {
+                    this_start = 0;
+                }
+                console.log(node['characters']);
+                console.log(node['characters'].indexOf('<span class="heightLight">'));
+                if (node['characters'].indexOf('<span class="heightLight">') < 0) {
+                    if (this_start > 0) {
+                        node['characters'] = '...' + node['characters'].substring(this_start, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end']);
+                    }
+                    else {
+                        node['characters'] = node['characters'].substring(0, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end']);
+                    }
+                }
+            });
+            console.log(list);
+            const listItems = list.map((node, index) => React.createElement("li", { onClick: this.listItemHandleClick.bind(node), key: node['id'] + ':' + index.toString(), dangerouslySetInnerHTML: { __html: node['characters'] } })
+            // <li>123</li>
+            );
+            console.log('listItems:');
+            console.log(listItems);
+            // const listItems = list.forEach((node)=>{
+            //   <li key = {node.id}>{node.characters}</li>
+            // })
+            return (
+            // 可点击状态
+            React.createElement("div", { className: 'find_result_list' }, listItems));
+        }
+        return (React.createElement("div", { className: 'find_result_list' }));
     }
 }
 class App extends React.Component {
