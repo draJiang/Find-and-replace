@@ -40,8 +40,8 @@ class SearchResultsList extends React.Component {
         console.log('SearchResultsList render:');
         console.log(this.props);
         var list = this.props.data;
-        console.log(list);
-        console.log(this.props['list_state']);
+        // console.log(list);
+        // console.log(this.props['list_state']);
         // 搜索加载状态
         if (this.props['list_state'] == 'find_loading') {
             console.log('find_loading:');
@@ -65,13 +65,13 @@ class SearchResultsList extends React.Component {
                 this.result_list_emty(false);
             }
             list.forEach((node) => {
-                console.log('list.forEach:');
+                // console.log('list.forEach:');
                 var this_start = node['start'] - 14; // 关键词前 x 个字符开始截取
                 if (this_start < 0) {
                     this_start = 0;
                 }
-                console.log(node['characters']);
-                console.log(node['characters'].indexOf('<span class="heightLight">'));
+                // console.log(node['characters']);
+                // console.log(node['characters'].indexOf('<span class="heightLight">'));
                 if (node['characters'].indexOf('<span class="heightLight">') < 0) {
                     if (this_start > 0) {
                         node['characters'] = '...' + node['characters'].substring(this_start, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end']);
@@ -86,7 +86,7 @@ class SearchResultsList extends React.Component {
             // <li>123</li>
             );
             console.log('listItems:');
-            console.log(listItems);
+            // console.log(listItems);
             // const listItems = list.forEach((node)=>{
             //   <li key = {node.id}>{node.characters}</li>
             // })

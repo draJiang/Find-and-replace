@@ -18,7 +18,7 @@ figma.ui.onmessage = msg => {
     find_and_replace(msg.data)
     console.log('search target_Text_Node:');
 
-    // console.log(target_Text_Node);
+    console.log(target_Text_Node);
 
     console.log('console.log(target_Text_Node.length);' + target_Text_Node.length.toString());
 
@@ -196,7 +196,7 @@ function find_and_replace(data) {
 
 
   console.log('Find end:');
-  // console.log(node_list);
+  console.log(node_list);
 
   // 获取所有文本图层的文本，批量关键字，获取符合关键字的图层列表
   // var target_Text_Node =[]

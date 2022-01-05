@@ -79,8 +79,8 @@ class SearchResultsList extends React.Component
     console.log('SearchResultsList render:');
     console.log(this.props);
     var list = this.props.data
-    // console.log(list);
-    // console.log(this.props['list_state']);
+    console.log(list);
+    console.log(this.props['list_state']);
 
     // 搜索加载状态
     if (this.props['list_state'] == 'find_loading') {
@@ -147,7 +147,7 @@ class SearchResultsList extends React.Component
         // <li>123</li>
       )
       console.log('listItems:')
-      // console.log(listItems);
+      console.log(listItems);
 
       // const listItems = list.forEach((node)=>{
       //   <li key = {node.id}>{node.characters}</li>

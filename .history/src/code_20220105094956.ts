@@ -18,22 +18,21 @@ figma.ui.onmessage = msg => {
     find_and_replace(msg.data)
     console.log('search target_Text_Node:');
 
-    // console.log(target_Text_Node);
+    console.log(target_Text_Node);
 
     console.log('console.log(target_Text_Node.length);' + target_Text_Node.length.toString());
 
     let toUIHTML: any = []
     if (target_Text_Node.length >= 0) {
 
-      console.log('target_Text_Node.forEach:');
       target_Text_Node.forEach(item => {
-        
+        console.log('target_Text_Node.forEach:');
 
         var position = 0
         while (true) {
           var index = item.characters.indexOf(msg.data.keyword, position)
-          // console.log('index:');
-          // console.log(index);
+          console.log('index:');
+          console.log(index);
 
           if (index > -1) {
             toUIHTML.push({ 'id': item.id, 'characters': item.characters, 'start': index, 'end': index + msg.data.keyword.length })
@@ -196,7 +195,7 @@ function find_and_replace(data) {
 
 
   console.log('Find end:');
-  // console.log(node_list);
+  console.log(node_list);
 
   // 获取所有文本图层的文本，批量关键字，获取符合关键字的图层列表
   // var target_Text_Node =[]

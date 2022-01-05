@@ -147,7 +147,7 @@ class SearchResultsList extends React.Component
         // <li>123</li>
       )
       console.log('listItems:')
-      // console.log(listItems);
+      console.log(listItems);
 
       // const listItems = list.forEach((node)=>{
       //   <li key = {node.id}>{node.characters}</li>
