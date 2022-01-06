@@ -335,14 +335,10 @@ class App extends React.Component {
     // <ListItem data={node} />
     //   // <li key = {node.id}>{node.characters}</li>
     // )
-
-    // 搜索文本框的提示文字
     var input_placeholder
     if (this.state.selectionPage) {
-      // 在当前页面内搜索
       input_placeholder = 'Search in the current page'
     } else {
-      // 在选中范围内搜索
       input_placeholder = 'Search in the selected layer'
     }
 

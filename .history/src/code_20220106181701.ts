@@ -203,17 +203,27 @@ function find(data) {
     }
   }
 
+  // figma.loadFontAsync(target_Text_Node[0].fontName)
+
+  // console.log('target_Text_Node:');
+  // console.log(target_Text_Node);
+
 }
 
-// 替换
 async function replace(data) {
   console.log('replace');
   console.log(data);
 
+  // var target_Text_Node = []
+  // 将符合条件的图层中的指定文本替换成目标值
+  // var myfont = target_Text_Node[0].fontName
+
+  // await myLoadFontAsync(myfont)
+  // await figma.loadFontAsync(myfont)
+
   target_Text_Node.forEach(async item => {
     // console.log('target_Text_Node.forEach:');
 
-    // 加载字体
     const fonts = item.getRangeAllFontNames(0, item.characters.length)
     for (const font of fonts) {
       await figma.loadFontAsync(font)
@@ -226,7 +236,7 @@ async function replace(data) {
 
   })
 
-  // 替换完毕，通知 UI 更新
+
   figma.ui.postMessage({ 'type': 'replace' })
   console.log('target_Text_Node:');
   console.log(target_Text_Node);
@@ -234,7 +244,6 @@ async function replace(data) {
 
 }
 
-// Figma 图层选择变化时，通知 UI 显示不同的提示
 function onSelectionChange() {
 
   var selection = figma.currentPage.selection

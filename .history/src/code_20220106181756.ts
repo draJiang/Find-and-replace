@@ -234,7 +234,6 @@ async function replace(data) {
 
 }
 
-// Figma 图层选择变化时，通知 UI 显示不同的提示
 function onSelectionChange() {
 
   var selection = figma.currentPage.selection

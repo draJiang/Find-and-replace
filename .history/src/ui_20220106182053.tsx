@@ -97,7 +97,9 @@ class SearchResultsList extends React.Component
           this_start = 0
         }
 
-        // 关键字高亮显示
+        // console.log(node['characters']);
+        // console.log(node['characters'].indexOf('<span class="heightLight">'));
+
         if (node['characters'].indexOf('<span class="heightLight">') < 0) {
           if (this_start > 0) {
             node['characters'] = '...' + node['characters'].substring(this_start, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end'])
@@ -106,8 +108,10 @@ class SearchResultsList extends React.Component
           }
         }
 
+
       })
 
+      console.log(list);
 
       const listItems = list.map((node, index) =>
 
@@ -152,7 +156,6 @@ class App extends React.Component {
   keyword: HTMLInputElement
   replace_word: HTMLInputElement
 
-  // 搜索文本框
   keywordRef = (element: HTMLInputElement) => {
     if (element) {
       element.value = ''
@@ -161,7 +164,6 @@ class App extends React.Component {
     this.keyword = element
   }
 
-  // 替换文本框
   replace_word_Ref = (element: HTMLInputElement) => {
     if (element) element.value = ''
     this.replace_word = element
@@ -169,13 +171,10 @@ class App extends React.Component {
 
   // 组件载入时
   componentDidMount() {
-
-    // code.ts 发来消息
     onmessage = (event) => {
       console.log('onmessage');
       console.log(event);
 
-      // 搜索完毕
       if (event.data.pluginMessage['type'] == 'find') {
         var target_Text_Node = event.data.pluginMessage.target_Text_Node
         console.log('code.ts: onmessage find');
@@ -191,13 +190,12 @@ class App extends React.Component {
 
         if (target_Text_Node == undefined || target_Text_Node.length == 0) {
           // 空数据
-          this.result_list_emty(true) // 替换按钮置灰
+          this.result_list_emty(true)
         } else if (target_Text_Node.length) {
           this.result_list_emty(false)
         }
       }
 
-      // 开始搜索
       if (event.data.pluginMessage['type'] == 'find_loading') {
         console.log('code.js onmessage find_loading');
 
@@ -206,7 +204,6 @@ class App extends React.Component {
         })
       }
 
-      // 替换
       if (event.data.pluginMessage['type'] == 'replace') {
         console.log('ui.tsx:onmessage');
         console.log(event.data.pluginMessage['type']);
@@ -217,7 +214,6 @@ class App extends React.Component {
         this.result_list_emty(true)
       }
 
-      // Figma 选中的图层发生变化
       if (event.data.pluginMessage['type'] == 'onSelectionChange') {
         this.setState({
           selectionPage: event.data.pluginMessage['selectionPage']
@@ -229,35 +225,28 @@ class App extends React.Component {
   }
 
 
-  // 搜索
   onSearch = () => {
     const keyword = this.keyword.value
     const replace_word = this.replace_word.value
     parent.postMessage({ pluginMessage: { type: 'search', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')
   }
 
-  // 替换
   onReplace = () => {
     const keyword = this.keyword.value
     const replace_word = this.replace_word.value
     parent.postMessage({ pluginMessage: { type: 'replace', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')
   }
 
-  // 文本框输入时
   onInputEnter = (e) => {
     console.log('enter');
     console.log(e.nativeEvent);
     console.log(this);
 
-    // 监听回车键
+    // this.onSearch()
     if (e.nativeEvent.keyCode == 13) {
-
-      // 搜索
       if (e.nativeEvent.path[0].name == 'find' && e.nativeEvent.path[0].value != '') {
         this.onSearch()
       }
-
-      // 替换
       if (e.nativeEvent.path[0].name == 'replace' && this.state['result_list_emty'] != true) {
         this.onReplace()
       }
@@ -265,7 +254,6 @@ class App extends React.Component {
   }
 
 
-  // 文本框值变化（用于搜索框）
   onFindInputChange = (e) => {
     console.log('onFindInputChange:');
     console.log(e);
@@ -276,7 +264,6 @@ class App extends React.Component {
     if (e.nativeEvent.path[0].value == '') {
       // 文本框为空
 
-      // 查找按钮置灰
       this.setState({
         findButtonDisable: true,
       })
@@ -286,16 +273,15 @@ class App extends React.Component {
       })
     }
 
+
   }
 
 
-  // 记录搜索结果是否为空
   result_list_emty = (type) => {
     console.log('App :result_list_emty');
     // console.log(type);
     // console.log(this.state['result_list_emty']);
 
-    // 状态有变化时才更新 UI
     if (type != this.state['result_list_emty']) {
       if (type) {
         this.setState({
@@ -307,6 +293,10 @@ class App extends React.Component {
         })
       }
     }
+
+
+
+
   }
 
   render(this) {
@@ -335,14 +325,10 @@ class App extends React.Component {
     // <ListItem data={node} />
     //   // <li key = {node.id}>{node.characters}</li>
     // )
-
-    // 搜索文本框的提示文字
     var input_placeholder
     if (this.state.selectionPage) {
-      // 在当前页面内搜索
       input_placeholder = 'Search in the current page'
     } else {
-      // 在选中范围内搜索
       input_placeholder = 'Search in the selected layer'
     }
 

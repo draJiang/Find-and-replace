@@ -265,7 +265,6 @@ class App extends React.Component {
   }
 
 
-  // 文本框值变化（用于搜索框）
   onFindInputChange = (e) => {
     console.log('onFindInputChange:');
     console.log(e);
@@ -276,7 +275,6 @@ class App extends React.Component {
     if (e.nativeEvent.path[0].value == '') {
       // 文本框为空
 
-      // 查找按钮置灰
       this.setState({
         findButtonDisable: true,
       })
@@ -286,16 +284,15 @@ class App extends React.Component {
       })
     }
 
+
   }
 
 
-  // 记录搜索结果是否为空
   result_list_emty = (type) => {
     console.log('App :result_list_emty');
     // console.log(type);
     // console.log(this.state['result_list_emty']);
 
-    // 状态有变化时才更新 UI
     if (type != this.state['result_list_emty']) {
       if (type) {
         this.setState({
@@ -307,6 +304,10 @@ class App extends React.Component {
         })
       }
     }
+
+
+
+
   }
 
   render(this) {
@@ -335,14 +336,10 @@ class App extends React.Component {
     // <ListItem data={node} />
     //   // <li key = {node.id}>{node.characters}</li>
     // )
-
-    // 搜索文本框的提示文字
     var input_placeholder
     if (this.state.selectionPage) {
-      // 在当前页面内搜索
       input_placeholder = 'Search in the current page'
     } else {
-      // 在选中范围内搜索
       input_placeholder = 'Search in the selected layer'
     }
 

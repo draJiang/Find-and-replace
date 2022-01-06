@@ -226,7 +226,7 @@ async function replace(data) {
 
   })
 
-  // 替换完毕，通知 UI 更新
+
   figma.ui.postMessage({ 'type': 'replace' })
   console.log('target_Text_Node:');
   console.log(target_Text_Node);
@@ -234,7 +234,6 @@ async function replace(data) {
 
 }
 
-// Figma 图层选择变化时，通知 UI 显示不同的提示
 function onSelectionChange() {
 
   var selection = figma.currentPage.selection
