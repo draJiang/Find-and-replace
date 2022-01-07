@@ -42,7 +42,10 @@ class SearchResultsList extends React.Component {
         // 替换
         if (this.props['list_state'] == 'replace') {
             console.log('list_state');
-            return (React.createElement("div", { className: 'find_result_list_info' }, "\u2705 has all been replaced with the target text"));
+            return (React.createElement("div", { className: 'find_result_list_info' },
+                React.createElement("div", null,
+                    React.createElement("div", { className: 'main_info' }, "\u2705 Replaced"),
+                    React.createElement("div", { className: 'minor_info' }, "Ignored locked, hidden layers"))));
         }
         // 搜索
         if (this.props['list_state'] == 'find') {

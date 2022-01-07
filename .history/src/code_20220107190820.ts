@@ -122,19 +122,17 @@ function myFindTextAll(node, node_list, isLocked?, isVisible?) {
   // console.log(isLocked);
   // console.log(isVisible);
   console.log(node.type);
-  if (node.type != 'PAGE') {
-    if (isLocked == undefined && isVisible == undefined) {
-      // isLocked 参数为空，说明当前遍历的是祖先图层
-      locked = node.locked
-      visible = node.visible
 
-    } else {
-      // isLocked 参数非空，说明当前遍历的是子孙图层
-      locked = isLocked
-      visible = isVisible
-    }
+  if (isLocked == undefined && node.type != 'PAGE') {
+    // isLocked 参数为空，说明当前遍历的是祖先图层
+    locked = node.locked
+    visible = node.visible
+
+  } else {
+    // isLocked 参数非空，说明当前遍历的是子孙图层
+    locked = isLocked
+    visible = isVisible
   }
-
 
 
   if (locked == undefined || visible == undefined) {

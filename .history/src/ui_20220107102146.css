@@ -94,14 +94,6 @@ body {
     color: rgba(40, 40, 40, 1);
     font-size: 12px;
   }
-  
-  .find_result_list_info .main_info{
-    margin-bottom: 6px;
-  }
-
-  .minor_info{
-    color: rgba(40, 40, 40, 0.6);
-  }
   .find_result_list li{
     height: 28px;
     /* padding: 6px; */

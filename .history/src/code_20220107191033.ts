@@ -123,7 +123,7 @@ function myFindTextAll(node, node_list, isLocked?, isVisible?) {
   // console.log(isVisible);
   console.log(node.type);
   if (node.type != 'PAGE') {
-    if (isLocked == undefined && isVisible == undefined) {
+    if (isLocked == undefined || visible == undefined) {
       // isLocked 参数为空，说明当前遍历的是祖先图层
       locked = node.locked
       visible = node.visible

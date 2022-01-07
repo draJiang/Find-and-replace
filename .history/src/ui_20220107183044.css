@@ -95,8 +95,8 @@ body {
     font-size: 12px;
   }
   
-  .find_result_list_info .main_info{
-    margin-bottom: 6px;
+  .main_info{
+    margin-bottom: 10px;
   }
 
   .minor_info{

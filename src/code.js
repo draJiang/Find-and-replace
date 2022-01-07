@@ -35,12 +35,12 @@ figma.ui.onmessage = msg => {
                 // 构建数据，传送给 UI
                 while (true) {
                     // 由于单个 TEXT 图层内可能存在多个符合条件的字符，所以需要循环查找
-                    var index = item.characters.indexOf(msg.data.keyword, position);
+                    var index = item['node'].characters.indexOf(msg.data.keyword, position);
                     // console.log('index:');
                     // console.log(index);
                     if (index > -1) {
                         // 将查找的字符起始、终止位置发送给 UI
-                        toUIHTML.push({ 'id': item.id, 'characters': item.characters, 'start': index, 'end': index + msg.data.keyword.length });
+                        toUIHTML.push({ 'id': item['node'].id, 'characters': item['node'].characters, 'start': index, 'end': index + msg.data.keyword.length });
                         position = index + msg.data.keyword.length;
                     }
                     else {
@@ -48,8 +48,8 @@ figma.ui.onmessage = msg => {
                     }
                 }
             });
-            // console.log('if :toUIHTML:');
-            // console.log(toUIHTML);
+            console.log('if :toUIHTML:');
+            console.log(toUIHTML);
         }
         figma.ui.postMessage({ 'type': 'find', 'target_Text_Node': toUIHTML });
     }
@@ -64,32 +64,59 @@ figma.ui.onmessage = msg => {
             // console.log(target_Text_Node[i].id);
             // console.log(msg.data.item);
             // console.log(msg.data['item']);
-            if (target_Text_Node[i].id == msg.data['item']) {
+            if (target_Text_Node[i]['node'].id == msg.data['item']) {
                 // 找到用户点击的图层
-                targetNode === target_Text_Node[i];
+                targetNode === target_Text_Node[i]['node'];
                 // Figma 视图定位到对应图层
-                figma.viewport.scrollAndZoomIntoView([target_Text_Node[i]]);
+                figma.viewport.scrollAndZoomIntoView([target_Text_Node[i]['node']]);
                 // Figma 选中对应文本
-                figma.currentPage.selectedTextRange = { 'node': target_Text_Node[i], 'start': msg.data['start'], 'end': msg.data['end'] };
+                figma.currentPage.selectedTextRange = { 'node': target_Text_Node[i]['node'], 'start': msg.data['start'], 'end': msg.data['end'] };
                 break;
             }
         }
     }
     // UI 中点击了「替换」按钮
     if (msg.type === 'replace') {
-        console.log('replace');
+        // console.log('replace');
         console.log(msg);
         // 执行替换
         replace(msg);
     }
 };
 // 查找图层下的文本图层，输入 figma 图层对象，返回找到所有文本图层
-function myFindTextAll(node, node_list) {
+function myFindTextAll(node, node_list, isLocked, isVisible) {
     var tagetNode;
-    // console.log('myFindAll');
+    console.log('myFindAll');
+    // console.log(isLocked);
+    let locked = false; // 存储祖先图层的锁定状态
+    let visible = true;
+    // console.log(node);
+    // console.log(isLocked);
+    // console.log(isVisible);
+    console.log(node.type);
+    if (node.type != 'PAGE') {
+        if (isLocked == undefined && isVisible == undefined) {
+            // isLocked 参数为空，说明当前遍历的是祖先图层
+            locked = node.locked;
+            visible = node.visible;
+        }
+        else {
+            // isLocked 参数非空，说明当前遍历的是子孙图层
+            locked = isLocked;
+            visible = isVisible;
+        }
+    }
+    if (locked == undefined || visible == undefined) {
+        console.log('undefined::');
+        console.log(node);
+        console.log(isLocked);
+        console.log(isVisible);
+    }
     // 如果目标图层本身就是 TEXT 图层
     if (node.type == 'TEXT') {
-        node_list.push(node);
+        console.log(locked);
+        console.log(visible);
+        node_list.push({ 'node': node, 'locked': locked, 'visible': visible });
         return node_list;
     }
     var thisChildren = node.children;
@@ -110,14 +137,16 @@ function myFindTextAll(node, node_list) {
         if (thisChildren[i].type == 'TEXT') {
             // console.log('return thisChildren[i]:');
             // console.log(thisChildren[i]);
-            node_list.push(thisChildren[i]);
+            console.log(locked);
+            console.log(visible);
+            node_list.push({ 'node': thisChildren[i], 'locked': locked, 'visible': visible });
         }
         else {
             // 如果不是 TEXT 图层
             // 如果包含子图层
             if (thisChildren[i].children != null) {
                 if (thisChildren[i].children.length > 0) {
-                    tagetNode = myFindTextAll(thisChildren[i], node_list);
+                    node_list = myFindTextAll(thisChildren[i], node_list, locked, visible);
                 }
             }
         }
@@ -136,13 +165,15 @@ function myLoadFontAsync(myFont) {
 // 搜索
 function find(data) {
     console.log('conde.ts:find:');
+    console.log(figma.currentPage);
     // 清空历史搜索数据，重新搜索
     target_Text_Node = [];
     var selection = figma.currentPage.selection;
     var node_list = []; // 存储目标值 —— 选中图层中，所有文本图层
     // 当前未选中图层，则在当前页面搜索
     if (selection.length == 0) {
-        node_list = figma.currentPage.findAll(n => n.type === "TEXT");
+        // node_list = figma.currentPage.findAll(n => n.type === "TEXT")
+        node_list = myFindTextAll(figma.currentPage, node_list);
     }
     else {
         // 当前有选中图层，则在选中的图层中搜索
@@ -155,10 +186,11 @@ function find(data) {
     // console.log('selection:');
     // console.log(selection);
     console.log('Find end:');
-    // console.log(node_list);
+    console.log(node_list);
     // 在文本图层中，匹配关键字
     for (var j = 0; j < node_list.length; j++) {
-        if (node_list[j]['characters'].indexOf(data.keyword) > -1) {
+        // console.log(node_list[j]['node']);
+        if (node_list[j]['node']['characters'].indexOf(data.keyword) > -1) {
             // 找到关键词
             target_Text_Node.push(node_list[j]);
         }
@@ -171,15 +203,21 @@ function replace(data) {
         console.log(data);
         target_Text_Node.forEach((item) => __awaiter(this, void 0, void 0, function* () {
             // console.log('target_Text_Node.forEach:');
-            // 加载字体
-            const fonts = item.getRangeAllFontNames(0, item.characters.length);
-            for (const font of fonts) {
-                yield figma.loadFontAsync(font);
+            console.log(item);
+            if (item['locked'] || item['visible'] == false) {
+                // 如果图层或图层的祖先元素是锁定状态，则忽略
             }
-            // console.log(item.characters);
-            var searchRegExp = new RegExp(data.data.keyword, 'g');
-            // console.log(item);
-            item.characters = item.characters.replace(searchRegExp, data.data.replace_word);
+            else {
+                // 加载字体
+                const fonts = item['node'].getRangeAllFontNames(0, item['node'].characters.length);
+                for (const font of fonts) {
+                    yield figma.loadFontAsync(font);
+                }
+                // console.log(item.characters);
+                var searchRegExp = new RegExp(data.data.keyword, 'g');
+                // console.log(item);
+                item['node'].characters = item['node'].characters.replace(searchRegExp, data.data.replace_word);
+            }
         }));
         // 替换完毕，通知 UI 更新
         figma.ui.postMessage({ 'type': 'replace' });

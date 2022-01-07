@@ -71,11 +71,11 @@ class SearchResultsList extends React.Component
 
       return (
         <div className='find_result_list_info'>
-          <div>
-            <div className='main_info'>✅ Replaced</div>
-            <div className='minor_info'>Ignored locked, hidden layers</div>
-          </div>
-        </div>
+          <p>✅ Done</p>
+          <p>has all been replaced with the target tex</p>
+          
+          
+          t</div>
       )
     }
 

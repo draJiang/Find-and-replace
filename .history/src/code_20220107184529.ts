@@ -99,7 +99,7 @@ figma.ui.onmessage = msg => {
 
   // UI 中点击了「替换」按钮
   if (msg.type === 'replace') {
-    // console.log('replace');
+    console.log('replace');
     console.log(msg);
     // 执行替换
     replace(msg)
@@ -109,7 +109,7 @@ figma.ui.onmessage = msg => {
 }
 
 // 查找图层下的文本图层，输入 figma 图层对象，返回找到所有文本图层
-function myFindTextAll(node, node_list, isLocked?, isVisible?) {
+function myFindTextAll(node, node_list, isLocked?,isVisible?) {
 
   var tagetNode
 
@@ -117,38 +117,21 @@ function myFindTextAll(node, node_list, isLocked?, isVisible?) {
   // console.log(isLocked);
 
   let locked = false // 存储祖先图层的锁定状态
-  let visible = true
-  // console.log(node);
-  // console.log(isLocked);
-  // console.log(isVisible);
-  console.log(node.type);
-  if (node.type != 'PAGE') {
-    if (isLocked == undefined && isVisible == undefined) {
-      // isLocked 参数为空，说明当前遍历的是祖先图层
-      locked = node.locked
-      visible = node.visible
-
-    } else {
-      // isLocked 参数非空，说明当前遍历的是子孙图层
-      locked = isLocked
-      visible = isVisible
-    }
+  let visible =true
+  if (isLocked == undefined) {
+    // isLocked 参数为空，说明当前遍历的是祖先图层
+    locked = node.locked
+    visible = node.visible
+  }else{
+    // isLocked 参数非空，说明当前遍历的是子孙图层
+    locked = isLocked
+    visible = isVisible
   }
 
-
-
-  if (locked == undefined || visible == undefined) {
-    console.log('undefined::');
-    console.log(node);
-    console.log(isLocked);
-    console.log(isVisible);
-  }
 
   // 如果目标图层本身就是 TEXT 图层
   if (node.type == 'TEXT') {
-    console.log(locked);
-    console.log(visible);
-    node_list.push({ 'node': node, 'locked': locked, 'visible': visible })
+    node_list.push({ 'node': node, 'locked': locked, 'visible': node.visible })
     return node_list
   }
   var thisChildren = node.children
@@ -173,9 +156,7 @@ function myFindTextAll(node, node_list, isLocked?, isVisible?) {
 
       // console.log('return thisChildren[i]:');
       // console.log(thisChildren[i]);
-      console.log(locked);
-      console.log(visible);
-      node_list.push({ 'node': thisChildren[i], 'locked': locked, 'visible': visible })
+      node_list.push({ 'node': thisChildren[i], 'locked': locked, 'visible': node.visible })
     } else {
       // 如果不是 TEXT 图层
       // 如果包含子图层
@@ -183,7 +164,7 @@ function myFindTextAll(node, node_list, isLocked?, isVisible?) {
 
         if (thisChildren[i].children.length > 0) {
 
-          node_list = myFindTextAll(thisChildren[i], node_list, locked, visible)
+          node_list = myFindTextAll(thisChildren[i], node_list, locked,visible)
         }
       }
     }
@@ -252,9 +233,8 @@ async function replace(data) {
     // console.log('target_Text_Node.forEach:');
 
 
-    console.log(item);
 
-    if (item['locked'] || item['visible'] == false) {
+    if (item['locked'] || item['visible']==false) {
       // 如果图层或图层的祖先元素是锁定状态，则忽略
     } else {
 
