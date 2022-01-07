@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import '../node_modules/figma-plugin-ds/dist/figma-plugin-ds.css';
 import './ui.css';
 class SearchResultsList extends React.Component {
     constructor(props) {
@@ -34,7 +35,9 @@ class SearchResultsList extends React.Component {
             this.result_list_emty(true);
             console.log(this.props['find_loading']);
             console.log('return:find_loading...div');
-            return (React.createElement("div", { className: 'find_result_list_info' }, "find_loading..."));
+            return (React.createElement("div", { className: 'find_result_list_info' },
+                React.createElement("div", { className: " icon icon--spinner icon--spin " }, " "),
+                " "));
         }
         // 替换
         if (this.props['list_state'] == 'replace') {
@@ -262,14 +265,12 @@ class App extends React.Component {
         return (React.createElement("div", null,
             React.createElement("div", { id: 'topBox' },
                 React.createElement("div", { className: 'inputBox' },
-                    React.createElement("p", null, "Find"),
                     React.createElement("div", null,
                         React.createElement("input", { name: 'find', onInput: this.onFindInputChange, placeholder: input_placeholder, onKeyPress: this.onInputEnter, ref: this.keywordRef }),
                         findButton)),
                 React.createElement("div", { className: 'inputBox' },
-                    React.createElement("p", null, "Replace"),
                     React.createElement("div", null,
-                        React.createElement("input", { name: 'replace', ref: this.replace_word_Ref, onKeyPress: this.onInputEnter }),
+                        React.createElement("input", { name: 'replace', placeholder: 'Replace', ref: this.replace_word_Ref, onKeyPress: this.onInputEnter }),
                         replaceButton))),
             React.createElement(SearchResultsList, { find_loading: this.state.find_loading, result_list_emty: this.result_list_emty, list_state: this.state.list_state, data: this.state.search_results_list })));
     }

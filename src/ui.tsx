@@ -1,5 +1,7 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
+
+import '../node_modules/figma-plugin-ds/dist/figma-plugin-ds.css'
 import './ui.css'
 
 declare function require(path: string): any
@@ -59,14 +61,14 @@ class SearchResultsList extends React.Component
       console.log('return:find_loading...div');
 
       return (
-        <div className='find_result_list_info'>find_loading...</div>
+        <div className='find_result_list_info'>< div className=" icon icon--spinner icon--spin " > </ div > </div>
       )
     }
 
     // 替换
     if (this.props['list_state'] == 'replace') {
       console.log('list_state');
-      
+
       return (
         <div className='find_result_list_info'>✅ has all been replaced with the target text</div>
       )
@@ -83,7 +85,7 @@ class SearchResultsList extends React.Component
           <div className='find_result_list_info'>😅 No results found</div>
         )
       } else if (list.length) {
-        
+
       }
 
 
@@ -352,7 +354,7 @@ class App extends React.Component {
       <div>
         <div id='topBox'>
           <div className='inputBox'>
-            <p>Find</p>
+            {/* <p>Find</p> */}
             <div>
               <input name='find' onInput={this.onFindInputChange} placeholder={input_placeholder} onKeyPress={this.onInputEnter} ref={this.keywordRef} />
               {findButton}
@@ -360,11 +362,20 @@ class App extends React.Component {
             </div>
           </div>
           <div className='inputBox'>
-            <p>Replace</p>
+            {/* <p>Replace</p> */}
             <div>
-              <input name='replace' ref={this.replace_word_Ref} onKeyPress={this.onInputEnter} />
+              <input name='replace' placeholder='Replace' ref={this.replace_word_Ref} onKeyPress={this.onInputEnter} />
               {replaceButton}
+
+              {/* <div className="input">
+                <input type="input" className="input__field" placeholder="Placeholder" />
+              </div>
+              <div className="icon-button">
+                <div className="icon icon--blend"></div>
+              </div> */}
+
             </div>
+
           </div>
 
         </div>
