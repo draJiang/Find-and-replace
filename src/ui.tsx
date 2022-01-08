@@ -37,6 +37,8 @@ class SearchResultsList extends React.Component
     console.log('item:');
 
     console.log(item);
+    item.target.className = 'clicked'
+    console.log(item);
     // 通知 code.ts 点击的是哪个项目
     parent.postMessage({ pluginMessage: { type: 'listOnClik', data: { 'item': this['id'], 'start': this['start'], 'end': this['end'] } } }, '*')
   }

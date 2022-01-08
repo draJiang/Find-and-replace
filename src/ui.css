@@ -42,7 +42,7 @@ body {
 
   .inputBox{
     text-align: left;
-    margin-top: 14px;
+    margin-top: 18px;
 
   }
   .inputBox p{
@@ -118,6 +118,11 @@ body {
     overflow-x: clip;
     overflow: hidden;
   }
+
+  .find_result_list .clicked {
+    color: rgba(40, 40, 40, 0.3);
+  }
+
   .find_result_list li:hover{
     box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1); 
     box-sizing:border-box;
