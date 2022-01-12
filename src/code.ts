@@ -48,7 +48,7 @@ figma.ui.onmessage = msg => {
 
           if (index > -1) {
             // 将查找的字符起始、终止位置发送给 UI
-            toUIHTML.push({ 'id': item['node'].id, 'characters': item['node'].characters, 'start': index, 'end': index + msg.data.keyword.length })
+            toUIHTML.push({ 'id': item['node'].id, 'characters': item['node'].characters, 'start': index, 'end': index + msg.data.keyword.length,'hasMissingFont':item['node'].hasMissingFont })
             position = index + msg.data.keyword.length
 
           } else {
@@ -371,7 +371,7 @@ async function replace(data) {
   console.log('replace');
   // console.log(data);
   // console.log(target_Text_Node);
-
+  let hasMissingFontCount = 0
   target_Text_Node.forEach(item => {
     // console.log('target_Text_Node.forEach:');
     // console.log(item);
@@ -389,6 +389,7 @@ async function replace(data) {
       if (item['node'].hasMissingFont) {
         // 字体不支持
         console.log('hasMissingFont');
+        hasMissingFontCount+=1
 
       } else {
         var searchRegExp = new RegExp(data.data.keyword, 'g')
@@ -401,7 +402,7 @@ async function replace(data) {
   })
 
   // 替换完毕，通知 UI 更新
-  figma.ui.postMessage({ 'type': 'replace' })
+  figma.ui.postMessage({ 'type': 'replace','hasMissingFontCount':hasMissingFontCount })
   console.log('target_Text_Node:');
   // console.log(target_Text_Node);
 

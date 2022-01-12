@@ -5,6 +5,7 @@ import './ui.css';
 class SearchResultsList extends React.Component {
     constructor(props) {
         super(props);
+        // 搜索结果 hover 时
         // 搜索无结果时，通过此方法通知父组件更新 UI（主要是置灰替换按钮）
         this.result_list_emty = (type) => {
             this.props.result_list_emty(type);
@@ -59,20 +60,31 @@ class SearchResultsList extends React.Component {
             else if (list.length) {
             }
             list.forEach((node) => {
-                // console.log('list.forEach:');
-                var this_start = node['start'] - 14; // 关键词前 x 个字符开始截取
+                console.log('list.forEach:');
+                console.log(node);
+                var this_start = node['start'] - 20; // 关键词前 x 个字符开始截取
                 if (this_start < 0) {
                     // 关键词前不足 14 个字符时，从头开始截取
                     this_start = 0;
                 }
                 // 关键字高亮显示
                 if (node['characters'].indexOf('<span class="heightLight">') < 0) {
+                    node['characters'] = node['characters'].substring(this_start, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end']);
+                    // 关键词在段落中靠后，则前面加省略号
                     if (this_start > 0) {
-                        node['characters'] = '...' + node['characters'].substring(this_start, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end']);
+                        node['characters'] = '...' + node['characters'];
                     }
-                    else {
-                        node['characters'] = node['characters'].substring(0, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end']);
+                    // 文本长度过长，则后面加省略号
+                    console.log('str length:');
+                    console.log(node['characters'].length);
+                    if (node['characters'].length > 60) {
+                        node['characters'] = node['characters'].substring(0, node['end'] + 100) + '...';
                     }
+                }
+                let missIcon = '<span class="missIcon">A?</span>';
+                // 字体若不兼容，则显示 UI 提示
+                if (node['hasMissingFont'] && node['characters'].indexOf(missIcon) < 0) {
+                    node['characters'] += missIcon;
                 }
             });
             const listItems = list.map((node, index) => React.createElement("li", { onClick: this.listItemHandleClick.bind(node), key: node['id'] + ':' + index.toString(), dangerouslySetInnerHTML: { __html: node['characters'] } })
