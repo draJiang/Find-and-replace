@@ -20,11 +20,19 @@ class SearchResultsList extends React.Component {
         console.log('this:');
         console.log(this);
         console.log('item:');
-        console.log(item);
-        item.target.className = 'clicked';
-        console.log(item);
-        // 通知 code.ts 点击的是哪个项目
+        // if (item.target.className == 'missIcon')
+        // 点击字体不兼容 ICON
         parent.postMessage({ pluginMessage: { type: 'listOnClik', data: { 'item': this['id'], 'start': this['start'], 'end': this['end'] } } }, '*');
+        for (let i = 0; i < item.nativeEvent.path.length; i++) {
+            if (item.nativeEvent.path[i].className == 'resultItem') {
+                item.nativeEvent.path[i].className = 'clicked';
+                break;
+            }
+        }
+        // if(item.target.className != 'missIcon' && item.target.className != 'heightLight'){
+        //   item.target.className = 'clicked'
+        // }
+        console.log(item);
     }
     render() {
         console.log('SearchResultsList render:');
@@ -45,9 +53,14 @@ class SearchResultsList extends React.Component {
         // 替换
         if (this.props['list_state'] == 'replace') {
             console.log('list_state');
+            console.log(this.props['hasMissingFontCount']);
+            let info = this.props['hasMissingFontCount'] <= 0 ? React.createElement("div", { className: 'main_info' }, "\u2705 Replaced") : React.createElement("div", { className: 'main_info' },
+                "\u2139\uFE0F Replaced,but ",
+                this.props['hasMissingFontCount'],
+                " fail because the font is not supported");
             return (React.createElement("div", { className: 'find_result_list_info' },
                 React.createElement("div", null,
-                    React.createElement("div", { className: 'main_info' }, "\u2705 Replaced"),
+                    info,
                     React.createElement("div", { className: 'minor_info' }, "Ignored locked, hidden layers"))));
         }
         // 搜索
@@ -81,13 +94,13 @@ class SearchResultsList extends React.Component {
                         node['characters'] = node['characters'].substring(0, node['end'] + 100) + '...';
                     }
                 }
-                let missIcon = '<span class="missIcon">A?</span>';
+                let missIcon = '<span title="The fonts are not available,replace is not supported" class="missIcon">A?</span>';
                 // 字体若不兼容，则显示 UI 提示
                 if (node['hasMissingFont'] && node['characters'].indexOf(missIcon) < 0) {
                     node['characters'] += missIcon;
                 }
             });
-            const listItems = list.map((node, index) => React.createElement("li", { onClick: this.listItemHandleClick.bind(node), key: node['id'] + ':' + index.toString(), dangerouslySetInnerHTML: { __html: node['characters'] } })
+            const listItems = list.map((node, index) => React.createElement("li", { className: 'resultItem', onClick: this.listItemHandleClick.bind(node), key: node['id'] + ':' + index.toString(), dangerouslySetInnerHTML: { __html: node['characters'] } })
             // <li>123</li>
             );
             console.log('listItems:');
@@ -193,6 +206,7 @@ class App extends React.Component {
             replaceButtonDisable: true,
             result_list_emty: true,
             find_loading: false,
+            hasMissingFontCount: 0,
         };
     }
     // 组件载入时
@@ -233,7 +247,8 @@ class App extends React.Component {
                 console.log('ui.tsx:onmessage');
                 console.log(event.data.pluginMessage['type']);
                 this.setState({
-                    list_state: 'replace'
+                    list_state: 'replace',
+                    hasMissingFontCount: event.data.pluginMessage['hasMissingFontCount']
                 });
                 this.result_list_emty(true);
             }
@@ -289,7 +304,7 @@ class App extends React.Component {
                     React.createElement("div", null,
                         React.createElement("input", { name: 'replace', placeholder: 'Replace', ref: this.replace_word_Ref, onKeyPress: this.onInputEnter }),
                         replaceButton))),
-            React.createElement(SearchResultsList, { find_loading: this.state.find_loading, result_list_emty: this.result_list_emty, list_state: this.state.list_state, data: this.state.search_results_list })));
+            React.createElement(SearchResultsList, { find_loading: this.state.find_loading, result_list_emty: this.result_list_emty, list_state: this.state.list_state, hasMissingFontCount: this.state.hasMissingFontCount, data: this.state.search_results_list })));
     }
 }
 ReactDOM.render(React.createElement(App, null), document.getElementById('react-page'));

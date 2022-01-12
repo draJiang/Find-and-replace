@@ -136,6 +136,7 @@ body {
     border-radius: 4px;
     font-size: 11px;
     margin-left: 4px;
+    cursor:help;
   }
   .buttonDisable{
     pointer-events:none;

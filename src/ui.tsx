@@ -14,12 +14,14 @@ class SearchResultsList extends React.Component
     list_state?: string;
     result_list_emty?: Function;
     find_loading?: boolean;
+    hasMissingFontCount?: number;
   },
   {
     data?: Array<object>;
     list_state?: string;
     result_list_emty?: Function;
     find_loading?: boolean;
+    hasMissingFontCount?: number;
   }>
 {
   constructor(props) {
@@ -36,11 +38,24 @@ class SearchResultsList extends React.Component
     console.log(this);
     console.log('item:');
 
-    console.log(item);
-    item.target.className = 'clicked'
-    console.log(item);
-    // 通知 code.ts 点击的是哪个项目
+    // if (item.target.className == 'missIcon')
+      // 点击字体不兼容 ICON
+
     parent.postMessage({ pluginMessage: { type: 'listOnClik', data: { 'item': this['id'], 'start': this['start'], 'end': this['end'] } } }, '*')
+
+    for(let i = 0;i<item.nativeEvent.path.length;i++){
+      if(item.nativeEvent.path[i].className == 'resultItem'){
+        item.nativeEvent.path[i].className = 'clicked'
+        break
+      }
+    }
+    
+    // if(item.target.className != 'missIcon' && item.target.className != 'heightLight'){
+    //   item.target.className = 'clicked'
+    // }
+
+    console.log(item);
+
   }
 
   // 搜索结果 hover 时
@@ -72,11 +87,13 @@ class SearchResultsList extends React.Component
     // 替换
     if (this.props['list_state'] == 'replace') {
       console.log('list_state');
+      console.log(this.props['hasMissingFontCount']);
 
+      let info = this.props['hasMissingFontCount'] <= 0 ? <div className='main_info'>✅ Replaced</div> : <div className='main_info'>ℹ️ Replaced,but {this.props['hasMissingFontCount']} fail because the font is not supported</div>
       return (
         <div className='find_result_list_info'>
           <div>
-            <div className='main_info'>✅ Replaced</div>
+            {info}
             <div className='minor_info'>Ignored locked, hidden layers</div>
           </div>
         </div>
@@ -112,7 +129,7 @@ class SearchResultsList extends React.Component
 
         // 关键字高亮显示
         if (node['characters'].indexOf('<span class="heightLight">') < 0) {
-          
+
           node['characters'] = node['characters'].substring(this_start, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end'])
 
           // 关键词在段落中靠后，则前面加省略号
@@ -123,14 +140,14 @@ class SearchResultsList extends React.Component
           // 文本长度过长，则后面加省略号
           console.log('str length:');
           console.log(node['characters'].length);
-          
-          
-          if(node['characters'].length>60){
-            node['characters'] = node['characters'].substring(0, node['end']+100)+'...'
+
+
+          if (node['characters'].length > 60) {
+            node['characters'] = node['characters'].substring(0, node['end'] + 100) + '...'
           }
         }
 
-        let missIcon = '<span class="missIcon">A?</span>'
+        let missIcon = '<span title="The fonts are not available,replace is not supported" class="missIcon">A?</span>'
         // 字体若不兼容，则显示 UI 提示
         if (node['hasMissingFont'] && node['characters'].indexOf(missIcon) < 0) {
           node['characters'] += missIcon
@@ -141,7 +158,7 @@ class SearchResultsList extends React.Component
 
       const listItems = list.map((node, index) =>
 
-        <li onClick={this.listItemHandleClick.bind(node)} key={node['id'] + ':' + index.toString()} dangerouslySetInnerHTML={{ __html: node['characters'] }} ></li>
+        <li className='resultItem' onClick={this.listItemHandleClick.bind(node)} key={node['id'] + ':' + index.toString()} dangerouslySetInnerHTML={{ __html: node['characters'] }} ></li>
         // <li>123</li>
       )
       console.log('listItems:')
@@ -176,6 +193,7 @@ class App extends React.Component {
       replaceButtonDisable: true,
       result_list_emty: true,
       find_loading: false,
+      hasMissingFontCount: 0,
     };
   }
 
@@ -241,7 +259,8 @@ class App extends React.Component {
         console.log('ui.tsx:onmessage');
         console.log(event.data.pluginMessage['type']);
         this.setState({
-          list_state: 'replace'
+          list_state: 'replace',
+          hasMissingFontCount: event.data.pluginMessage['hasMissingFontCount']
         })
 
         this.result_list_emty(true)
@@ -409,7 +428,7 @@ class App extends React.Component {
         </div>
 
 
-        <SearchResultsList find_loading={this.state.find_loading} result_list_emty={this.result_list_emty} list_state={this.state.list_state} data={this.state.search_results_list} />
+        <SearchResultsList find_loading={this.state.find_loading} result_list_emty={this.result_list_emty} list_state={this.state.list_state} hasMissingFontCount={this.state.hasMissingFontCount} data={this.state.search_results_list} />
       </div>
     )
   }
