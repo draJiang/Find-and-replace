@@ -228,20 +228,20 @@ function myFindTextAll(node, node_list, ancestor_isLocked?, ancestor_isVisible?)
 async function myLoadFontAsync(text_layer_List) {
   console.log('myLoadFontAsync:');
   // console.log(text_layer_List);
-
-
-
+  
+  
+  
   for (let layer of text_layer_List) {
 
     // console.log('----------');
     // 加载字体
     // console.log('layer:');
     // console.log(layer);
-
+    
     let fonts = layer['node'].getRangeAllFontNames(0, layer['node']['characters'].length)
     // console.log('fonts:');
     // console.log(fonts);
-
+    
     for (let font of fonts) {
       // console.log('find end load font:');
       // console.log('loaded_fonts:');
@@ -261,18 +261,10 @@ async function myLoadFontAsync(text_layer_List) {
       if (bingo) {
         continue
       } else {
+        loaded_fonts.push(font)
+        console.log('loadFontAsync');
 
-        // 字体是否支持
-        if (layer['node'].hasMissingFont) {
-          // 不支持
-          console.log('hasMissingFont');
-
-        } else {
-          // 支持
-          loaded_fonts.push(font)
-          console.log('loadFontAsync');
-          await figma.loadFontAsync(font)
-        }
+        await figma.loadFontAsync(font)
 
       }
 
@@ -329,7 +321,7 @@ function find(data) {
       let ancestor_isLocked = false
 
 
-
+      
       if (node_list[j].locked == true) {
         ancestor_isLocked = true
       }
@@ -371,31 +363,24 @@ async function replace(data) {
   console.log('replace');
   // console.log(data);
   // console.log(target_Text_Node);
-
+  
   target_Text_Node.forEach(item => {
     // console.log('target_Text_Node.forEach:');
     // console.log(item);
-
+    
 
     if (item['ancestor_isVisible'] == false || item['ancestor_isLocked'] == true) {
 
     } else {
       console.log('node:');
-
+      
       console.log(item['node']['fontName']);
-
+      
       console.log(item['node'].hasMissingFont);
-
-      if (item['node'].hasMissingFont) {
-        // 字体不支持
-        console.log('hasMissingFont');
-
-      } else {
-        var searchRegExp = new RegExp(data.data.keyword, 'g')
-        // console.log(item);
-        item['node'].characters = item['node'].characters.replace(searchRegExp, data.data.replace_word)
-      }
-
+      
+      var searchRegExp = new RegExp(data.data.keyword, 'g')
+      // console.log(item);
+      item['node'].characters = item['node'].characters.replace(searchRegExp, data.data.replace_word)
     }
 
   })

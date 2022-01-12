@@ -273,6 +273,7 @@ async function myLoadFontAsync(text_layer_List) {
           console.log('loadFontAsync');
           await figma.loadFontAsync(font)
         }
+
 
       }
 

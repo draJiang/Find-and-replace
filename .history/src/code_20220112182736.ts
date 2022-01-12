@@ -263,16 +263,18 @@ async function myLoadFontAsync(text_layer_List) {
       } else {
 
         // 字体是否支持
-        if (layer['node'].hasMissingFont) {
+        if (layer['node'].hasMissingFont){
           // 不支持
           console.log('hasMissingFont');
-
-        } else {
+          
+        }else{
           // 支持
           loaded_fonts.push(font)
-          console.log('loadFontAsync');
-          await figma.loadFontAsync(font)
+        console.log('loadFontAsync');
         }
+        
+
+        await figma.loadFontAsync(font)
 
       }
 
@@ -389,7 +391,7 @@ async function replace(data) {
       if (item['node'].hasMissingFont) {
         // 字体不支持
         console.log('hasMissingFont');
-
+        
       } else {
         var searchRegExp = new RegExp(data.data.keyword, 'g')
         // console.log(item);

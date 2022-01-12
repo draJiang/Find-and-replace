@@ -209,9 +209,17 @@ function myLoadFontAsync(text_layer_List) {
                     continue;
                 }
                 else {
-                    loaded_fonts.push(font);
-                    console.log('loadFontAsync');
-                    yield figma.loadFontAsync(font);
+                    // 字体是否支持
+                    if (layer['node'].hasMissingFont) {
+                        // 不支持
+                        console.log('hasMissingFont');
+                    }
+                    else {
+                        // 支持
+                        loaded_fonts.push(font);
+                        console.log('loadFontAsync');
+                        yield figma.loadFontAsync(font);
+                    }
                 }
             }
         }
@@ -296,9 +304,18 @@ function replace(data) {
             if (item['ancestor_isVisible'] == false || item['ancestor_isLocked'] == true) {
             }
             else {
-                var searchRegExp = new RegExp(data.data.keyword, 'g');
-                // console.log(item);
-                item['node'].characters = item['node'].characters.replace(searchRegExp, data.data.replace_word);
+                console.log('node:');
+                console.log(item['node']['fontName']);
+                console.log(item['node'].hasMissingFont);
+                if (item['node'].hasMissingFont) {
+                    // 字体不支持
+                    console.log('hasMissingFont');
+                }
+                else {
+                    var searchRegExp = new RegExp(data.data.keyword, 'g');
+                    // console.log(item);
+                    item['node'].characters = item['node'].characters.replace(searchRegExp, data.data.replace_word);
+                }
             }
         });
         // 替换完毕，通知 UI 更新
