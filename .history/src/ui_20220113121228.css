@@ -105,9 +105,9 @@ body {
   .find_result_list li{
     height: auto;
     /* padding: 6px; */
-    line-height: 18px;
+    line-height: 20px;
     /* border: 1px solid red; */
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     font-size: 12px;
     color: rgba(40, 40, 40, 1);
     list-style:none;
@@ -120,10 +120,10 @@ body {
   }
 
   .find_result_list .clicked {
-    color: rgba(40, 40, 40, 0.5);
+    color: rgba(40, 40, 40, 0.3);
   }
   .find_result_list .clicked>span{
-    opacity: 0.5;
+    opacity: 0.4;
   }
   
 

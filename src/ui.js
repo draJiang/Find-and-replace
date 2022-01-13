@@ -25,7 +25,7 @@ class SearchResultsList extends React.Component {
         parent.postMessage({ pluginMessage: { type: 'listOnClik', data: { 'item': this['id'], 'start': this['start'], 'end': this['end'] } } }, '*');
         for (let i = 0; i < item.nativeEvent.path.length; i++) {
             if (item.nativeEvent.path[i].className == 'resultItem') {
-                item.nativeEvent.path[i].className = 'clicked';
+                item.nativeEvent.path[i].className += ' clicked';
                 break;
             }
         }
@@ -55,7 +55,7 @@ class SearchResultsList extends React.Component {
             console.log('list_state');
             console.log(this.props['hasMissingFontCount']);
             let info = this.props['hasMissingFontCount'] <= 0 ? React.createElement("div", { className: 'main_info' }, "\u2705 Replaced") : React.createElement("div", { className: 'main_info' },
-                "\u2139\uFE0F Replaced,but ",
+                "\u2139\uFE0F ",
                 this.props['hasMissingFontCount'],
                 " fail because the font is not supported");
             return (React.createElement("div", { className: 'find_result_list_info' },
@@ -73,25 +73,24 @@ class SearchResultsList extends React.Component {
             else if (list.length) {
             }
             list.forEach((node) => {
-                console.log('list.forEach:');
-                console.log(node);
-                var this_start = node['start'] - 20; // 关键词前 x 个字符开始截取
+                // console.log('list.forEach:');
+                // console.log(node);
+                let this_start = node['start'] - 20; // 关键词前 x 个字符开始截取
+                let ellipsis = node['end'] + 20 < node['characters'].length ? true : false;
                 if (this_start < 0) {
                     // 关键词前不足 14 个字符时，从头开始截取
                     this_start = 0;
                 }
-                // 关键字高亮显示
                 if (node['characters'].indexOf('<span class="heightLight">') < 0) {
-                    node['characters'] = node['characters'].substring(this_start, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end']);
+                    // 关键字高亮显示
+                    node['characters'] = node['characters'].substring(this_start, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end'], node['end'] + 20);
                     // 关键词在段落中靠后，则前面加省略号
                     if (this_start > 0) {
                         node['characters'] = '...' + node['characters'];
                     }
                     // 文本长度过长，则后面加省略号
-                    console.log('str length:');
-                    console.log(node['characters'].length);
-                    if (node['characters'].length > 60) {
-                        node['characters'] = node['characters'].substring(0, node['end'] + 100) + '...';
+                    if (ellipsis) {
+                        node['characters'] = node['characters'] + '...';
                     }
                 }
                 let missIcon = '<span title="The fonts are not available,replace is not supported" class="missIcon">A?</span>';
@@ -144,9 +143,9 @@ class App extends React.Component {
         };
         // 文本框输入时
         this.onInputEnter = (e) => {
-            console.log('enter');
-            console.log(e.nativeEvent);
-            console.log(this);
+            // console.log('enter');
+            // console.log(e.nativeEvent);
+            // console.log(this);
             // 监听回车键
             if (e.nativeEvent.keyCode == 13) {
                 // 搜索
@@ -161,11 +160,11 @@ class App extends React.Component {
         };
         // 文本框值变化（用于搜索框）
         this.onFindInputChange = (e) => {
-            console.log('onFindInputChange:');
-            console.log(e);
-            console.log(e.nativeEvent.data);
-            console.log(e.nativeEvent.path[0]);
-            console.log(e.nativeEvent.path[0].value);
+            // console.log('onFindInputChange:');
+            // console.log(e);
+            // console.log(e.nativeEvent.data);
+            // console.log(e.nativeEvent.path[0]);
+            // console.log(e.nativeEvent.path[0].value);
             if (e.nativeEvent.path[0].value == '') {
                 // 文本框为空
                 // 查找按钮置灰

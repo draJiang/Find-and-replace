@@ -117,13 +117,11 @@ class SearchResultsList extends React.Component
 
       list.forEach((node) => {
 
-        // console.log('list.forEach:');
-        // console.log(node);
+        console.log('list.forEach:');
+        console.log(node);
 
 
-        let this_start = node['start'] - 20 // 关键词前 x 个字符开始截取
-        let ellipsis = node['end']+20<node['characters'].length?true:false
-        
+        var this_start = node['start'] - 20 // 关键词前 x 个字符开始截取
         if (this_start < 0) {
           // 关键词前不足 14 个字符时，从头开始截取
           this_start = 0
@@ -133,7 +131,7 @@ class SearchResultsList extends React.Component
         if (node['characters'].indexOf('<span class="heightLight">') < 0) {
           
           // 关键字高亮显示
-          node['characters'] = node['characters'].substring(this_start, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end'],node['end']+20)
+          node['characters'] = node['characters'].substring(this_start, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end'])
           
           // 关键词在段落中靠后，则前面加省略号
           if (this_start > 0) {
@@ -141,9 +139,10 @@ class SearchResultsList extends React.Component
           }
 
           // 文本长度过长，则后面加省略号
-          
-          if (ellipsis) {
-            node['characters'] = node['characters'] + '...'
+          console.log('str length:');
+          console.log(node['characters'].length);
+          if (node['characters'].length > 40) {
+            node['characters'] = node['characters'].substring(0, node['end'] + 20) + '...'
           }
         }
 
@@ -294,9 +293,9 @@ class App extends React.Component {
 
   // 文本框输入时
   onInputEnter = (e) => {
-    // console.log('enter');
-    // console.log(e.nativeEvent);
-    // console.log(this);
+    console.log('enter');
+    console.log(e.nativeEvent);
+    console.log(this);
 
     // 监听回车键
     if (e.nativeEvent.keyCode == 13) {
@@ -316,11 +315,11 @@ class App extends React.Component {
 
   // 文本框值变化（用于搜索框）
   onFindInputChange = (e) => {
-    // console.log('onFindInputChange:');
-    // console.log(e);
-    // console.log(e.nativeEvent.data);
-    // console.log(e.nativeEvent.path[0]);
-    // console.log(e.nativeEvent.path[0].value);
+    console.log('onFindInputChange:');
+    console.log(e);
+    console.log(e.nativeEvent.data);
+    console.log(e.nativeEvent.path[0]);
+    console.log(e.nativeEvent.path[0].value);
 
     if (e.nativeEvent.path[0].value == '') {
       // 文本框为空
