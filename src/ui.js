@@ -36,7 +36,7 @@ class SearchResultsList extends React.Component {
     }
     render() {
         console.log('SearchResultsList render:');
-        console.log(this.props);
+        // console.log(this.props);
         var list = this.props.data;
         // console.log(list);
         // console.log(this.props['list_state']);
@@ -44,16 +44,16 @@ class SearchResultsList extends React.Component {
         if (this.props['list_state'] == 'find_loading') {
             console.log('find_loading:');
             this.result_list_emty(true);
-            console.log(this.props['find_loading']);
-            console.log('return:find_loading...div');
+            // console.log(this.props['find_loading']);
+            // console.log('return:find_loading...div');
             return (React.createElement("div", { className: 'find_result_list_info' },
                 React.createElement("div", { className: " icon icon--spinner icon--spin " }, " "),
                 " "));
         }
         // 替换
         if (this.props['list_state'] == 'replace') {
-            console.log('list_state');
-            console.log(this.props['hasMissingFontCount']);
+            // console.log('list_state');
+            // console.log(this.props['hasMissingFontCount']);
             let info = this.props['hasMissingFontCount'] <= 0 ? React.createElement("div", { className: 'main_info' }, "\u2705 Replaced") : React.createElement("div", { className: 'main_info' },
                 "\u2139\uFE0F ",
                 this.props['hasMissingFontCount'],
@@ -102,7 +102,7 @@ class SearchResultsList extends React.Component {
             const listItems = list.map((node, index) => React.createElement("li", { className: 'resultItem', onClick: this.listItemHandleClick.bind(node), key: node['id'] + ':' + index.toString(), dangerouslySetInnerHTML: { __html: node['characters'] } })
             // <li>123</li>
             );
-            console.log('listItems:');
+            // console.log('listItems:')
             // console.log(listItems);
             // const listItems = list.forEach((node)=>{
             //   <li key = {node.id}>{node.characters}</li>
@@ -212,12 +212,12 @@ class App extends React.Component {
     componentDidMount() {
         // code.ts 发来消息
         onmessage = (event) => {
-            console.log('onmessage');
-            console.log(event);
+            // console.log('onmessage');
+            // console.log(event);
             // 搜索完毕
             if (event.data.pluginMessage['type'] == 'find') {
                 var target_Text_Node = event.data.pluginMessage.target_Text_Node;
-                console.log('code.ts: onmessage find');
+                // console.log('code.ts: onmessage find');
                 // console.log(target_Text_Node);
                 if (target_Text_Node == {}) {
                     target_Text_Node == [];
