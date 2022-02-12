@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 /// <reference path="../node_modules/@figma/plugin-typings/index.d.ts" />
 let target_Text_Node = []; // 存储符合搜索条件的 TEXT 图层
 let loaded_fonts = [];
-// console.log('2022-02-09');
+console.log('20220212');
 figma.showUI(__html__, { width: 300, height: 340 });
 // console.log('hello2')
 onSelectionChange();
@@ -23,8 +23,11 @@ figma.ui.onmessage = msg => {
         // figma.ui.postMessage({ 'type': 'find_loading' })
         console.log('search');
         // console.log(msg);
+        let start = new Date().getTime();
         // 执行搜索
         find(msg.data);
+        let end = new Date().getTime();
+        console.log('cost is:' + (end - start).toString());
         console.log('search target_Text_Node:');
         // console.log(target_Text_Node);
         console.log('console.log(target_Text_Node.length);' + target_Text_Node.length.toString());
@@ -241,15 +244,32 @@ function find(data) {
     if (selection.length == 0) {
         // node_list = figma.currentPage.findAll(n => n.type === "TEXT")
         selection = figma.currentPage.children;
-        // node_list = myFindTextAll(figma.currentPage, node_list)
     }
     else {
         // 当前有选中图层，则在选中的图层中搜索
         // 在当前选中的图层中，搜索文本图层
     }
+    // 遍历范围内的图层，获取 TEXT 图层
     for (let i = 0; i < selection.length; i++) {
         // console.log('find:for selection');
-        node_list = myFindTextAll(selection[i], node_list);
+        // console.log(selection[i]);
+        //@ts-ignore
+        // console.log(selection[i].children);
+        // 如果图层本身就是文本图层
+        if (selection[i].type == 'TEXT') {
+            node_list.push(selection[i]);
+            continue;
+        }
+        // 如果图层下没有子图层
+        //@ts-ignore
+        if (selection[i].children == undefined) {
+            continue;
+        }
+        //@ts-ignore
+        node_list = node_list.concat(selection[i].findAllWithCriteria({ types: ['TEXT'] }));
+        // node_list = myFindTextAll(selection[i], node_list)
+        // console.log('node_list:');
+        // console.log(node_list);
     }
     // console.log('selection:');
     // console.log(selection);
@@ -302,15 +322,15 @@ function replace(data) {
         console.log(target_Text_Node);
         let hasMissingFontCount = 0;
         target_Text_Node.forEach(item => {
-            console.log('replace target_Text_Node.forEach:');
-            console.log(item);
+            // console.log('replace target_Text_Node.forEach:');
+            // console.log(item);
             if (item['ancestor_isVisible'] == false || item['ancestor_isLocked'] == true) {
                 // 忽略隐藏、锁定的图层
             }
             else {
                 console.log('node:');
-                console.log(item['node']['fontName']);
-                console.log(item['node'].hasMissingFont);
+                // console.log(item['node']['fontName']);
+                // console.log(item['node'].hasMissingFont);
                 if (item['node'].hasMissingFont) {
                     // 字体不支持
                     console.log('hasMissingFont');
