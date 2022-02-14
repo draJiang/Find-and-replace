@@ -41,9 +41,9 @@ class SearchResultsList extends React.Component {
         // console.log(list);
         // console.log(this.props['list_state']);
         // 搜索加载状态
-        if (this.props['list_state'] == 'find_loading') {
+        if (this.props['find_loading']) {
             console.log('find_loading:');
-            this.result_list_emty(true);
+            // this.result_list_emty(true)
             // console.log(this.props['find_loading']);
             // console.log('return:find_loading...div');
             return (React.createElement("div", { className: 'find_result_list_info' },
@@ -131,9 +131,24 @@ class App extends React.Component {
         };
         // 搜索
         this.onSearch = () => {
-            const keyword = this.keyword.value;
-            const replace_word = this.replace_word.value;
-            parent.postMessage({ pluginMessage: { type: 'search', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*');
+            console.log('设置搜索中状态：');
+            this.setState({
+                find_loading: true
+            }, () => {
+                // const keyword = this.keyword.value
+                // const replace_word = this.replace_word.value
+                // parent.postMessage({ pluginMessage: { type: 'search', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')
+                setTimeout(() => {
+                    const keyword = this.keyword.value;
+                    const replace_word = this.replace_word.value;
+                    parent.postMessage({ pluginMessage: { type: 'search', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*');
+                }, 10);
+            });
+            // setTimeout(() => {
+            //   const keyword = this.keyword.value
+            //   const replace_word = this.replace_word.value
+            //   parent.postMessage({ pluginMessage: { type: 'search', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')
+            // }, 0)
         };
         // 替换
         this.onReplace = () => {
@@ -224,7 +239,8 @@ class App extends React.Component {
                 }
                 this.setState({
                     search_results_list: target_Text_Node,
-                    list_state: 'find'
+                    list_state: 'find',
+                    find_loading: false
                 });
                 if (target_Text_Node == undefined || target_Text_Node.length == 0) {
                     // 空数据
@@ -238,7 +254,7 @@ class App extends React.Component {
             if (event.data.pluginMessage['type'] == 'find_loading') {
                 console.log('code.js onmessage find_loading');
                 this.setState({
-                    list_state: 'find_loading'
+                    find_loading: true
                 });
             }
             // 替换

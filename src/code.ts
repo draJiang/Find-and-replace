@@ -24,66 +24,76 @@ figma.ui.onmessage = msg => {
 
     let start = new Date().getTime()
     // 执行搜索
-    find(msg.data)
-
-    let end = new Date().getTime()
-    console.log('cost is:'+(end-start).toString());
-    
-    console.log('search target_Text_Node:');
+    setTimeout(() => { find(msg.data) }, 0)
 
 
-    // console.log(target_Text_Node);
 
-    console.log('console.log(target_Text_Node.length);' + target_Text_Node.length.toString());
+    setTimeout(() => {
+      let end = new Date().getTime()
+      console.log('cost is:' + (end - start).toString());
 
-    let toUIHTML: any = [] // 存储数据，用于发送给 UI
-    if (target_Text_Node.length >= 0) {
-      // 如果存在符合搜索条件的 TEXT 图层
-
-      // console.log('target_Text_Node.forEach:');
-      target_Text_Node.forEach(item => {
-
-        var position = 0
-
-        // 构建数据，传送给 UI
-        while (true) {
-          // 由于单个 TEXT 图层内可能存在多个符合条件的字符，所以需要循环查找
-          var index = item['node'].characters.indexOf(msg.data.keyword, position)
-          // console.log('index:');
-          // console.log(index);
+      console.log('search target_Text_Node:');
 
 
-          if (index > -1) {
-            // 将查找的字符起始、终止位置发送给 UI
-            toUIHTML.push({ 'id': item['node'].id, 'characters': item['node'].characters, 'start': index, 'end': index + msg.data.keyword.length, 'hasMissingFont': item['node'].hasMissingFont })
-            position = index + msg.data.keyword.length
+      // console.log(target_Text_Node);
 
-          } else {
-            break
+      console.log('console.log(target_Text_Node.length);' + target_Text_Node.length.toString());
+
+      let toUIHTML: any = [] // 存储数据，用于发送给 UI
+      if (target_Text_Node.length >= 0) {
+        // 如果存在符合搜索条件的 TEXT 图层
+
+        // console.log('target_Text_Node.forEach:');
+        // console.log(target_Text_Node);
+
+        target_Text_Node.forEach(item => {
+
+          var position = 0
+
+          // 构建数据，传送给 UI
+          while (true) {
+            // 由于单个 TEXT 图层内可能存在多个符合条件的字符，所以需要循环查找
+            var index = item['node'].characters.indexOf(msg.data.keyword, position)
+            // console.log('index:');
+            // console.log(index);
+
+
+            if (index > -1) {
+              // 将查找的字符起始、终止位置发送给 UI
+              toUIHTML.push({ 'id': item['node'].id, 'characters': item['node'].characters, 'start': index, 'end': index + msg.data.keyword.length, 'hasMissingFont': item['node'].hasMissingFont })
+              position = index + msg.data.keyword.length
+
+            } else {
+              break
+            }
           }
-        }
 
 
-      })
-      console.log('if :toUIHTML:');
+        })
+        // console.log('if :toUIHTML:');
+        // console.log(toUIHTML);
+
+
+      }
+
+      // console.log('toUIHTML:');
       // console.log(toUIHTML);
+      figma.ui.postMessage({ 'type': 'find', 'target_Text_Node': toUIHTML })
+      const loadFont = async () => { myLoadFontAsync(target_Text_Node) }
+      loadFont()
+    }, 1)
 
 
-    }
-
-    figma.ui.postMessage({ 'type': 'find', 'target_Text_Node': toUIHTML })
-    const loadFont = async () => { myLoadFontAsync(target_Text_Node) }
-    loadFont()
   }
 
   // UI 中点击搜索结果项
   if (msg.type === 'listOnClik') {
-    console.log('code js:listOnClik:');
+    // console.log('code js:listOnClik:');
 
-    console.log(msg);
+    // console.log(msg);
 
     var targetNode
-    console.log('forEach:');
+    // console.log('forEach:');
 
     // 遍历搜索结果
     for (var i = 0; i < target_Text_Node.length; i++) {
@@ -312,14 +322,14 @@ function find(data) {
     // 在当前选中的图层中，搜索文本图层
   }
 
-  // 遍历范围内的图层，获取 TEXT 图层
 
+  // 遍历范围内的图层，获取 TEXT 图层
   for (let i = 0; i < selection.length; i++) {
     // console.log('find:for selection');
     // console.log(selection[i]);
     //@ts-ignore
     // console.log(selection[i].children);
-    
+
 
     // 如果图层本身就是文本图层
     if (selection[i].type == 'TEXT') {
@@ -333,8 +343,10 @@ function find(data) {
       continue
     }
 
-    //@ts-ignore
+    // @ts-ignore
     node_list = node_list.concat(selection[i].findAllWithCriteria({ types: ['TEXT'] }))
+    // node_list = node_list.concat(selection[i].findAllWithCriteria({ types: ['TEXT'] }))
+
 
     // node_list = myFindTextAll(selection[i], node_list)
 
@@ -400,6 +412,9 @@ function find(data) {
       target_Text_Node.push({ 'node': node_list[j], 'ancestor_isVisible': ancestor_isVisible, 'ancestor_isLocked': ancestor_isLocked })
     }
   }
+  // console.log('find end:');
+  // console.log(target_Text_Node);
+
 
 }
 

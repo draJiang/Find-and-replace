@@ -39,17 +39,17 @@ class SearchResultsList extends React.Component
     console.log('item:');
 
     // if (item.target.className == 'missIcon')
-      // 点击字体不兼容 ICON
+    // 点击字体不兼容 ICON
 
     parent.postMessage({ pluginMessage: { type: 'listOnClik', data: { 'item': this['id'], 'start': this['start'], 'end': this['end'] } } }, '*')
 
-    for(let i = 0;i<item.nativeEvent.path.length;i++){
-      if(item.nativeEvent.path[i].className == 'resultItem'){
+    for (let i = 0; i < item.nativeEvent.path.length; i++) {
+      if (item.nativeEvent.path[i].className == 'resultItem') {
         item.nativeEvent.path[i].className += ' clicked'
         break
       }
     }
-    
+
     // if(item.target.className != 'missIcon' && item.target.className != 'heightLight'){
     //   item.target.className = 'clicked'
     // }
@@ -73,9 +73,11 @@ class SearchResultsList extends React.Component
     // console.log(this.props['list_state']);
 
     // 搜索加载状态
-    if (this.props['list_state'] == 'find_loading') {
+    if (this.props['find_loading']) {
       console.log('find_loading:');
-      this.result_list_emty(true)
+
+      // this.result_list_emty(true)
+
       // console.log(this.props['find_loading']);
       // console.log('return:find_loading...div');
 
@@ -122,26 +124,26 @@ class SearchResultsList extends React.Component
 
 
         let this_start = node['start'] - 20 // 关键词前 x 个字符开始截取
-        let ellipsis = node['end']+20<node['characters'].length?true:false
-        
+        let ellipsis = node['end'] + 20 < node['characters'].length ? true : false
+
         if (this_start < 0) {
           // 关键词前不足 14 个字符时，从头开始截取
           this_start = 0
         }
 
-        
+
         if (node['characters'].indexOf('<span class="heightLight">') < 0) {
-          
+
           // 关键字高亮显示
-          node['characters'] = node['characters'].substring(this_start, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end'],node['end']+20)
-          
+          node['characters'] = node['characters'].substring(this_start, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end'], node['end'] + 20)
+
           // 关键词在段落中靠后，则前面加省略号
           if (this_start > 0) {
             node['characters'] = '...' + node['characters']
           }
 
           // 文本长度过长，则后面加省略号
-          
+
           if (ellipsis) {
             node['characters'] = node['characters'] + '...'
           }
@@ -192,7 +194,7 @@ class App extends React.Component {
       findButtonDisable: true,
       replaceButtonDisable: true,
       result_list_emty: true,
-      find_loading: false,
+      find_loading: false,              // 搜索加载状态
       hasMissingFontCount: 0,
     };
   }
@@ -225,16 +227,20 @@ class App extends React.Component {
 
       // 搜索完毕
       if (event.data.pluginMessage['type'] == 'find') {
-        var target_Text_Node = event.data.pluginMessage.target_Text_Node
-        // console.log('code.ts: onmessage find');
 
+        var target_Text_Node = event.data.pluginMessage.target_Text_Node
+
+        // console.log('code.ts: onmessage find');
         // console.log(target_Text_Node);
+
         if (target_Text_Node == {}) {
           target_Text_Node == []
         }
+
         this.setState({
           search_results_list: target_Text_Node,
-          list_state: 'find'
+          list_state: 'find',
+          find_loading: false
         })
 
         if (target_Text_Node == undefined || target_Text_Node.length == 0) {
@@ -250,7 +256,7 @@ class App extends React.Component {
         console.log('code.js onmessage find_loading');
 
         this.setState({
-          list_state: 'find_loading'
+          find_loading: true
         })
       }
 
@@ -280,9 +286,29 @@ class App extends React.Component {
 
   // 搜索
   onSearch = () => {
-    const keyword = this.keyword.value
-    const replace_word = this.replace_word.value
-    parent.postMessage({ pluginMessage: { type: 'search', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')
+    console.log('设置搜索中状态：');
+
+    this.setState({
+      find_loading: true
+    }, () => {
+      // const keyword = this.keyword.value
+      // const replace_word = this.replace_word.value
+      // parent.postMessage({ pluginMessage: { type: 'search', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')
+
+      setTimeout(() => {
+        const keyword = this.keyword.value
+        const replace_word = this.replace_word.value
+        parent.postMessage({ pluginMessage: { type: 'search', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')
+      }, 10)
+    })
+
+    // setTimeout(() => {
+    //   const keyword = this.keyword.value
+    //   const replace_word = this.replace_word.value
+    //   parent.postMessage({ pluginMessage: { type: 'search', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')
+    // }, 0)
+
+
   }
 
   // 替换
