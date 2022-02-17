@@ -10,7 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 /// <reference path="../node_modules/@figma/plugin-typings/index.d.ts" />
 let target_Text_Node = []; // 存储符合搜索条件的 TEXT 图层
 let loaded_fonts = [];
-console.log('20220212');
+let fileType = figma.editorType;
+console.log('20220217');
 figma.showUI(__html__, { width: 300, height: 340 });
 // console.log('hello2')
 onSelectionChange();
@@ -47,7 +48,7 @@ figma.ui.onmessage = msg => {
                         // console.log(index);
                         if (index > -1) {
                             // 将查找的字符起始、终止位置发送给 UI
-                            toUIHTML.push({ 'id': item['node'].id, 'characters': item['node'].characters, 'start': index, 'end': index + msg.data.keyword.length, 'hasMissingFont': item['node'].hasMissingFont });
+                            toUIHTML.push({ 'id': item['node'].id, 'characters': item['node'].characters, 'start': index, 'end': index + msg.data.keyword.length, 'hasMissingFont': item['node'].hasMissingFont, 'ancestor_type': item['ancestor_type'] });
                             position = index + msg.data.keyword.length;
                         }
                         else {
@@ -58,8 +59,8 @@ figma.ui.onmessage = msg => {
                 // console.log('if :toUIHTML:');
                 // console.log(toUIHTML);
             }
-            // console.log('toUIHTML:');
-            // console.log(toUIHTML);
+            console.log('toUIHTML:');
+            console.log(toUIHTML);
             figma.ui.postMessage({ 'type': 'find', 'target_Text_Node': toUIHTML });
             const loadFont = () => __awaiter(this, void 0, void 0, function* () { myLoadFontAsync(target_Text_Node); });
             loadFont();
@@ -289,6 +290,7 @@ function find(data) {
             let this_parent;
             let ancestor_isVisible = true;
             let ancestor_isLocked = false;
+            let ancestor_type = '';
             if (node_list[j].locked == true) {
                 ancestor_isLocked = true;
             }
@@ -308,7 +310,14 @@ function find(data) {
                     if (this_parent.visible == false) {
                         ancestor_isVisible = false;
                     }
-                    if (ancestor_isVisible == false || ancestor_isLocked == true) {
+                    if (this_parent.type == 'COMPONENT') {
+                        ancestor_type = 'COMPONENT';
+                    }
+                    if (this_parent.type == 'INSTANCE') {
+                        ancestor_type = 'INSTANCE';
+                    }
+                    if ((ancestor_isVisible == false || ancestor_isLocked == true) && ancestor_type != '') {
+                        // 如果祖先元素是锁定或隐藏状态,且组件元素是组件或实例，则跳出循环
                         break;
                     }
                     else {
@@ -316,7 +325,7 @@ function find(data) {
                     }
                 }
             }
-            target_Text_Node.push({ 'node': node_list[j], 'ancestor_isVisible': ancestor_isVisible, 'ancestor_isLocked': ancestor_isLocked });
+            target_Text_Node.push({ 'node': node_list[j], 'ancestor_isVisible': ancestor_isVisible, 'ancestor_isLocked': ancestor_isLocked, 'ancestor_type': ancestor_type });
         }
     }
     // console.log('find end:');

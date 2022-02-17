@@ -98,6 +98,17 @@ class SearchResultsList extends React.Component {
                 if (node['hasMissingFont'] && node['characters'].indexOf(missIcon) < 0) {
                     node['characters'] += missIcon;
                 }
+                console.log("node['ancestor_type']");
+                console.log(node['ancestor_type']);
+                // 字体位于组件或示例内
+                if (node['ancestor_type'] == 'COMPONENT' && node['characters'].indexOf('typeIcon') < 0) {
+                    let typeIcon = '<span title="Located within the component" class="typeIcon">C</span>';
+                    node['characters'] += typeIcon;
+                }
+                if (node['ancestor_type'] == 'INSTANCE' && node['characters'].indexOf('typeIcon') < 0) {
+                    let typeIcon = '<span title="Located within the instance" class="typeIcon">I</span>';
+                    node['characters'] += typeIcon;
+                }
             });
             const listItems = list.map((node, index) => React.createElement("li", { className: 'resultItem', onClick: this.listItemHandleClick.bind(node), key: node['id'] + ':' + index.toString(), dangerouslySetInnerHTML: { __html: node['characters'] } })
             // <li>123</li>
@@ -138,6 +149,7 @@ class App extends React.Component {
                 // const keyword = this.keyword.value
                 // const replace_word = this.replace_word.value
                 // parent.postMessage({ pluginMessage: { type: 'search', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')
+                // 放在 timeout 内是为了避免阻塞 UI 导致加载状态无法显示
                 setTimeout(() => {
                     const keyword = this.keyword.value;
                     const replace_word = this.replace_word.value;

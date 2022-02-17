@@ -59,7 +59,7 @@ figma.ui.onmessage = msg => {
 
             if (index > -1) {
               // 将查找的字符起始、终止位置发送给 UI
-              toUIHTML.push({ 'id': item['node'].id, 'characters': item['node'].characters, 'start': index, 'end': index + msg.data.keyword.length, 'hasMissingFont': item['node'].hasMissingFont,'ancestor_type':item['ancestor_type']})
+              toUIHTML.push({ 'id': item['node'].id, 'characters': item['node'].characters, 'start': index, 'end': index + msg.data.keyword.length, 'hasMissingFont': item['node'].hasMissingFont})
               position = index + msg.data.keyword.length
 
             } else {
@@ -375,7 +375,7 @@ function find(data) {
       let this_parent
       let ancestor_isVisible = true
       let ancestor_isLocked = false
-      let ancestor_type = ''
+
 
 
       if (node_list[j].locked == true) {
@@ -399,15 +399,8 @@ function find(data) {
             ancestor_isVisible = false
           }
 
-          if (this_parent.type == 'COMPONENT') {
-            ancestor_type = 'COMPONENT'
-          }
-          if (this_parent.type == 'INSTANCE') {
-            ancestor_type = 'INSTANCE'
-          }
-
-          if ((ancestor_isVisible == false || ancestor_isLocked == true) && ancestor_type!='') {
-            // 如果祖先元素是锁定或隐藏状态,且组件元素是组件或实例，则跳出循环
+          if (ancestor_isVisible == false || ancestor_isLocked == true) {
+            // 如果祖先元素是锁定或隐藏状态，则跳出循环
             break
           } else {
             this_parent = this_parent.parent
@@ -416,7 +409,7 @@ function find(data) {
       }
 
 
-      target_Text_Node.push({ 'node': node_list[j], 'ancestor_isVisible': ancestor_isVisible, 'ancestor_isLocked': ancestor_isLocked,'ancestor_type':ancestor_type })
+      target_Text_Node.push({ 'node': node_list[j], 'ancestor_isVisible': ancestor_isVisible, 'ancestor_isLocked': ancestor_isLocked })
     }
   }
   // console.log('find end:');

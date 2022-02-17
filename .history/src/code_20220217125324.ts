@@ -59,7 +59,7 @@ figma.ui.onmessage = msg => {
 
             if (index > -1) {
               // 将查找的字符起始、终止位置发送给 UI
-              toUIHTML.push({ 'id': item['node'].id, 'characters': item['node'].characters, 'start': index, 'end': index + msg.data.keyword.length, 'hasMissingFont': item['node'].hasMissingFont,'ancestor_type':item['ancestor_type']})
+              toUIHTML.push({ 'id': item['node'].id, 'characters': item['node'].characters, 'start': index, 'end': index + msg.data.keyword.length, 'hasMissingFont': item['node'].hasMissingFont})
               position = index + msg.data.keyword.length
 
             } else {

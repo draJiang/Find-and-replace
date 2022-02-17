@@ -160,11 +160,11 @@ class SearchResultsList extends React.Component
 
         // 字体位于组件或示例内
         if (node['ancestor_type']=='COMPONENT' && node['characters'].indexOf('typeIcon') < 0 ) {
-          let typeIcon = '<span title="Located within the component" class="typeIcon">C</span>'
+          let typeIcon = '<span title="The fonts are not available,replace is not supported" class="typeIcon">C</span>'
           node['characters'] += typeIcon
         }
         if (node['ancestor_type']=='INSTANCE'  && node['characters'].indexOf('typeIcon') < 0 ) {
-          let typeIcon = '<span title="Located within the instance" class="typeIcon">I</span>'
+          let typeIcon = '<span title="The fonts are not available,replace is not supported" class="typeIcon">I</span>'
           node['characters'] += typeIcon
         }
         

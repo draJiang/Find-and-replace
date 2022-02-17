@@ -149,25 +149,16 @@ class SearchResultsList extends React.Component
           }
         }
 
+        if (node['fileType'] == 'figjam') {
+            // figjam 文件，提示字体不支持，但于 fimga 文件不同，支持替换文字
+        }else{
+            // figma 文件
+        }
         let missIcon = '<span title="The fonts are not available,replace is not supported" class="missIcon">A?</span>'
         // 字体若不兼容，则显示 UI 提示
         if (node['hasMissingFont'] && node['characters'].indexOf(missIcon) < 0) {
           node['characters'] += missIcon
         }
-
-        console.log("node['ancestor_type']");
-        console.log(node['ancestor_type']);
-
-        // 字体位于组件或示例内
-        if (node['ancestor_type']=='COMPONENT' && node['characters'].indexOf('typeIcon') < 0 ) {
-          let typeIcon = '<span title="Located within the component" class="typeIcon">C</span>'
-          node['characters'] += typeIcon
-        }
-        if (node['ancestor_type']=='INSTANCE'  && node['characters'].indexOf('typeIcon') < 0 ) {
-          let typeIcon = '<span title="Located within the instance" class="typeIcon">I</span>'
-          node['characters'] += typeIcon
-        }
-        
 
       })
 
