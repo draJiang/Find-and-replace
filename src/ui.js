@@ -98,8 +98,9 @@ class SearchResultsList extends React.Component {
                 if (node['hasMissingFont'] && node['characters'].indexOf(missIcon) < 0) {
                     node['characters'] += missIcon;
                 }
-                console.log("node['ancestor_type']");
-                console.log(node['ancestor_type']);
+                // if (node['hasMissingFont'] && node['characters'].indexOf('icon--hidden') < 0) {
+                //   node['characters'] += '<span className=" icon icon--spinner icon--spin " ></span>'
+                // }
                 // 字体位于组件或示例内
                 if (node['ancestor_type'] == 'COMPONENT' && node['characters'].indexOf('typeIcon') < 0) {
                     let typeIcon = '<span title="Located within the component" class="typeIcon">C</span>';
@@ -144,7 +145,8 @@ class App extends React.Component {
         this.onSearch = () => {
             console.log('设置搜索中状态：');
             this.setState({
-                find_loading: true
+                find_loading: true,
+                search_results_list: [] // 每次搜索清空历史记录
             }, () => {
                 // const keyword = this.keyword.value
                 // const replace_word = this.replace_word.value
@@ -207,11 +209,11 @@ class App extends React.Component {
         };
         // 记录搜索结果是否为空
         this.result_list_emty = (type) => {
-            console.log('App :result_list_emty');
             // console.log(type);
             // console.log(this.state['result_list_emty']);
             // 状态有变化时才更新 UI
             if (type != this.state['result_list_emty']) {
+                console.log('App :result_list_emty');
                 if (type) {
                     this.setState({
                         result_list_emty: true
@@ -267,6 +269,14 @@ class App extends React.Component {
                 console.log('code.js onmessage find_loading');
                 this.setState({
                     find_loading: true
+                });
+            }
+            // 搜索结束
+            if (event.data.pluginMessage['type'] == 'find_end') {
+                console.log('code.js onmessage find_end');
+                this.setState({
+                    list_state: 'find',
+                    find_loading: false // 隐藏加载状态提示
                 });
             }
             // 替换
