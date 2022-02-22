@@ -1,5 +1,7 @@
 ![Find and Replace](https://jiangzilong-image.oss-cn-beijing.aliyuncs.com/uPic/Company/20220106190154.jpg)
 
+![install_count](https://img.shields.io/badge/dynamic/json?style=for-the-badge&color=important&logoColor=ffffff&label=Install&query=%24.meta.plugin.install_count&url=https://www.figma.com/api/plugins/1052801241204192805/versions?org_id=)    ![View](https://img.shields.io/badge/dynamic/json?style=for-the-badge&color=informational&logoColor=ffffff&label=View&query=%24.meta.plugin.view_count&url=https://www.figma.com/api/plugins/1052801241204192805/versions?org_id=)   ![like_count](https://img.shields.io/badge/dynamic/json?style=for-the-badge&color=red&logoColor=ffffff&label=Like&query=%24.meta.plugin.like_count&url=https://www.figma.com/api/plugins/1052801241204192805/versions?org_id=)
+
 [使用插件](https://www.figma.com/community/plugin/1052801241204192805/Find-and-Replace)
 
 ---
