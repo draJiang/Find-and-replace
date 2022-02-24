@@ -35,20 +35,21 @@ class SearchResultsList extends React.Component {
         console.log(item);
     }
     render() {
-        console.log('SearchResultsList render:');
+        // console.log('SearchResultsList render:');
         // console.log(this.props);
         var list = this.props.data;
         // console.log(list);
         // console.log(this.props['list_state']);
         // 搜索加载状态
-        if (this.props['find_loading']) {
-            console.log('find_loading:');
+        if (this.props['find_end'] == false && this.props['list_state'] != 'find') {
+            console.log('find_end:');
             // this.result_list_emty(true)
-            // console.log(this.props['find_loading']);
-            // console.log('return:find_loading...div');
-            return (React.createElement("div", { className: 'find_result_list_info' },
-                React.createElement("div", { className: " icon icon--spinner icon--spin " }, " "),
-                " "));
+            // console.log(this.props['find_end']);
+            // console.log('return:find_end...div');
+            return (React.createElement("div", null,
+                React.createElement("div", { className: "modal" },
+                    React.createElement("div", { className: " icon icon--spinner icon--spin " }, " "),
+                    React.createElement("div", null, "loading\u2026"))));
         }
         // 替换
         if (this.props['list_state'] == 'replace') {
@@ -65,8 +66,11 @@ class SearchResultsList extends React.Component {
         }
         // 搜索
         if (this.props['list_state'] == 'find') {
-            if (list == undefined || list.length == 0) {
-                // 空数据
+            // console.log('list render this.props、list:');
+            // console.log(this.props);
+            // console.log(list);
+            // 空数据
+            if (this.props['find_end'] == true && (list == undefined || list.length == 0)) {
                 // this.result_list_emty(true)
                 return (React.createElement("div", { className: 'find_result_list_info' }, "\uD83D\uDE05 No results found"));
             }
@@ -119,9 +123,38 @@ class SearchResultsList extends React.Component {
             // const listItems = list.forEach((node)=>{
             //   <li key = {node.id}>{node.characters}</li>
             // })
-            return (React.createElement("div", { className: 'find_result_list' }, listItems));
+            if (this.props['find_end']) {
+                // 已搜索完毕
+                return (React.createElement("div", null,
+                    React.createElement("div", { className: "find_result_list" }, listItems)));
+            }
+            else {
+                // 还在搜索
+                // console.log('this.props.my_progress:');
+                // console.log(this.props.my_progress);
+                // console.log((this.props.my_progress['index'] / this.props.my_progress['total'] * 100).toString() + '%');
+                let index = this.props.my_progress['index'];
+                let total = this.props.my_progress['total'];
+                let progress_info = {};
+                if (index > 0) {
+                    progress_info = React.createElement("div", null, Math.floor(index / total * 100).toString() + '%');
+                }
+                else {
+                    progress_info = React.createElement("div", null, "loading\u2026");
+                }
+                return (React.createElement("div", null,
+                    React.createElement("div", { className: "modal" },
+                        React.createElement("div", { className: " icon icon--spinner icon--spin " }, " "),
+                        progress_info),
+                    React.createElement("div", { className: "find_result_list list_disable" }, listItems)));
+            }
         }
-        return (React.createElement("div", { className: 'find_result_list' }));
+        // let progress = this.props.progress['index']/this.props.progress['total']
+        // 页面载入时的默认信息
+        return (
+        // <div className='find_result_list'></div>
+        React.createElement("div", null,
+            React.createElement("div", { className: "find_result_list list_disable" })));
     }
 }
 class App extends React.Component {
@@ -145,7 +178,8 @@ class App extends React.Component {
         this.onSearch = () => {
             console.log('设置搜索中状态：');
             this.setState({
-                find_loading: true,
+                find_end: false,
+                my_progress: { 'index': 0, 'total': 100 },
                 search_results_list: [] // 每次搜索清空历史记录
             }, () => {
                 // const keyword = this.keyword.value
@@ -233,8 +267,12 @@ class App extends React.Component {
             findButtonDisable: true,
             replaceButtonDisable: true,
             result_list_emty: true,
-            find_loading: false,
+            find_end: true,
             hasMissingFontCount: 0,
+            my_progress: {
+                'index': 0,
+                'total': 100
+            }
         };
     }
     // 组件载入时
@@ -243,7 +281,7 @@ class App extends React.Component {
         onmessage = (event) => {
             // console.log('onmessage');
             // console.log(event);
-            // 搜索完毕
+            // 搜索
             if (event.data.pluginMessage['type'] == 'find') {
                 var target_Text_Node = event.data.pluginMessage.target_Text_Node;
                 // console.log('code.ts: onmessage find');
@@ -252,9 +290,10 @@ class App extends React.Component {
                     target_Text_Node == [];
                 }
                 this.setState({
-                    search_results_list: target_Text_Node,
+                    //@ts-ignore
+                    search_results_list: this.state.search_results_list.concat(target_Text_Node),
                     list_state: 'find',
-                    find_loading: false
+                    find_end: event.data.pluginMessage['find_end']
                 });
                 if (target_Text_Node == undefined || target_Text_Node.length == 0) {
                     // 空数据
@@ -264,21 +303,29 @@ class App extends React.Component {
                     this.result_list_emty(false);
                 }
             }
-            // 开始搜索
-            if (event.data.pluginMessage['type'] == 'find_loading') {
-                console.log('code.js onmessage find_loading');
+            // 搜索进度
+            if (event.data.pluginMessage['type'] == 'loading') {
+                // console.log('搜索进度：')
+                // console.log(event.data.pluginMessage);
                 this.setState({
-                    find_loading: true
+                    my_progress: event.data.pluginMessage['my_progress']
                 });
             }
-            // 搜索结束
-            if (event.data.pluginMessage['type'] == 'find_end') {
-                console.log('code.js onmessage find_end');
-                this.setState({
-                    list_state: 'find',
-                    find_loading: false // 隐藏加载状态提示
-                });
-            }
+            // // 开始搜索
+            // if (event.data.pluginMessage['type'] == 'find_end') {
+            //   console.log('code.js onmessage find_end');
+            //   this.setState({
+            //     find_end: true
+            //   })
+            // }
+            // // 搜索结束
+            // if (event.data.pluginMessage['type'] == 'find_end') {
+            //   console.log('code.js onmessage find_end');
+            //   this.setState({
+            //     list_state: 'find',
+            //     find_end: false   // 隐藏加载状态提示
+            //   })
+            // }
             // 替换
             if (event.data.pluginMessage['type'] == 'replace') {
                 console.log('ui.tsx:onmessage');
@@ -298,7 +345,7 @@ class App extends React.Component {
         };
     }
     render() {
-        console.log('APP render this.state.search_results_list:');
+        // console.log('APP render this.state.search_results_list:');
         var note_list = this.state.search_results_list;
         // console.log(note_list);
         // console.log(this.state);
@@ -341,7 +388,7 @@ class App extends React.Component {
                     React.createElement("div", null,
                         React.createElement("input", { name: 'replace', placeholder: 'Replace', ref: this.replace_word_Ref, onKeyPress: this.onInputEnter }),
                         replaceButton))),
-            React.createElement(SearchResultsList, { find_loading: this.state.find_loading, result_list_emty: this.result_list_emty, list_state: this.state.list_state, hasMissingFontCount: this.state.hasMissingFontCount, data: this.state.search_results_list })));
+            React.createElement(SearchResultsList, { my_progress: this.state.my_progress, find_end: this.state.find_end, result_list_emty: this.result_list_emty, list_state: this.state.list_state, hasMissingFontCount: this.state.hasMissingFontCount, data: this.state.search_results_list })));
     }
 }
 ReactDOM.render(React.createElement(App, null), document.getElementById('react-page'));
