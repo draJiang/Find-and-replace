@@ -14,7 +14,7 @@ let fileType = figma.editorType;
 let req_cout = 0;
 let node_list = []; // 存储所有 TEXT 图层
 // let toHTML = []                         // 存储传送给 UI 的符合搜索条件的 TEXT 图层信息
-console.log('2022-02-23');
+console.log('2022-02-25');
 figma.showUI(__html__, { width: 300, height: 340 });
 // console.log('hello2')
 onSelectionChange();
