@@ -24,6 +24,9 @@ class Loading extends React.Component
   }
 
   render() {
+    console.log('props');
+    console.log(this.props.progress_info);
+
 
     // 无进度信息
     if (this.props.progress_info == undefined) {
@@ -55,6 +58,10 @@ class Loading extends React.Component
       )
 
     }
+
+
+
+
 
   }
 
@@ -115,6 +122,7 @@ class SearchResultsList extends React.Component
 
     // 搜索加载状态
     if (this.props['find_end'] == false && this.props['list_state'] != 'find') {
+      console.log('find_end:');
 
       return (
         <div>
@@ -218,6 +226,11 @@ class SearchResultsList extends React.Component
         return (
           <div>
             {/* 搜索加载状态提示 */}
+            {/* <div className="modal">
+              < div className=" icon icon--spinner icon--spin " > </ div >
+              {progress_info}
+            </div> */}
+
             <Loading progress_info={this.props.my_progress} />
 
             {/* 搜索结果列表 */}
@@ -309,11 +322,11 @@ class App extends React.Component {
           find_end: event.data.pluginMessage['find_end']
 
         })
-        //@ts-ignore
-        if (this.state.search_results_list == undefined || this.state.search_results_list.length == 0) {
+
+        if (target_Text_Node == undefined || target_Text_Node.length == 0) {
           // 空数据
           this.result_list_emty(true)         // 替换按钮置灰
-        } else{
+        } else if (target_Text_Node.length) {
           this.result_list_emty(false)        // 替换按钮激活
         }
       }
@@ -359,6 +372,9 @@ class App extends React.Component {
       my_progress: { 'index': 0, 'total': 100 },
       search_results_list: []    // 每次搜索清空历史记录
     }, () => {
+      // const keyword = this.keyword.value
+      // const replace_word = this.replace_word.value
+      // parent.postMessage({ pluginMessage: { type: 'search', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')
 
       // 放在 timeout 内是为了避免阻塞 UI 导致加载状态无法显示
       setTimeout(() => {
@@ -379,7 +395,6 @@ class App extends React.Component {
 
   // 替换
   onReplace = () => {
-    console.log('onReplace');
     const keyword = this.keyword.value
     const replace_word = this.replace_word.value
     parent.postMessage({ pluginMessage: { type: 'replace', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')

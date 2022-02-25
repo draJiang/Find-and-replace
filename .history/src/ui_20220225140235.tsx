@@ -309,8 +309,8 @@ class App extends React.Component {
           find_end: event.data.pluginMessage['find_end']
 
         })
-        //@ts-ignore
-        if (this.state.search_results_list == undefined || this.state.search_results_list.length == 0) {
+
+        if (target_Text_Node == undefined || target_Text_Node.length == 0) {
           // 空数据
           this.result_list_emty(true)         // 替换按钮置灰
         } else{

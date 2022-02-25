@@ -300,7 +300,7 @@ async function replace(data) {
           }// while
 
           // 将单个段落的缩进、序号样式记录到数组内
-          styleTemp.push({ 'start': last_offsetEnd, 'end': element['end'] + offsetEnd, 'indentation': element['indentation'] > 0 ? element['indentation'] : 0, 'listOptions': element['listOptions'] })
+          styleTemp.push({ 'start': last_offsetEnd, 'end': element['end'] + offsetEnd, 'indentation': element['indentation'] > 0 ? element['indentation'] : element['indentation'], 'listOptions': element['listOptions'] })
 
           last_offsetEnd = element['end'] + offsetEnd
 
@@ -314,8 +314,7 @@ async function replace(data) {
         // 设置缩进、序号
         // styleTemp 记录了每个段落的缩进、序号样式，遍历数组使得修改字符后的文本图层样式不变
         styleTemp.forEach(element => {
-          console.log(element);
-          
+
           item['node'].setRangeListOptions(element['start'], element['end'], element['listOptions'])
           item['node'].setRangeIndentation(element['start'], element['end'], element['indentation'])
 

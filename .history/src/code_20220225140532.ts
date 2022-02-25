@@ -300,7 +300,7 @@ async function replace(data) {
           }// while
 
           // 将单个段落的缩进、序号样式记录到数组内
-          styleTemp.push({ 'start': last_offsetEnd, 'end': element['end'] + offsetEnd, 'indentation': element['indentation'] > 0 ? element['indentation'] : 0, 'listOptions': element['listOptions'] })
+          styleTemp.push({ 'start': last_offsetEnd, 'end': element['end'] + offsetEnd, 'indentation': element['indentation'] > 0 ? element['indentation'] : element['indentation'], 'listOptions': element['listOptions'] })
 
           last_offsetEnd = element['end'] + offsetEnd
 

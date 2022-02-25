@@ -6,58 +6,16 @@ import './ui.css'
 
 declare function require(path: string): any
 
-class Loading extends React.Component
-  <
-  {
-    progress_info?: Array<object>;
-  },
-  {
-    progress_info?: Array<object>;
-  }
->
-{
+class loading extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-
+      my_progress: {
+        'index': 0,
+        'total': 100
+      }
     };
   }
-
-  render() {
-
-    // 无进度信息
-    if (this.props.progress_info == undefined) {
-      return (
-        <div className="modal">
-          < div className=" icon icon--spinner icon--spin " > </ div >
-          <div>loading…</div>
-        </div>
-      )
-    } else {
-      // 有进度信息
-      let index = this.props.progress_info['index']
-      let total = this.props.progress_info['total']
-      let progress_info = {
-
-      }
-      if (index > 0) {
-        progress_info = <div>{Math.floor(index / total * 100).toString() + '%'}</div>
-
-      } else {
-        progress_info = <div>loading…</div>
-      }
-
-      return (
-        <div className="modal">
-          < div className=" icon icon--spinner icon--spin " > </ div >
-          {progress_info}
-        </div>
-      )
-
-    }
-
-  }
-
 }
 
 class SearchResultsList extends React.Component
@@ -115,10 +73,14 @@ class SearchResultsList extends React.Component
 
     // 搜索加载状态
     if (this.props['find_end'] == false && this.props['list_state'] != 'find') {
+      console.log('find_end:');
 
       return (
         <div>
-          <Loading />
+          <div className="modal">
+            < div className=" icon icon--spinner icon--spin " > </ div >
+            <div>loading…</div>
+          </div>
         </div>
       )
     }
@@ -198,6 +160,7 @@ class SearchResultsList extends React.Component
 
       })
 
+
       const listItems = list.map((node, index) =>
 
         <li className='resultItem' onClick={this.listItemHandleClick.bind(node)} key={node['id'] + ':' + index.toString()} dangerouslySetInnerHTML={{ __html: node['characters'] }} ></li>
@@ -215,10 +178,25 @@ class SearchResultsList extends React.Component
 
       } else {
         // 还在搜索
+        let index = this.props.my_progress['index']
+        let total = this.props.my_progress['total']
+        let progress_info = {
+
+        }
+        if (index > 0) {
+          progress_info = <div>{Math.floor(index / total * 100).toString() + '%'}</div>
+
+        } else {
+          progress_info = <div>loading…</div>
+        }
+
         return (
           <div>
             {/* 搜索加载状态提示 */}
-            <Loading progress_info={this.props.my_progress} />
+            <div className="modal">
+              < div className=" icon icon--spinner icon--spin " > </ div >
+              {progress_info}
+            </div>
 
             {/* 搜索结果列表 */}
             <div className="find_result_list list_disable">{listItems}</div>
@@ -309,11 +287,11 @@ class App extends React.Component {
           find_end: event.data.pluginMessage['find_end']
 
         })
-        //@ts-ignore
-        if (this.state.search_results_list == undefined || this.state.search_results_list.length == 0) {
+
+        if (target_Text_Node == undefined || target_Text_Node.length == 0) {
           // 空数据
           this.result_list_emty(true)         // 替换按钮置灰
-        } else{
+        } else if (target_Text_Node.length) {
           this.result_list_emty(false)        // 替换按钮激活
         }
       }
@@ -359,6 +337,9 @@ class App extends React.Component {
       my_progress: { 'index': 0, 'total': 100 },
       search_results_list: []    // 每次搜索清空历史记录
     }, () => {
+      // const keyword = this.keyword.value
+      // const replace_word = this.replace_word.value
+      // parent.postMessage({ pluginMessage: { type: 'search', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')
 
       // 放在 timeout 内是为了避免阻塞 UI 导致加载状态无法显示
       setTimeout(() => {
@@ -379,7 +360,6 @@ class App extends React.Component {
 
   // 替换
   onReplace = () => {
-    console.log('onReplace');
     const keyword = this.keyword.value
     const replace_word = this.replace_word.value
     parent.postMessage({ pluginMessage: { type: 'replace', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')

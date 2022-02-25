@@ -115,6 +115,7 @@ class SearchResultsList extends React.Component
 
     // 搜索加载状态
     if (this.props['find_end'] == false && this.props['list_state'] != 'find') {
+      console.log('find_end:');
 
       return (
         <div>
@@ -309,8 +310,8 @@ class App extends React.Component {
           find_end: event.data.pluginMessage['find_end']
 
         })
-        //@ts-ignore
-        if (this.state.search_results_list == undefined || this.state.search_results_list.length == 0) {
+
+        if (target_Text_Node == undefined || target_Text_Node.length == 0) {
           // 空数据
           this.result_list_emty(true)         // 替换按钮置灰
         } else{
@@ -379,7 +380,6 @@ class App extends React.Component {
 
   // 替换
   onReplace = () => {
-    console.log('onReplace');
     const keyword = this.keyword.value
     const replace_word = this.replace_word.value
     parent.postMessage({ pluginMessage: { type: 'replace', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')

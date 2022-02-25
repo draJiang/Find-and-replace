@@ -2,10 +2,38 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import '../node_modules/figma-plugin-ds/dist/figma-plugin-ds.css';
 import './ui.css';
+class Loading extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {};
+    }
+    render() {
+        // 无进度信息
+        if (this.props.progress_info == undefined) {
+            return (React.createElement("div", { className: "modal" },
+                React.createElement("div", { className: " icon icon--spinner icon--spin " }, " "),
+                React.createElement("div", null, "loading\u2026")));
+        }
+        else {
+            // 有进度信息
+            let index = this.props.progress_info['index'];
+            let total = this.props.progress_info['total'];
+            let progress_info = {};
+            if (index > 0) {
+                progress_info = React.createElement("div", null, Math.floor(index / total * 100).toString() + '%');
+            }
+            else {
+                progress_info = React.createElement("div", null, "loading\u2026");
+            }
+            return (React.createElement("div", { className: "modal" },
+                React.createElement("div", { className: " icon icon--spinner icon--spin " }, " "),
+                progress_info));
+        }
+    }
+}
 class SearchResultsList extends React.Component {
     constructor(props) {
         super(props);
-        // 搜索结果 hover 时
         // 搜索无结果时，通过此方法通知父组件更新 UI（主要是置灰替换按钮）
         this.result_list_emty = (type) => {
             this.props.result_list_emty(type);
@@ -16,45 +44,25 @@ class SearchResultsList extends React.Component {
     }
     // 搜索结果项点击时
     listItemHandleClick(item) {
-        console.log('listItemHandleClick');
-        console.log('this:');
-        console.log(this);
-        console.log('item:');
-        // if (item.target.className == 'missIcon')
-        // 点击字体不兼容 ICON
+        // 通知 code.ts
         parent.postMessage({ pluginMessage: { type: 'listOnClik', data: { 'item': this['id'], 'start': this['start'], 'end': this['end'] } } }, '*');
+        // 设置点击对象为「已点」样式
         for (let i = 0; i < item.nativeEvent.path.length; i++) {
             if (item.nativeEvent.path[i].className == 'resultItem') {
                 item.nativeEvent.path[i].className += ' clicked';
                 break;
             }
         }
-        // if(item.target.className != 'missIcon' && item.target.className != 'heightLight'){
-        //   item.target.className = 'clicked'
-        // }
-        console.log(item);
     }
     render() {
-        // console.log('SearchResultsList render:');
-        // console.log(this.props);
         var list = this.props.data;
-        // console.log(list);
-        // console.log(this.props['list_state']);
         // 搜索加载状态
         if (this.props['find_end'] == false && this.props['list_state'] != 'find') {
-            console.log('find_end:');
-            // this.result_list_emty(true)
-            // console.log(this.props['find_end']);
-            // console.log('return:find_end...div');
             return (React.createElement("div", null,
-                React.createElement("div", { className: "modal" },
-                    React.createElement("div", { className: " icon icon--spinner icon--spin " }, " "),
-                    React.createElement("div", null, "loading\u2026"))));
+                React.createElement(Loading, null)));
         }
-        // 替换
+        // 替换完毕
         if (this.props['list_state'] == 'replace') {
-            // console.log('list_state');
-            // console.log(this.props['hasMissingFontCount']);
             let info = this.props['hasMissingFontCount'] <= 0 ? React.createElement("div", { className: 'main_info' }, "\u2705 Replaced") : React.createElement("div", { className: 'main_info' },
                 "\u2139\uFE0F ",
                 this.props['hasMissingFontCount'],
@@ -66,9 +74,6 @@ class SearchResultsList extends React.Component {
         }
         // 搜索
         if (this.props['list_state'] == 'find') {
-            // console.log('list render this.props、list:');
-            // console.log(this.props);
-            // console.log(list);
             // 空数据
             if (this.props['find_end'] == true && (list == undefined || list.length == 0)) {
                 // this.result_list_emty(true)
@@ -76,9 +81,8 @@ class SearchResultsList extends React.Component {
             }
             else if (list.length) {
             }
+            // 渲染搜索结果列表
             list.forEach((node) => {
-                // console.log('list.forEach:');
-                // console.log(node);
                 let this_start = node['start'] - 20; // 关键词前 x 个字符开始截取
                 let ellipsis = node['end'] + 20 < node['characters'].length ? true : false;
                 if (this_start < 0) {
@@ -102,10 +106,7 @@ class SearchResultsList extends React.Component {
                 if (node['hasMissingFont'] && node['characters'].indexOf(missIcon) < 0) {
                     node['characters'] += missIcon;
                 }
-                // if (node['hasMissingFont'] && node['characters'].indexOf('icon--hidden') < 0) {
-                //   node['characters'] += '<span className=" icon icon--spinner icon--spin " ></span>'
-                // }
-                // 字体位于组件或示例内
+                // 字体位于组件或示例内时，显示 UI 提示
                 if (node['ancestor_type'] == 'COMPONENT' && node['characters'].indexOf('typeIcon') < 0) {
                     let typeIcon = '<span title="Located within the component" class="typeIcon">C</span>';
                     node['characters'] += typeIcon;
@@ -115,45 +116,21 @@ class SearchResultsList extends React.Component {
                     node['characters'] += typeIcon;
                 }
             });
-            const listItems = list.map((node, index) => React.createElement("li", { className: 'resultItem', onClick: this.listItemHandleClick.bind(node), key: node['id'] + ':' + index.toString(), dangerouslySetInnerHTML: { __html: node['characters'] } })
-            // <li>123</li>
-            );
-            // console.log('listItems:')
-            // console.log(listItems);
-            // const listItems = list.forEach((node)=>{
-            //   <li key = {node.id}>{node.characters}</li>
-            // })
+            const listItems = list.map((node, index) => React.createElement("li", { className: 'resultItem', onClick: this.listItemHandleClick.bind(node), key: node['id'] + ':' + index.toString(), dangerouslySetInnerHTML: { __html: node['characters'] } }));
+            // 已搜索完毕
             if (this.props['find_end']) {
-                // 已搜索完毕
                 return (React.createElement("div", null,
                     React.createElement("div", { className: "find_result_list" }, listItems)));
             }
             else {
                 // 还在搜索
-                // console.log('this.props.my_progress:');
-                // console.log(this.props.my_progress);
-                // console.log((this.props.my_progress['index'] / this.props.my_progress['total'] * 100).toString() + '%');
-                let index = this.props.my_progress['index'];
-                let total = this.props.my_progress['total'];
-                let progress_info = {};
-                if (index > 0) {
-                    progress_info = React.createElement("div", null, Math.floor(index / total * 100).toString() + '%');
-                }
-                else {
-                    progress_info = React.createElement("div", null, "loading\u2026");
-                }
                 return (React.createElement("div", null,
-                    React.createElement("div", { className: "modal" },
-                        React.createElement("div", { className: " icon icon--spinner icon--spin " }, " "),
-                        progress_info),
+                    React.createElement(Loading, { progress_info: this.props.my_progress }),
                     React.createElement("div", { className: "find_result_list list_disable" }, listItems)));
             }
         }
-        // let progress = this.props.progress['index']/this.props.progress['total']
         // 页面载入时的默认信息
-        return (
-        // <div className='find_result_list'></div>
-        React.createElement("div", null,
+        return (React.createElement("div", null,
             React.createElement("div", { className: "find_result_list list_disable" })));
     }
 }
@@ -182,9 +159,6 @@ class App extends React.Component {
                 my_progress: { 'index': 0, 'total': 100 },
                 search_results_list: [] // 每次搜索清空历史记录
             }, () => {
-                // const keyword = this.keyword.value
-                // const replace_word = this.replace_word.value
-                // parent.postMessage({ pluginMessage: { type: 'search', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')
                 // 放在 timeout 内是为了避免阻塞 UI 导致加载状态无法显示
                 setTimeout(() => {
                     const keyword = this.keyword.value;
@@ -200,6 +174,7 @@ class App extends React.Component {
         };
         // 替换
         this.onReplace = () => {
+            console.log('onReplace');
             const keyword = this.keyword.value;
             const replace_word = this.replace_word.value;
             parent.postMessage({ pluginMessage: { type: 'replace', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*');
@@ -223,11 +198,6 @@ class App extends React.Component {
         };
         // 文本框值变化（用于搜索框）
         this.onFindInputChange = (e) => {
-            // console.log('onFindInputChange:');
-            // console.log(e);
-            // console.log(e.nativeEvent.data);
-            // console.log(e.nativeEvent.path[0]);
-            // console.log(e.nativeEvent.path[0].value);
             if (e.nativeEvent.path[0].value == '') {
                 // 文本框为空
                 // 查找按钮置灰
@@ -243,8 +213,6 @@ class App extends React.Component {
         };
         // 记录搜索结果是否为空
         this.result_list_emty = (type) => {
-            // console.log(type);
-            // console.log(this.state['result_list_emty']);
             // 状态有变化时才更新 UI
             if (type != this.state['result_list_emty']) {
                 console.log('App :result_list_emty');
@@ -279,13 +247,9 @@ class App extends React.Component {
     componentDidMount() {
         // code.ts 发来消息
         onmessage = (event) => {
-            // console.log('onmessage');
-            // console.log(event);
             // 搜索
             if (event.data.pluginMessage['type'] == 'find') {
                 var target_Text_Node = event.data.pluginMessage.target_Text_Node;
-                // console.log('code.ts: onmessage find');
-                // console.log(target_Text_Node);
                 if (target_Text_Node == {}) {
                     target_Text_Node == [];
                 }
@@ -295,41 +259,23 @@ class App extends React.Component {
                     list_state: 'find',
                     find_end: event.data.pluginMessage['find_end']
                 });
-                if (target_Text_Node == undefined || target_Text_Node.length == 0) {
+                //@ts-ignore
+                if (this.state.search_results_list == undefined || this.state.search_results_list.length == 0) {
                     // 空数据
                     this.result_list_emty(true); // 替换按钮置灰
                 }
-                else if (target_Text_Node.length) {
-                    this.result_list_emty(false);
+                else {
+                    this.result_list_emty(false); // 替换按钮激活
                 }
             }
             // 搜索进度
             if (event.data.pluginMessage['type'] == 'loading') {
-                // console.log('搜索进度：')
-                // console.log(event.data.pluginMessage);
                 this.setState({
                     my_progress: event.data.pluginMessage['my_progress']
                 });
             }
-            // // 开始搜索
-            // if (event.data.pluginMessage['type'] == 'find_end') {
-            //   console.log('code.js onmessage find_end');
-            //   this.setState({
-            //     find_end: true
-            //   })
-            // }
-            // // 搜索结束
-            // if (event.data.pluginMessage['type'] == 'find_end') {
-            //   console.log('code.js onmessage find_end');
-            //   this.setState({
-            //     list_state: 'find',
-            //     find_end: false   // 隐藏加载状态提示
-            //   })
-            // }
-            // 替换
+            // 替换完毕
             if (event.data.pluginMessage['type'] == 'replace') {
-                console.log('ui.tsx:onmessage');
-                console.log(event.data.pluginMessage['type']);
                 this.setState({
                     list_state: 'replace',
                     hasMissingFontCount: event.data.pluginMessage['hasMissingFontCount']
@@ -364,11 +310,7 @@ class App extends React.Component {
         else {
             var replaceButton = React.createElement("button", { id: "replace", onClick: this.onReplace }, "Replace");
         }
-        // const listItems = note_list.map((node) =>
-        // <ListItem data={node} />
-        //   // <li key = {node.id}>{node.characters}</li>
-        // )
-        // 搜索文本框的提示文字
+        // 搜索文本框的提示文字，根据是否选中图层显示不同提示
         var input_placeholder;
         if (this.state.selectionPage) {
             // 在当前页面内搜索

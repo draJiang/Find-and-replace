@@ -95,13 +95,127 @@ figma.ui.onmessage = msg => {
 
   // UI 中点击了「替换」按钮
   if (msg.type === 'replace') {
-    console.log('code.ts replace');
+    // console.log('replace');
     console.log(msg);
     // 执行替换
     replace(msg)
 
   }
 
+}
+
+// 查找图层下的文本图层，输入 figma 图层对象，返回找到所有文本图层
+function myFindTextAll(node, node_list, ancestor_isLocked?, ancestor_isVisible?) {
+
+  // console.log('myFindAll');
+  // console.log(isLocked);
+
+  let locked = false // 存储最终的状态
+  let visible = true
+
+  // 如果目标图层本身就是 TEXT 图层
+  if (node.type == 'TEXT') {
+
+    // // 文本图层是否锁定、隐藏？
+    // if (node.locked) {
+    //   // 锁定
+    //   locked = true
+    // } else {
+    //   locked = false
+    // }
+
+    // if (node.visible == false) {
+    //   // 隐藏
+    //   visible = false
+    // } else {
+    //   visible = true
+    // }
+
+    // // 祖先图层的锁定、隐藏状态优先级高
+    // if (ancestor_isLocked == true) {
+    //   // 祖先是锁定状态
+    //   locked = true
+    // } else {
+    //   // 祖先非锁定状态
+    // }
+
+    // if (ancestor_isVisible == false) {
+    //   // 祖先是隐藏状态
+    //   visible = false
+    // } else {
+    //   // 祖先非隐藏状态
+    // }
+
+    node_list.push(node)
+    return node_list
+  }
+  var thisChildren = node.children
+
+  //  如果当前节点下存在子节点
+  if (thisChildren == undefined) {
+    // 当前节点无子节点，可能是形状图层
+    return node_list
+  }
+
+
+  // if (ancestor_isLocked == true) {
+  //   // 祖先是锁定状态
+  // } else {
+  //   // 祖先非锁定状态
+  //   ancestor_isLocked = thisChildren.locked
+  // }
+
+  // if (ancestor_isVisible == false) {
+  //   // 祖先是隐藏状态
+  // } else {
+  //   // 祖先非隐藏状态
+  //   ancestor_isVisible = thisChildren.visible
+  // }
+
+  // 遍历子节点
+  for (let i = 0; i < thisChildren.length; i++) {
+    // console.log('thisChildren:')
+    // console.log(thisChildren);
+    if (thisChildren == undefined) {
+      console.log('!!!ERRO thisChildren==undefined');
+
+      return node_list
+    }
+    // 如果节点的类型为 TEXT
+    if (thisChildren[i].type == 'TEXT') {
+
+
+      node_list.push(thisChildren[i])
+    } else {
+      // 如果不是 TEXT 图层
+      // 如果包含子图层
+      if (thisChildren[i].children != null) {
+
+        if (thisChildren[i].children.length > 0) {
+
+          // if (ancestor_isLocked == true) {
+          //   // 祖先是锁定状态
+          // } else {
+          //   // 祖先非锁定状态
+          //   ancestor_isLocked = thisChildren[i].locked
+          // }
+
+          // if (ancestor_isVisible == false) {
+          //   // 祖先是隐藏状态
+          // } else {
+          //   // 祖先非隐藏状态
+          //   ancestor_isVisible = thisChildren.visible
+          // }
+
+          node_list = myFindTextAll(thisChildren[i], node_list)
+        }
+      }
+    }
+  }
+  // console.log('node_list:');
+  // console.log(node_list);
+
+  return node_list
 }
 
 // 加载字体
@@ -211,6 +325,12 @@ function find(data) {
 
   }
 
+  // console.log('selection:');
+  // console.log(selection);
+
+
+
+
   return node_list
 
 }
@@ -299,8 +419,23 @@ async function replace(data) {
 
           }// while
 
+
+
+          // console.log('offsetStart:' + offsetStart.toString());
+          // console.log('offsetEnd:' + offsetEnd.toString());
+          // console.log('element:');
+          // console.log(element);
+
+          // let thisStart = element['start'] + offsetStart
+          // if (thisStart < 0) {
+          //   thisStart = 0
+          // }
+          // if (element['start'] == 0) {
+          //   thisStart == 0
+          // }
+
           // 将单个段落的缩进、序号样式记录到数组内
-          styleTemp.push({ 'start': last_offsetEnd, 'end': element['end'] + offsetEnd, 'indentation': element['indentation'] > 0 ? element['indentation'] : 0, 'listOptions': element['listOptions'] })
+          styleTemp.push({ 'start': last_offsetEnd, 'end': element['end'] + offsetEnd, 'indentation': element['indentation'] > 0 ? element['indentation'] : element['indentation'], 'listOptions': element['listOptions'] })
 
           last_offsetEnd = element['end'] + offsetEnd
 
@@ -312,10 +447,12 @@ async function replace(data) {
         });// textStyle.forEach
 
         // 设置缩进、序号
+        // console.log('设置缩进、序号：');
+        // console.log(styleTemp);
+
         // styleTemp 记录了每个段落的缩进、序号样式，遍历数组使得修改字符后的文本图层样式不变
         styleTemp.forEach(element => {
-          console.log(element);
-          
+
           item['node'].setRangeListOptions(element['start'], element['end'], element['listOptions'])
           item['node'].setRangeIndentation(element['start'], element['end'], element['indentation'])
 
@@ -349,17 +486,17 @@ function onSelectionChange() {
   }
 }
 
-// 在文本图层中，匹配关键字
+
 function findKeyWord(node_list, keyword) {
-  
-  // console.log('func findKeyWord begin');
-  req_cout = 0                    // 搜索结果数量
-  
+  console.log('func findKeyWord begin');
+  req_cout = 0
+  // 在文本图层中，匹配关键字
+  let data_item
   let data_item_list = []
   let data_temp
   let node                        // 记录遍历到的图层
   let len = node_list.length
-  let my_progress = 0             // 进度信息
+  let my_progress = 0
 
   for (let i = 0; i < len; i++) {
     setTimeout(() => {
@@ -371,11 +508,10 @@ function findKeyWord(node_list, keyword) {
       if (node['characters'].indexOf(keyword) > -1) {
         // 找到关键词
 
-        // 判断祖先图层的状态，包括隐藏、锁定、组件、实例属性
         let this_parent
         let ancestor_isVisible = true
         let ancestor_isLocked = false
-        let ancestor_type = ''              // 组件/实例/其他
+        let ancestor_type = ''
 
 
 
@@ -417,8 +553,9 @@ function findKeyWord(node_list, keyword) {
 
 
 
-        // 单个图层的数据，存储到 target_Text_Node 中，拥有后续的替换工作
-        target_Text_Node.push({ 'node': node, 'ancestor_isVisible': ancestor_isVisible, 'ancestor_isLocked': ancestor_isLocked, 'ancestor_type': ancestor_type })
+        // 单个图层的数据
+        data_item = { 'node': node, 'ancestor_isVisible': ancestor_isVisible, 'ancestor_isLocked': ancestor_isLocked, 'ancestor_type': ancestor_type }
+        target_Text_Node.push(data_item)
 
         // 构建数据，传送给 UI
         let position = 0
@@ -432,31 +569,57 @@ function findKeyWord(node_list, keyword) {
 
           if (index > -1) {
             // 将查找的字符起始、终止位置发送给 UI
+            // figma.ui.postMessage({ 'type': 'find', 'target_Text_Node': [{ 'id': data_item['node'].id, 'characters': data_item['node'].characters, 'start': index, 'end': index + keyword.length, 'hasMissingFont': data_item['node'].hasMissingFont }] })
+            // console.log('func findKeyWord finded');
             
             // 每个关键字的数据
             data_temp = { 'id': node.id, 'characters': node.characters, 'start': index, 'end': index + keyword.length, 'hasMissingFont': node.hasMissingFont, 'ancestor_type': ancestor_type }
             if (req_cout < 10) {
-              // 如果已经有搜索结果，则先发送一部分显示在 UI 中，提升搜索加载状态的体验
               figma.ui.postMessage({ 'type': 'find', 'find_end': false, 'target_Text_Node': [data_temp] })
             } else {
               data_item_list.push(data_temp)
             }
 
-            // 统计搜索结果数量
             req_cout++
-            // 设置查找目标字符串的偏移
+            // console.log('count:' + req_cout.toString());
+
+            // // 加载字体
+            // myLoadFontAsync([{ 'id': data_item['node'].id, 'characters': data_item['node'].characters, 'start': index, 'end': index + keyword.length, 'hasMissingFont': data_item['node'].hasMissingFont }])
             position = index + keyword_length
 
-          } // if
-        } // while
-      } // if (node['characters'].indexOf(keyword) > -1)
-    }, 10); // setTimeout
+          }
+        }
+
+        // console.log('postMessage');
+        // return { 'node': node_list[j], 'ancestor_isVisible': ancestor_isVisible, 'ancestor_isLocked': ancestor_isLocked }
+      }
+
+      
+
+    }, 10);
 
     
 
   }
 
-  console.log('func findKeyWord end');
+  // node_list.forEach(element => {
 
+
+  // });
+
+
+  // for (var j = 0; j < node_list.length; j++) {
+
+
+
+  // }
+
+
+  // console.log('find end:');
+  // console.log(target_Text_Node);
+  console.log('func findKeyWord end');
+  // console.log(data_item_list);
+
+  // toHTML = data_item_list
   return data_item_list
 }
