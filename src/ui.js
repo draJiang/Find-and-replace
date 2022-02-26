@@ -199,16 +199,23 @@ class App extends React.Component {
         // 文本框值变化（用于搜索框）
         this.onFindInputChange = (e) => {
             if (e.nativeEvent.path[0].value == '') {
-                // 文本框为空
-                // 查找按钮置灰
+                // 搜索文本框为空
+                // 查找、替换按钮置灰
                 this.setState({
                     findButtonDisable: true,
+                    replaceButtonDisable: true
                 });
             }
             else {
                 this.setState({
                     findButtonDisable: false,
                 });
+                //@ts-ignore
+                // if(this.state.result_list_emty==false){
+                //   this.setState({
+                //     replaceButtonDisable: false,
+                //   })
+                // }
             }
         };
         // 记录搜索结果是否为空
@@ -303,7 +310,8 @@ class App extends React.Component {
         else {
             var findButton = React.createElement("button", { id: "search", onClick: this.onSearch }, "Find");
         }
-        if (this.state.result_list_emty) {
+        // 搜索结果为空 或 搜索文本框为空
+        if (this.state.result_list_emty || this.keyword.value == '') {
             // 按钮置灰
             var replaceButton = React.createElement("button", { className: 'buttonDisable', id: "replace", onClick: this.onReplace }, "Replace");
         }

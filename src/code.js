@@ -81,12 +81,14 @@ figma.ui.onmessage = msg => {
 // 加载字体
 function myLoadFontAsync(text_layer_List) {
     return __awaiter(this, void 0, void 0, function* () {
-        // console.log('myLoadFontAsync:');
+        console.log('myLoadFontAsync:');
         // console.log(text_layer_List);
         for (let layer of text_layer_List) {
+            if (layer['node']['characters'].length == 0) {
+                continue;
+            }
             // console.log('----------');
             // 加载字体
-            // console.log('layer:');
             // console.log(layer);
             let fonts = layer['node'].getRangeAllFontNames(0, layer['node']['characters'].length);
             // console.log('fonts:');
@@ -168,6 +170,11 @@ function replace(data) {
         console.log('replace');
         // console.log(data);
         // console.log(target_Text_Node);
+        // 如果被替换的字符是 '' 则会陷入死循环，所以要判断一下
+        if (data.data.keyword == '') {
+            figma.notify('Please enter the characters you want to replace');
+            return;
+        }
         let hasMissingFontCount = 0;
         yield myLoadFontAsync(target_Text_Node);
         target_Text_Node.forEach(item => {
@@ -194,11 +201,13 @@ function replace(data) {
                     let last_offsetEnd = 0; // 记录上一个段落的末尾索引
                     // 替换目标字符
                     textStyle.forEach(element => {
+                        // console.log(element);
                         let position = 0;
+                        let index;
                         // 由于单个段落内可能存在多个符合条件的字符，所以需要循环查找
                         while (true) {
                             // 获取匹配到的字符的索引
-                            var index = element.characters.indexOf(data.data.keyword, position);
+                            index = element.characters.indexOf(data.data.keyword, position);
                             if (index > -1) {
                                 // 有匹配的字符
                                 // 记录新字符需要插入的位置
@@ -234,9 +243,15 @@ function replace(data) {
                     // 设置缩进、序号
                     // styleTemp 记录了每个段落的缩进、序号样式，遍历数组使得修改字符后的文本图层样式不变
                     styleTemp.forEach(element => {
-                        console.log(element);
-                        item['node'].setRangeListOptions(element['start'], element['end'], element['listOptions']);
-                        item['node'].setRangeIndentation(element['start'], element['end'], element['indentation']);
+                        // console.log(element);
+                        // console.log(item['node']);
+                        // 如果文本为空，则不支持设置样式（会报错）
+                        if (item['node'].characters != '' && element['end'] > element['start']) {
+                            // console.log(element);
+                            // console.log(item['node']);
+                            item['node'].setRangeListOptions(element['start'], element['end'], element['listOptions']);
+                            item['node'].setRangeIndentation(element['start'], element['end'], element['indentation']);
+                        }
                     });
                 } // else
                 // var searchRegExp = new RegExp(data.data.keyword, 'g')

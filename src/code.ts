@@ -38,7 +38,7 @@ figma.ui.onmessage = msg => {
     let toHTML    // 存储要发给 ui.tsx 的数据
 
     setTimeout(() => {
-      
+
       let findKeyWord_start = new Date().getTime()
       // 在文本图层中匹配包含关键字的图层
       toHTML = findKeyWord(node_list, msg.data.keyword)
@@ -106,16 +106,17 @@ figma.ui.onmessage = msg => {
 
 // 加载字体
 async function myLoadFontAsync(text_layer_List) {
-  // console.log('myLoadFontAsync:');
+  console.log('myLoadFontAsync:');
   // console.log(text_layer_List);
 
 
 
   for (let layer of text_layer_List) {
-
+    if (layer['node']['characters'].length == 0) {
+      continue
+    }
     // console.log('----------');
     // 加载字体
-    // console.log('layer:');
     // console.log(layer);
 
     let fonts = layer['node'].getRangeAllFontNames(0, layer['node']['characters'].length)
@@ -172,7 +173,7 @@ function find(data) {
 
   // 当前未选中图层，则在当前页面搜索
   if (selection.length == 0) {
-    
+
     selection = figma.currentPage.children
 
   } else {
@@ -190,9 +191,9 @@ function find(data) {
     setTimeout(() => {
       // 如果图层本身就是文本图层
       if (selection[i].type == 'TEXT') {
-        
+
         node_list.push(selection[i])
-        
+
       } else {
         // 如果图层下没有子图层
         //@ts-ignore
@@ -220,6 +221,14 @@ async function replace(data) {
   console.log('replace');
   // console.log(data);
   // console.log(target_Text_Node);
+
+
+  // 如果被替换的字符是 '' 则会陷入死循环，所以要判断一下
+  if (data.data.keyword == '') {
+    figma.notify('Please enter the characters you want to replace')
+    return
+  }
+
   let hasMissingFontCount = 0
 
   await myLoadFontAsync(target_Text_Node)
@@ -256,15 +265,16 @@ async function replace(data) {
         // 替换目标字符
         textStyle.forEach(element => {
 
+          // console.log(element);
+
           let position = 0
 
-
-
+          let index
           // 由于单个段落内可能存在多个符合条件的字符，所以需要循环查找
           while (true) {
 
             // 获取匹配到的字符的索引
-            var index = element.characters.indexOf(data.data.keyword, position)
+            index = element.characters.indexOf(data.data.keyword, position)
 
             if (index > -1) {
               // 有匹配的字符
@@ -314,11 +324,16 @@ async function replace(data) {
         // 设置缩进、序号
         // styleTemp 记录了每个段落的缩进、序号样式，遍历数组使得修改字符后的文本图层样式不变
         styleTemp.forEach(element => {
-          console.log(element);
-          
-          item['node'].setRangeListOptions(element['start'], element['end'], element['listOptions'])
-          item['node'].setRangeIndentation(element['start'], element['end'], element['indentation'])
+          // console.log(element);
+          // console.log(item['node']);
 
+          // 如果文本为空，则不支持设置样式（会报错）
+          if (item['node'].characters != '' && element['end']>element['start']) {
+            // console.log(element);
+            // console.log(item['node']);
+            item['node'].setRangeListOptions(element['start'], element['end'], element['listOptions'])
+            item['node'].setRangeIndentation(element['start'], element['end'], element['indentation'])
+          }
         });
 
       }// else
@@ -351,10 +366,10 @@ function onSelectionChange() {
 
 // 在文本图层中，匹配关键字
 function findKeyWord(node_list, keyword) {
-  
+
   // console.log('func findKeyWord begin');
   req_cout = 0                    // 搜索结果数量
-  
+
   let data_item_list = []
   let data_temp
   let node                        // 记录遍历到的图层
@@ -364,8 +379,8 @@ function findKeyWord(node_list, keyword) {
   for (let i = 0; i < len; i++) {
     setTimeout(() => {
       my_progress++
-      figma.ui.postMessage({ 'type': 'loading','my_progress':{'index':my_progress,'total':node_list.length} });
-      
+      figma.ui.postMessage({ 'type': 'loading', 'my_progress': { 'index': my_progress, 'total': node_list.length } });
+
 
       node = node_list[i]
       if (node['characters'].indexOf(keyword) > -1) {
@@ -424,7 +439,7 @@ function findKeyWord(node_list, keyword) {
         let position = 0
         let index = 0
         let keyword_length = keyword.length
-        while (index>=0) {
+        while (index >= 0) {
           // 由于单个 TEXT 图层内可能存在多个符合条件的字符，所以需要循环查找
           index = node.characters.indexOf(keyword, position)
           // console.log('index:');
@@ -432,7 +447,7 @@ function findKeyWord(node_list, keyword) {
 
           if (index > -1) {
             // 将查找的字符起始、终止位置发送给 UI
-            
+
             // 每个关键字的数据
             data_temp = { 'id': node.id, 'characters': node.characters, 'start': index, 'end': index + keyword.length, 'hasMissingFont': node.hasMissingFont, 'ancestor_type': ancestor_type }
             if (req_cout < 10) {
@@ -452,7 +467,7 @@ function findKeyWord(node_list, keyword) {
       } // if (node['characters'].indexOf(keyword) > -1)
     }, 10); // setTimeout
 
-    
+
 
   }
 
