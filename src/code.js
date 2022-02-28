@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 let target_Text_Node = []; // 存储符合搜索条件的 TEXT 图层
 let loaded_fonts = []; // 已加载的字体列表
 let fileType = figma.editorType; // 当前 figma 文件类型：figma/figjam
+let hasMissingFontCount = 0; // 替换时记录不支持字体的数量
 let req_cout = 0; // 搜索结果数量
 let node_list = []; // 存储所有 TEXT 图层
 console.log('2022-02-25');
@@ -30,8 +31,8 @@ figma.ui.onmessage = msg => {
         let find_start = new Date().getTime();
         // 执行搜索
         find(msg.data);
-        let find_end = new Date().getTime();
-        console.log('》》》》》》》》》》find:' + (find_end - find_start).toString());
+        let done = new Date().getTime();
+        console.log('》》》》》》》》》》find:' + (done - find_start).toString());
         let toHTML; // 存储要发给 ui.tsx 的数据
         setTimeout(() => {
             let findKeyWord_start = new Date().getTime();
@@ -43,10 +44,10 @@ figma.ui.onmessage = msg => {
         setTimeout(() => {
             setTimeout(() => {
                 // 将搜索数据发送给 ui.tsx
-                figma.ui.postMessage({ 'type': 'find', 'find_end': true, 'target_Text_Node': toHTML });
+                figma.ui.postMessage({ 'type': 'find', 'done': true, 'target_Text_Node': toHTML });
                 console.log('Find end:');
                 console.log(req_cout);
-                figma.ui.postMessage({ 'type': 'find_end' });
+                // figma.ui.postMessage({ 'type': 'done' })
                 let end = new Date().getTime();
                 console.log('》》》》》》》》》》' + msg.data.keyword + ':' + (end - start).toString());
             }, 30);
@@ -76,6 +77,13 @@ figma.ui.onmessage = msg => {
         console.log(msg);
         // 执行替换
         replace(msg);
+        setTimeout(() => {
+            setTimeout(() => {
+                console.log('code.ts replace done');
+                // 替换完毕，通知 UI 更新
+                figma.ui.postMessage({ 'type': 'replace', 'done': true, 'hasMissingFontCount': hasMissingFontCount });
+            }, 30);
+        }, 20);
     }
 };
 // 加载字体
@@ -175,93 +183,174 @@ function replace(data) {
             figma.notify('Please enter the characters you want to replace');
             return;
         }
-        let hasMissingFontCount = 0;
+        hasMissingFontCount = 0;
         yield myLoadFontAsync(target_Text_Node);
-        target_Text_Node.forEach(item => {
-            // console.log('replace target_Text_Node.forEach:');
-            // console.log(item);
-            if (item['ancestor_isVisible'] == false || item['ancestor_isLocked'] == true) {
-                // 忽略隐藏、锁定的图层
-            }
-            else {
-                // console.log(item['node']['fontName']);
-                // console.log(item['node'].hasMissingFont);
-                if (item['node'].hasMissingFont) {
-                    // 字体不支持
-                    console.log('hasMissingFont');
-                    hasMissingFontCount += 1;
+        let len = target_Text_Node.length;
+        let my_progress = 0; // 进度信息
+        for (let i = len - 1; i--;) {
+            setTimeout(() => {
+                my_progress++;
+                // console.log(my_progress);
+                figma.ui.postMessage({ 'type': 'replace', 'done': false, 'my_progress': { 'index': my_progress, 'total': len } });
+                if (target_Text_Node[i]['ancestor_isVisible'] == false || target_Text_Node[i]['ancestor_isLocked'] == true) {
+                    // 忽略隐藏、锁定的图层
                 }
                 else {
-                    let textStyle = item['node'].getStyledTextSegments(['indentation', 'listOptions']);
-                    // console.log('textStyle:');
-                    // console.log(textStyle);
-                    let offsetStart = 0;
-                    let offsetEnd = 0; // 记录修改字符后的索引偏移数值
-                    let styleTemp = []; // 记录每个段落样式在修改后的样式索引（在替换完字符后需要设置回之前的样式）
-                    let last_offsetEnd = 0; // 记录上一个段落的末尾索引
-                    // 替换目标字符
-                    textStyle.forEach(element => {
-                        // console.log(element);
-                        let position = 0;
-                        let index;
-                        // 由于单个段落内可能存在多个符合条件的字符，所以需要循环查找
-                        while (true) {
-                            // 获取匹配到的字符的索引
-                            index = element.characters.indexOf(data.data.keyword, position);
-                            if (index > -1) {
-                                // 有匹配的字符
-                                // 记录新字符需要插入的位置
-                                let insertStart = index + data.data.keyword.length + element['start'];
-                                // console.log('insertStart:' + insertStart.toString());
-                                // 需要替换成以下字符
-                                let newCharacters = data.data.replace_word;
-                                // 在索引后插入新字符
-                                item['node'].insertCharacters(insertStart + offsetEnd, newCharacters);
-                                // 根据索引删除旧字符
-                                item['node'].deleteCharacters(index + element['start'] + offsetEnd, insertStart + offsetEnd);
-                                // 记录偏移数值
-                                // offsetStart = last_offsetEnd
-                                offsetEnd += data.data.replace_word.length - data.data.keyword.length;
-                                // console.log('while offsetStart:' + offsetStart.toString());
-                                // console.log('while offsetEnd:' + offsetEnd.toString());
-                                // 记录检索到目标字符的索引，下一次 while 循环在此位置后开始查找
-                                position = index + data.data.keyword.length;
-                            }
-                            else {
-                                // 没有匹配的字符
-                                break;
-                            } // else
-                        } // while
-                        // 将单个段落的缩进、序号样式记录到数组内
-                        styleTemp.push({ 'start': last_offsetEnd, 'end': element['end'] + offsetEnd, 'indentation': element['indentation'] > 0 ? element['indentation'] : 0, 'listOptions': element['listOptions'] });
-                        last_offsetEnd = element['end'] + offsetEnd;
-                        // // 设置缩进
-                        // item['node'].setRangeIndentation(element['start'] + offsetStart, element['end'] + offsetEnd, element['indentation'] > 0 ? element['indentation'] - 1 : element['indentation'])
-                        // // 设置序号
-                        // item['node'].setRangeListOptions(element['start'] + offsetStart, element['end'] + offsetEnd, element['listOptions'])
-                    }); // textStyle.forEach
-                    // 设置缩进、序号
-                    // styleTemp 记录了每个段落的缩进、序号样式，遍历数组使得修改字符后的文本图层样式不变
-                    styleTemp.forEach(element => {
-                        // console.log(element);
-                        // console.log(item['node']);
-                        // 如果文本为空，则不支持设置样式（会报错）
-                        if (item['node'].characters != '' && element['end'] > element['start']) {
+                    // console.log(target_Text_Node[i]['node']['fontName']);
+                    // console.log(target_Text_Node[i]['node'].hasMissingFont);
+                    if (target_Text_Node[i]['node'].hasMissingFont) {
+                        // 字体不支持
+                        console.log('hasMissingFont');
+                        hasMissingFontCount += 1;
+                    }
+                    else {
+                        let textStyle = target_Text_Node[i]['node'].getStyledTextSegments(['indentation', 'listOptions']);
+                        // console.log('textStyle:');
+                        // console.log(textStyle);
+                        let offsetStart = 0;
+                        let offsetEnd = 0; // 记录修改字符后的索引偏移数值
+                        let styleTemp = []; // 记录每个段落样式在修改后的样式索引（在替换完字符后需要设置回之前的样式）
+                        let last_offsetEnd = 0; // 记录上一个段落的末尾索引
+                        // 替换目标字符
+                        textStyle.forEach(element => {
                             // console.log(element);
-                            // console.log(item['node']);
-                            item['node'].setRangeListOptions(element['start'], element['end'], element['listOptions']);
-                            item['node'].setRangeIndentation(element['start'], element['end'], element['indentation']);
-                        }
-                    });
+                            let position = 0;
+                            let index;
+                            // 由于单个段落内可能存在多个符合条件的字符，所以需要循环查找
+                            while (true) {
+                                // 获取匹配到的字符的索引
+                                index = element.characters.indexOf(data.data.keyword, position);
+                                if (index > -1) {
+                                    // 有匹配的字符
+                                    // 记录新字符需要插入的位置
+                                    let insertStart = index + data.data.keyword.length + element['start'];
+                                    // console.log('insertStart:' + insertStart.toString());
+                                    // 需要替换成以下字符
+                                    let newCharacters = data.data.replace_word;
+                                    // 在索引后插入新字符
+                                    target_Text_Node[i]['node'].insertCharacters(insertStart + offsetEnd, newCharacters);
+                                    // 根据索引删除旧字符
+                                    target_Text_Node[i]['node'].deleteCharacters(index + element['start'] + offsetEnd, insertStart + offsetEnd);
+                                    // 记录偏移数值
+                                    // offsetStart = last_offsetEnd
+                                    offsetEnd += data.data.replace_word.length - data.data.keyword.length;
+                                    // console.log('while offsetStart:' + offsetStart.toString());
+                                    // console.log('while offsetEnd:' + offsetEnd.toString());
+                                    // 记录检索到目标字符的索引，下一次 while 循环在此位置后开始查找
+                                    position = index + data.data.keyword.length;
+                                }
+                                else {
+                                    // 没有匹配的字符
+                                    break;
+                                } // else
+                            } // while
+                            // 将单个段落的缩进、序号样式记录到数组内
+                            styleTemp.push({ 'start': last_offsetEnd, 'end': element['end'] + offsetEnd, 'indentation': element['indentation'] > 0 ? element['indentation'] : 0, 'listOptions': element['listOptions'] });
+                            last_offsetEnd = element['end'] + offsetEnd;
+                            // // 设置缩进
+                            // target_Text_Node[i]['node'].setRangeIndentation(element['start'] + offsetStart, element['end'] + offsetEnd, element['indentation'] > 0 ? element['indentation'] - 1 : element['indentation'])
+                            // // 设置序号
+                            // target_Text_Node[i]['node'].setRangeListOptions(element['start'] + offsetStart, element['end'] + offsetEnd, element['listOptions'])
+                        }); // textStyle.forEach
+                        // 设置缩进、序号
+                        // styleTemp 记录了每个段落的缩进、序号样式，遍历数组使得修改字符后的文本图层样式不变
+                        styleTemp.forEach(element => {
+                            // console.log(element);
+                            // console.log(target_Text_Node[i]['node']);
+                            // 如果文本为空，则不支持设置样式（会报错）
+                            if (target_Text_Node[i]['node'].characters != '' && element['end'] > element['start']) {
+                                // console.log(element);
+                                // console.log(target_Text_Node[i]['node']);
+                                target_Text_Node[i]['node'].setRangeListOptions(element['start'], element['end'], element['listOptions']);
+                                target_Text_Node[i]['node'].setRangeIndentation(element['start'], element['end'], element['indentation']);
+                            }
+                        });
+                    } // else
+                    // var searchRegExp = new RegExp(data.data.keyword, 'g')
+                    // // console.log(target_Text_Node[i]);
+                    // item['node'].characters = item['node'].characters.replace(searchRegExp, data.data.replace_word)
                 } // else
-                // var searchRegExp = new RegExp(data.data.keyword, 'g')
-                // // console.log(item);
-                // item['node'].characters = item['node'].characters.replace(searchRegExp, data.data.replace_word)
-            } // else
-        }); // target_Text_Node.forEach
-        // 替换完毕，通知 UI 更新
-        figma.ui.postMessage({ 'type': 'replace', 'hasMissingFontCount': hasMissingFontCount });
-        console.log('target_Text_Node:');
+            }, 10);
+        }
+        // target_Text_Node.forEach(item => {
+        //   // console.log('replace target_Text_Node.forEach:');
+        //   // console.log(item);
+        //   if (item['ancestor_isVisible'] == false || item['ancestor_isLocked'] == true) {
+        //     // 忽略隐藏、锁定的图层
+        //   } else {
+        //     // console.log(item['node']['fontName']);
+        //     // console.log(item['node'].hasMissingFont);
+        //     if (item['node'].hasMissingFont) {
+        //       // 字体不支持
+        //       console.log('hasMissingFont');
+        //       hasMissingFontCount += 1
+        //     } else {
+        //       let textStyle = item['node'].getStyledTextSegments(['indentation', 'listOptions'])
+        //       // console.log('textStyle:');
+        //       // console.log(textStyle);
+        //       let offsetStart = 0
+        //       let offsetEnd = 0         // 记录修改字符后的索引偏移数值
+        //       let styleTemp = []        // 记录每个段落样式在修改后的样式索引（在替换完字符后需要设置回之前的样式）
+        //       let last_offsetEnd = 0    // 记录上一个段落的末尾索引
+        //       // 替换目标字符
+        //       textStyle.forEach(element => {
+        //         // console.log(element);
+        //         let position = 0
+        //         let index
+        //         // 由于单个段落内可能存在多个符合条件的字符，所以需要循环查找
+        //         while (true) {
+        //           // 获取匹配到的字符的索引
+        //           index = element.characters.indexOf(data.data.keyword, position)
+        //           if (index > -1) {
+        //             // 有匹配的字符
+        //             // 记录新字符需要插入的位置
+        //             let insertStart = index + data.data.keyword.length + element['start']
+        //             // console.log('insertStart:' + insertStart.toString());
+        //             // 需要替换成以下字符
+        //             let newCharacters = data.data.replace_word
+        //             // 在索引后插入新字符
+        //             item['node'].insertCharacters(insertStart + offsetEnd, newCharacters)
+        //             // 根据索引删除旧字符
+        //             item['node'].deleteCharacters(index + element['start'] + offsetEnd, insertStart + offsetEnd)
+        //             // 记录偏移数值
+        //             // offsetStart = last_offsetEnd
+        //             offsetEnd += data.data.replace_word.length - data.data.keyword.length
+        //             // console.log('while offsetStart:' + offsetStart.toString());
+        //             // console.log('while offsetEnd:' + offsetEnd.toString());
+        //             // 记录检索到目标字符的索引，下一次 while 循环在此位置后开始查找
+        //             position = index + data.data.keyword.length
+        //           } else {
+        //             // 没有匹配的字符
+        //             break
+        //           } // else
+        //         }// while
+        //         // 将单个段落的缩进、序号样式记录到数组内
+        //         styleTemp.push({ 'start': last_offsetEnd, 'end': element['end'] + offsetEnd, 'indentation': element['indentation'] > 0 ? element['indentation'] : 0, 'listOptions': element['listOptions'] })
+        //         last_offsetEnd = element['end'] + offsetEnd
+        //         // // 设置缩进
+        //         // item['node'].setRangeIndentation(element['start'] + offsetStart, element['end'] + offsetEnd, element['indentation'] > 0 ? element['indentation'] - 1 : element['indentation'])
+        //         // // 设置序号
+        //         // item['node'].setRangeListOptions(element['start'] + offsetStart, element['end'] + offsetEnd, element['listOptions'])
+        //       });// textStyle.forEach
+        //       // 设置缩进、序号
+        //       // styleTemp 记录了每个段落的缩进、序号样式，遍历数组使得修改字符后的文本图层样式不变
+        //       styleTemp.forEach(element => {
+        //         // console.log(element);
+        //         // console.log(item['node']);
+        //         // 如果文本为空，则不支持设置样式（会报错）
+        //         if (item['node'].characters != '' && element['end'] > element['start']) {
+        //           // console.log(element);
+        //           // console.log(item['node']);
+        //           item['node'].setRangeListOptions(element['start'], element['end'], element['listOptions'])
+        //           item['node'].setRangeIndentation(element['start'], element['end'], element['indentation'])
+        //         }
+        //       });
+        //     }// else
+        //     // var searchRegExp = new RegExp(data.data.keyword, 'g')
+        //     // // console.log(item);
+        //     // item['node'].characters = item['node'].characters.replace(searchRegExp, data.data.replace_word)
+        //   }// else
+        // })// target_Text_Node.forEach
     });
 } // async function replace
 // Figma 图层选择变化时，通知 UI 显示不同的提示
@@ -287,7 +376,7 @@ function findKeyWord(node_list, keyword) {
     for (let i = 0; i < len; i++) {
         setTimeout(() => {
             my_progress++;
-            figma.ui.postMessage({ 'type': 'loading', 'my_progress': { 'index': my_progress, 'total': node_list.length } });
+            figma.ui.postMessage({ 'type': 'find', 'done': false, 'my_progress': { 'index': my_progress, 'total': node_list.length } });
             node = node_list[i];
             if (node['characters'].indexOf(keyword) > -1) {
                 // 找到关键词
@@ -346,7 +435,7 @@ function findKeyWord(node_list, keyword) {
                         data_temp = { 'id': node.id, 'characters': node.characters, 'start': index, 'end': index + keyword.length, 'hasMissingFont': node.hasMissingFont, 'ancestor_type': ancestor_type };
                         if (req_cout < 10) {
                             // 如果已经有搜索结果，则先发送一部分显示在 UI 中，提升搜索加载状态的体验
-                            figma.ui.postMessage({ 'type': 'find', 'find_end': false, 'target_Text_Node': [data_temp] });
+                            figma.ui.postMessage({ 'type': 'find', 'done': false, 'target_Text_Node': [data_temp] });
                         }
                         else {
                             data_item_list.push(data_temp);
