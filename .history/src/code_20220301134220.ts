@@ -19,7 +19,7 @@ onSelectionChange()
 figma.on("selectionchange", () => { onSelectionChange() })
 
 // UI 发来消息
-figma.ui.onmessage = msg => {
+figma.ui.onmessage = msg:Object => {
 
   // UI 中点击了「搜索」按钮
   if (msg.type === 'search') {
@@ -100,13 +100,9 @@ figma.ui.onmessage = msg => {
     console.log(msg);
     // 执行替换
     replace(msg).then(() => {
-
-      setTimeout(() => {
-        console.log('code.ts replace done');
-        // 替换完毕，通知 UI 更新
-        // figma.ui.postMessage({ 'type': 'replace', 'done': true, 'hasMissingFontCount': hasMissingFontCount });
-      }, 100);
-
+      console.log('code.ts replace done');
+      // 替换完毕，通知 UI 更新
+      figma.ui.postMessage({ 'type': 'replace', 'done': true, 'hasMissingFontCount': hasMissingFontCount });
     })
 
 
@@ -238,7 +234,7 @@ function find(data) {
 }
 
 // 替换
-async function replace(data) {
+function replace(data) {
   console.log('replace');
   // console.log(data);
   // console.log(target_Text_Node);
@@ -250,9 +246,8 @@ async function replace(data) {
     return
   }
 
-  
+  hasMissingFontCount = 0
   myLoadFontAsync(target_Text_Node).then(() => {
-    hasMissingFontCount = 0
     let len = target_Text_Node.length
 
     let my_progress = 0             // 进度信息
@@ -265,7 +260,7 @@ async function replace(data) {
 
           my_progress++
           // console.log(my_progress);
-          // figma.ui.postMessage({ 'type': 'replace', 'done': false, 'my_progress': { 'index': my_progress, 'total': len},'hasMissingFontCount':hasMissingFontCount  });
+          figma.ui.postMessage({ 'type': 'replace', 'done': false, 'my_progress': { 'index': my_progress, 'total': len } });
 
           if (target_Text_Node[i]['ancestor_isVisible'] == false || target_Text_Node[i]['ancestor_isLocked'] == true) {
             // 忽略隐藏、锁定的图层
@@ -278,7 +273,6 @@ async function replace(data) {
             if (target_Text_Node[i]['node'].hasMissingFont) {
               // 字体不支持
               console.log('hasMissingFont');
-              console.log(hasMissingFontCount);
               hasMissingFontCount += 1
 
             } else {
@@ -369,19 +363,16 @@ async function replace(data) {
             }// else
 
           }// else
-
-          figma.ui.postMessage({ 'type': 'replace', 'done': false, 'my_progress': { 'index': my_progress, 'total': len},'hasMissingFontCount':hasMissingFontCount  });
-          
         }, 10)
 
       }
     }, 0);
-    
+
 
   })
 
 
-  // resolve('1')
+  return 'done'
 }// async function replace
 
 // Figma 图层选择变化时，通知 UI 显示不同的提示

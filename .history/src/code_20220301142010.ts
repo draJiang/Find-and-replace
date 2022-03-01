@@ -371,7 +371,6 @@ async function replace(data) {
           }// else
 
           figma.ui.postMessage({ 'type': 'replace', 'done': false, 'my_progress': { 'index': my_progress, 'total': len},'hasMissingFontCount':hasMissingFontCount  });
-          
         }, 10)
 
       }

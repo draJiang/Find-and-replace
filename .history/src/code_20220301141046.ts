@@ -105,7 +105,7 @@ figma.ui.onmessage = msg => {
         console.log('code.ts replace done');
         // 替换完毕，通知 UI 更新
         // figma.ui.postMessage({ 'type': 'replace', 'done': true, 'hasMissingFontCount': hasMissingFontCount });
-      }, 100);
+      }, 40);
 
     })
 
@@ -265,7 +265,7 @@ async function replace(data) {
 
           my_progress++
           // console.log(my_progress);
-          // figma.ui.postMessage({ 'type': 'replace', 'done': false, 'my_progress': { 'index': my_progress, 'total': len},'hasMissingFontCount':hasMissingFontCount  });
+          figma.ui.postMessage({ 'type': 'replace', 'done': false, 'my_progress': { 'index': my_progress, 'total': len,'hasMissingFontCount':hasMissingFontCount } });
 
           if (target_Text_Node[i]['ancestor_isVisible'] == false || target_Text_Node[i]['ancestor_isLocked'] == true) {
             // 忽略隐藏、锁定的图层
@@ -369,14 +369,11 @@ async function replace(data) {
             }// else
 
           }// else
-
-          figma.ui.postMessage({ 'type': 'replace', 'done': false, 'my_progress': { 'index': my_progress, 'total': len},'hasMissingFontCount':hasMissingFontCount  });
-          
         }, 10)
 
       }
     }, 0);
-    
+
 
   })
 

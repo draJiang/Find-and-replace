@@ -375,7 +375,7 @@ class App extends React.Component {
           // 替换中
           this.setState({
             list_state: 'replace',
-            hasMissingFontCount: event.data.pluginMessage['hasMissingFontCount'],
+            // hasMissingFontCount: event.data.pluginMessage['hasMissingFontCount'],
             done: event.data.pluginMessage['done'],
             // 进度信息
             my_progress: event.data.pluginMessage['my_progress']

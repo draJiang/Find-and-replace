@@ -110,34 +110,26 @@ class SearchResultsList extends React.Component
   }
 
   render() {
-    // console.log('resultList render:');
+    console.log('resultList render:');
+    console.log(this.props);
 
-    // console.log(this.props);
     var list = this.props.data
 
     // 搜索加载状态
-    // if (this.props['done'] == false && this.props['list_state'] != 'find') {
-    //   console.log('搜索加载状态');
+    if (this.props['done'] == false && this.props['list_state'] != 'find') {
 
-    //   console.log(this.props);
-    //   return (
-    //     <div>
-    //       <Loading />
-    //     </div>
-    //   )
-    // }
-
-
-
-
-    // 替换
+      return (
+        <div>
+          <Loading />
+        </div>
+      )
+    }
+    
+    // 替换完毕
     if (this.props['list_state'] == 'replace') {
-
-
-      // console.log(this.props);
-
-
-      if (this.props['done'] || this.props.my_progress['index'] == this.props.my_progress['total']) {
+      console.log('替换完毕');
+      
+      if (this.props['done']) {
         // 替换完毕
         let info = this.props['hasMissingFontCount'] <= 0 ? <div className='main_info'>✅ Replaced</div> : <div className='main_info'>ℹ️ {this.props['hasMissingFontCount']} fail because the font is not supported</div>
         return (
@@ -150,6 +142,8 @@ class SearchResultsList extends React.Component
         )
       } else {
         // 替换中，显示加载状态
+        console.log('替换中');
+        
         return (
           <div className='find_result_list_info'>
             <Loading progress_info={this.props.my_progress} />
@@ -363,7 +357,7 @@ class App extends React.Component {
       // 替换
       if (event.data.pluginMessage['type'] == 'replace') {
         // console.log(event.data.pluginMessage);
-
+        
         if (event.data.pluginMessage['done']) {
           // 替换完毕
           this.setState({
@@ -375,7 +369,7 @@ class App extends React.Component {
           // 替换中
           this.setState({
             list_state: 'replace',
-            hasMissingFontCount: event.data.pluginMessage['hasMissingFontCount'],
+            // hasMissingFontCount: event.data.pluginMessage['hasMissingFontCount'],
             done: event.data.pluginMessage['done'],
             // 进度信息
             my_progress: event.data.pluginMessage['my_progress']
@@ -405,7 +399,6 @@ class App extends React.Component {
     console.log('设置搜索中状态：');
 
     this.setState({
-      list_state: 'find',
       done: false,
       my_progress: { 'index': 0, 'total': 100 },
       search_results_list: []    // 每次搜索清空历史记录
@@ -430,19 +423,10 @@ class App extends React.Component {
 
   // 替换
   onReplace = () => {
-    this.setState({
-      list_state: 'replace',
-      done: false,
-      my_progress: { 'index': 0, 'total': 100 },
-    })
-
-    setTimeout(() => {
-      console.log('onReplace');
-      const keyword = this.keyword.value
-      const replace_word = this.replace_word.value
-      parent.postMessage({ pluginMessage: { type: 'replace', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')
-    }, 0);
-
+    console.log('onReplace');
+    const keyword = this.keyword.value
+    const replace_word = this.replace_word.value
+    parent.postMessage({ pluginMessage: { type: 'replace', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')
   }
 
   // 文本框输入时

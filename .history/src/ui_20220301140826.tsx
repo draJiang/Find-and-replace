@@ -134,7 +134,7 @@ class SearchResultsList extends React.Component
     if (this.props['list_state'] == 'replace') {
 
 
-      // console.log(this.props);
+      console.log(this.props);
 
 
       if (this.props['done'] || this.props.my_progress['index'] == this.props.my_progress['total']) {
