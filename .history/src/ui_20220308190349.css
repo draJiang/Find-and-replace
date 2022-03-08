@@ -191,7 +191,7 @@ input:focus {
   color: rgba(40, 40, 40, 1);
   font-size: 12px;
   flex-direction: column;
-  padding-top: 30%;
+  padding-top: 37%;
 }
 .list_disable {
   opacity: 0.3;

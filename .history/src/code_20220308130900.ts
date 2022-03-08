@@ -7,7 +7,7 @@ let hasMissingFontCount = 0                // 替换时记录不支持字体的�
 let req_cout = 0                           // 搜索结果数量
 let node_list = []                         // 存储所有 TEXT 图层
 
-console.log('2022-03-08');
+console.log('2022-02-25');
 
 // 启动插件时显示 UI
 figma.showUI(__html__, { width: 300, height: 340 })
@@ -46,8 +46,6 @@ figma.ui.onmessage = msg => {
       let findKeyWord_end = new Date().getTime()
       console.log('》》》》》》》》》》findKeyWord:' + (findKeyWord_end - findKeyWord_start).toString());
 
-      
-
     }, 20)
 
 
@@ -63,11 +61,7 @@ figma.ui.onmessage = msg => {
         // figma.ui.postMessage({ 'type': 'done' })
 
         let end = new Date().getTime()
-        console.log('》》》》》》》》》》' + msg.data.keyword + ':' + (end - start).toString()+' count:'+req_cout.toString());
-        if (req_cout>30) {
-          figma.ui.resize(300,540)  
-        }
-        
+        console.log('》》》》》》》》》》' + msg.data.keyword + ':' + (end - start).toString());
 
       }, 30)
     }, 40)
@@ -243,124 +237,6 @@ function find(data) {
 
 }
 
-// 搜索：在文本图层中，匹配关键字
-function findKeyWord(node_list, keyword) {
-
-  // console.log('func findKeyWord begin');
-  req_cout = 0                    // 搜索结果数量
-
-  let data_item_list = []
-  let data_temp
-  let node                        // 记录遍历到的图层
-  let len = node_list.length
-  let my_progress = 0             // 进度信息
-
-  // 忽略大小写
-  keyword = keyword.toLowerCase() 
-  // console.log('keyword:');
-  // console.log(keyword);
-  
-
-  for (let i = 0; i < len; i++) {
-    setTimeout(() => {
-      my_progress++
-      figma.ui.postMessage({ 'type': 'find', 'done': false, 'my_progress': { 'index': my_progress, 'total': node_list.length } });
-
-
-      node = node_list[i]
-      let node_characters = node['characters'].toLowerCase()
-      if (node_characters.indexOf(keyword) > -1) {
-        // 找到关键词(忽略大小写)
-
-        // 判断祖先图层的状态，包括隐藏、锁定、组件、实例属性
-        let this_parent
-        let ancestor_isVisible = true
-        let ancestor_isLocked = false
-        let ancestor_type = ''              // 组件/实例/其他
-
-
-
-        if (node.locked == true) {
-          ancestor_isLocked = true
-        }
-        if (node.visible == false) {
-          ancestor_isVisible = false
-        }
-
-        if (ancestor_isVisible == false || ancestor_isLocked == true) {
-          // 如果图层本身就是锁定或隐藏状态
-        } else {
-          // 获取祖先元素的状态
-          this_parent = node.parent
-          while (this_parent.type != 'PAGE') {
-
-            if (this_parent.locked == true) {
-              ancestor_isLocked = true
-            }
-            if (this_parent.visible == false) {
-              ancestor_isVisible = false
-            }
-
-            if (this_parent.type == 'COMPONENT') {
-              ancestor_type = 'COMPONENT'
-            }
-            if (this_parent.type == 'INSTANCE') {
-              ancestor_type = 'INSTANCE'
-            }
-
-            if ((ancestor_isVisible == false || ancestor_isLocked == true) && ancestor_type != '') {
-              break
-            } else {
-              this_parent = this_parent.parent
-            }
-          }
-        }
-
-
-
-        // 单个图层的数据，存储到 target_Text_Node 中，拥有后续的替换工作
-        target_Text_Node.push({ 'node': node, 'ancestor_isVisible': ancestor_isVisible, 'ancestor_isLocked': ancestor_isLocked, 'ancestor_type': ancestor_type })
-
-        // 构建数据，传送给 UI
-        let position = 0
-        let index = 0
-        let keyword_length = keyword.length
-        
-        while (index >= 0) {
-          // 由于单个 TEXT 图层内可能存在多个符合条件的字符，所以需要循环查找
-          index = node_characters.indexOf(keyword, position)
-
-          if (index > -1) {
-            // 将查找的字符起始、终止位置发送给 UI
-
-            // 每个关键字的数据
-            data_temp = { 'id': node.id, 'characters': node.characters, 'start': index, 'end': index + keyword.length, 'hasMissingFont': node.hasMissingFont, 'ancestor_type': ancestor_type }
-            if (req_cout < 10) {
-              // 如果已经有搜索结果，则先发送一部分显示在 UI 中，提升搜索加载状态的体验
-              figma.ui.postMessage({ 'type': 'find', 'done': false, 'target_Text_Node': [data_temp] })
-            } else {
-              data_item_list.push(data_temp)
-            }
-
-            // 统计搜索结果数量
-            req_cout++
-            // 设置查找目标字符串的偏移
-            position = index + keyword_length
-
-          } // if
-        } // while
-      } // if (node['characters'].indexOf(keyword) > -1)
-    }, 10); // setTimeout
-
-
-
-  }
-
-  console.log('func findKeyWord end');
-
-  return data_item_list
-}
-
 // 替换
 async function replace(data) {
   console.log('replace');
@@ -379,12 +255,11 @@ async function replace(data) {
     hasMissingFontCount = 0
     let len = target_Text_Node.length
 
-    let my_progress = 0                           // 进度信息
-    let keyword = data.data.keyword.toLowerCase()               // 关键字
-    let newCharacters = data.data.replace_word    // 需要替换成以下字符
+    let my_progress = 0             // 进度信息
 
     setTimeout(() => {
       for (let i = len; i--;) {
+
 
         setTimeout(() => {
 
@@ -402,8 +277,8 @@ async function replace(data) {
 
             if (target_Text_Node[i]['node'].hasMissingFont) {
               // 字体不支持
-              // console.log('hasMissingFont');
-              // console.log(hasMissingFontCount);
+              console.log('hasMissingFont');
+              console.log(hasMissingFontCount);
               hasMissingFontCount += 1
 
             } else {
@@ -429,16 +304,17 @@ async function replace(data) {
                 while (true) {
 
                   // 获取匹配到的字符的索引
-                  index = element.characters.toLowerCase().indexOf(keyword, position)
+                  index = element.characters.indexOf(data.data.keyword, position)
 
                   if (index > -1) {
                     // 有匹配的字符
 
                     // 记录新字符需要插入的位置
-                    let insertStart = index + keyword.length + element['start']
+                    let insertStart = index + data.data.keyword.length + element['start']
                     // console.log('insertStart:' + insertStart.toString());
 
-                    
+                    // 需要替换成以下字符
+                    let newCharacters = data.data.replace_word
 
                     // 在索引后插入新字符
                     target_Text_Node[i]['node'].insertCharacters(insertStart + offsetEnd, newCharacters)
@@ -447,14 +323,14 @@ async function replace(data) {
 
                     // 记录偏移数值
                     // offsetStart = last_offsetEnd
-                    offsetEnd += newCharacters.length - keyword.length
+                    offsetEnd += data.data.replace_word.length - data.data.keyword.length
 
 
                     // console.log('while offsetStart:' + offsetStart.toString());
                     // console.log('while offsetEnd:' + offsetEnd.toString());
 
                     // 记录检索到目标字符的索引，下一次 while 循环在此位置后开始查找
-                    position = index + keyword.length
+                    position = index + data.data.keyword.length
 
                   } else {
                     // 没有匹配的字符
@@ -520,3 +396,114 @@ function onSelectionChange() {
   }
 }
 
+// 在文本图层中，匹配关键字
+function findKeyWord(node_list, keyword) {
+
+  // console.log('func findKeyWord begin');
+  req_cout = 0                    // 搜索结果数量
+
+  let data_item_list = []
+  let data_temp
+  let node                        // 记录遍历到的图层
+  let len = node_list.length
+  let my_progress = 0             // 进度信息
+
+  for (let i = 0; i < len; i++) {
+    setTimeout(() => {
+      my_progress++
+      figma.ui.postMessage({ 'type': 'find', 'done': false, 'my_progress': { 'index': my_progress, 'total': node_list.length } });
+
+
+      node = node_list[i]
+      if (node['characters'].indexOf(keyword) > -1) {
+        // 找到关键词
+
+        // 判断祖先图层的状态，包括隐藏、锁定、组件、实例属性
+        let this_parent
+        let ancestor_isVisible = true
+        let ancestor_isLocked = false
+        let ancestor_type = ''              // 组件/实例/其他
+
+
+
+        if (node.locked == true) {
+          ancestor_isLocked = true
+        }
+        if (node.visible == false) {
+          ancestor_isVisible = false
+        }
+
+        if (ancestor_isVisible == false || ancestor_isLocked == true) {
+          // 如果图层本身就是锁定或隐藏状态
+        } else {
+          // 获取祖先元素的状态
+          this_parent = node.parent
+          while (this_parent.type != 'PAGE') {
+
+            if (this_parent.locked == true) {
+              ancestor_isLocked = true
+            }
+            if (this_parent.visible == false) {
+              ancestor_isVisible = false
+            }
+
+            if (this_parent.type == 'COMPONENT') {
+              ancestor_type = 'COMPONENT'
+            }
+            if (this_parent.type == 'INSTANCE') {
+              ancestor_type = 'INSTANCE'
+            }
+
+            if ((ancestor_isVisible == false || ancestor_isLocked == true) && ancestor_type != '') {
+              break
+            } else {
+              this_parent = this_parent.parent
+            }
+          }
+        }
+
+
+
+        // 单个图层的数据，存储到 target_Text_Node 中，拥有后续的替换工作
+        target_Text_Node.push({ 'node': node, 'ancestor_isVisible': ancestor_isVisible, 'ancestor_isLocked': ancestor_isLocked, 'ancestor_type': ancestor_type })
+
+        // 构建数据，传送给 UI
+        let position = 0
+        let index = 0
+        let keyword_length = keyword.length
+        while (index >= 0) {
+          // 由于单个 TEXT 图层内可能存在多个符合条件的字符，所以需要循环查找
+          index = node.characters.indexOf(keyword, position)
+          // console.log('index:');
+          // console.log(index);
+
+          if (index > -1) {
+            // 将查找的字符起始、终止位置发送给 UI
+
+            // 每个关键字的数据
+            data_temp = { 'id': node.id, 'characters': node.characters, 'start': index, 'end': index + keyword.length, 'hasMissingFont': node.hasMissingFont, 'ancestor_type': ancestor_type }
+            if (req_cout < 10) {
+              // 如果已经有搜索结果，则先发送一部分显示在 UI 中，提升搜索加载状态的体验
+              figma.ui.postMessage({ 'type': 'find', 'done': false, 'target_Text_Node': [data_temp] })
+            } else {
+              data_item_list.push(data_temp)
+            }
+
+            // 统计搜索结果数量
+            req_cout++
+            // 设置查找目标字符串的偏移
+            position = index + keyword_length
+
+          } // if
+        } // while
+      } // if (node['characters'].indexOf(keyword) > -1)
+    }, 10); // setTimeout
+
+
+
+  }
+
+  console.log('func findKeyWord end');
+
+  return data_item_list
+}

@@ -255,8 +255,6 @@ class SearchResultsList extends React.Component
 
       <div>
 
-        {/* <Loading progress_info={this.props.my_progress} /> */}
-
         <div className="find_result_list list_disable">
           {/* <li className="resultItem">_<span className="heightLight">button</span>--standard</li>
           <li className="resultItem">_<span className="heightLight">button</span>--standard</li>

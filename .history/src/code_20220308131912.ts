@@ -46,8 +46,6 @@ figma.ui.onmessage = msg => {
       let findKeyWord_end = new Date().getTime()
       console.log('》》》》》》》》》》findKeyWord:' + (findKeyWord_end - findKeyWord_start).toString());
 
-      
-
     }, 20)
 
 
@@ -63,11 +61,7 @@ figma.ui.onmessage = msg => {
         // figma.ui.postMessage({ 'type': 'done' })
 
         let end = new Date().getTime()
-        console.log('》》》》》》》》》》' + msg.data.keyword + ':' + (end - start).toString()+' count:'+req_cout.toString());
-        if (req_cout>30) {
-          figma.ui.resize(300,540)  
-        }
-        
+        console.log('》》》》》》》》》》' + msg.data.keyword + ':' + (end - start).toString());
 
       }, 30)
     }, 40)
@@ -257,8 +251,8 @@ function findKeyWord(node_list, keyword) {
 
   // 忽略大小写
   keyword = keyword.toLowerCase() 
-  // console.log('keyword:');
-  // console.log(keyword);
+  console.log('keyword:');
+  console.log(keyword);
   
 
   for (let i = 0; i < len; i++) {
@@ -268,8 +262,12 @@ function findKeyWord(node_list, keyword) {
 
 
       node = node_list[i]
-      let node_characters = node['characters'].toLowerCase()
-      if (node_characters.indexOf(keyword) > -1) {
+
+      console.log("node['characters'].toLowerCase():");
+      
+      console.log(node['characters'].toLowerCase());
+      
+      if (node['characters'].toLowerCase().indexOf(keyword) > -1) {
         // 找到关键词(忽略大小写)
 
         // 判断祖先图层的状态，包括隐藏、锁定、组件、实例属性
@@ -325,10 +323,11 @@ function findKeyWord(node_list, keyword) {
         let position = 0
         let index = 0
         let keyword_length = keyword.length
-        
         while (index >= 0) {
           // 由于单个 TEXT 图层内可能存在多个符合条件的字符，所以需要循环查找
-          index = node_characters.indexOf(keyword, position)
+          index = node.characters.indexOf(keyword, position)
+          // console.log('index:');
+          // console.log(index);
 
           if (index > -1) {
             // 将查找的字符起始、终止位置发送给 UI
@@ -380,7 +379,7 @@ async function replace(data) {
     let len = target_Text_Node.length
 
     let my_progress = 0                           // 进度信息
-    let keyword = data.data.keyword.toLowerCase()               // 关键字
+    let keyword = data.data.keyword               // 关键字
     let newCharacters = data.data.replace_word    // 需要替换成以下字符
 
     setTimeout(() => {
@@ -402,8 +401,8 @@ async function replace(data) {
 
             if (target_Text_Node[i]['node'].hasMissingFont) {
               // 字体不支持
-              // console.log('hasMissingFont');
-              // console.log(hasMissingFontCount);
+              console.log('hasMissingFont');
+              console.log(hasMissingFontCount);
               hasMissingFontCount += 1
 
             } else {
@@ -429,7 +428,7 @@ async function replace(data) {
                 while (true) {
 
                   // 获取匹配到的字符的索引
-                  index = element.characters.toLowerCase().indexOf(keyword, position)
+                  index = element.characters.indexOf(keyword, position)
 
                   if (index > -1) {
                     // 有匹配的字符

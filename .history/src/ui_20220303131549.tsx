@@ -255,8 +255,6 @@ class SearchResultsList extends React.Component
 
       <div>
 
-        {/* <Loading progress_info={this.props.my_progress} /> */}
-
         <div className="find_result_list list_disable">
           {/* <li className="resultItem">_<span className="heightLight">button</span>--standard</li>
           <li className="resultItem">_<span className="heightLight">button</span>--standard</li>
@@ -396,6 +394,7 @@ class App extends React.Component {
           selectionPage: event.data.pluginMessage['selectionPage']
         })
       }
+
 
     }
   }
@@ -553,6 +552,7 @@ class App extends React.Component {
         <div id='topBox'>
           <div className='inputBox'>
             {/* <p>Find</p> */}
+            <img src = './resource/开启=false,状态=默认.svg'></img>
             <div>
               <input name='find' onInput={this.onFindInputChange} placeholder={input_placeholder} onKeyPress={this.onInputEnter} ref={this.keywordRef} />
               {findButton}

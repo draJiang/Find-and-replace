@@ -44,9 +44,9 @@ figma.ui.onmessage = msg => {
       // 在文本图层中匹配包含关键字的图层
       toHTML = findKeyWord(node_list, msg.data.keyword)
       let findKeyWord_end = new Date().getTime()
-      console.log('》》》》》》》》》》findKeyWord:' + (findKeyWord_end - findKeyWord_start).toString());
+      console.log('》》》》》》》》》》findKeyWord:' + (findKeyWord_end - findKeyWord_start).toString()+' count:'+req_cout.toString());
 
-      
+      figma.showUI(__html__, { width: 300, height: 540 })
 
     }, 20)
 
@@ -63,11 +63,7 @@ figma.ui.onmessage = msg => {
         // figma.ui.postMessage({ 'type': 'done' })
 
         let end = new Date().getTime()
-        console.log('》》》》》》》》》》' + msg.data.keyword + ':' + (end - start).toString()+' count:'+req_cout.toString());
-        if (req_cout>30) {
-          figma.ui.resize(300,540)  
-        }
-        
+        console.log('》》》》》》》》》》' + msg.data.keyword + ':' + (end - start).toString());
 
       }, 30)
     }, 40)

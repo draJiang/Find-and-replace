@@ -46,7 +46,7 @@ figma.ui.onmessage = msg => {
       let findKeyWord_end = new Date().getTime()
       console.log('》》》》》》》》》》findKeyWord:' + (findKeyWord_end - findKeyWord_start).toString());
 
-      
+      figma.showUI(__html__, { width: 300, height: 540 })
 
     }, 20)
 
@@ -63,11 +63,7 @@ figma.ui.onmessage = msg => {
         // figma.ui.postMessage({ 'type': 'done' })
 
         let end = new Date().getTime()
-        console.log('》》》》》》》》》》' + msg.data.keyword + ':' + (end - start).toString()+' count:'+req_cout.toString());
-        if (req_cout>30) {
-          figma.ui.resize(300,540)  
-        }
-        
+        console.log('》》》》》》》》》》' + msg.data.keyword + ':' + (end - start).toString());
 
       }, 30)
     }, 40)
@@ -402,8 +398,8 @@ async function replace(data) {
 
             if (target_Text_Node[i]['node'].hasMissingFont) {
               // 字体不支持
-              // console.log('hasMissingFont');
-              // console.log(hasMissingFontCount);
+              console.log('hasMissingFont');
+              console.log(hasMissingFontCount);
               hasMissingFontCount += 1
 
             } else {

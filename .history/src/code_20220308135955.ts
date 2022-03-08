@@ -64,10 +64,9 @@ figma.ui.onmessage = msg => {
 
         let end = new Date().getTime()
         console.log('》》》》》》》》》》' + msg.data.keyword + ':' + (end - start).toString()+' count:'+req_cout.toString());
-        if (req_cout>30) {
-          figma.ui.resize(300,540)  
-        }
         
+        //@ts-ignore
+        figma.resize(300,540)
 
       }, 30)
     }, 40)

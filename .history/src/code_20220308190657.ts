@@ -10,7 +10,7 @@ let node_list = []                         // 存储所有 TEXT 图层
 console.log('2022-03-08');
 
 // 启动插件时显示 UI
-figma.showUI(__html__, { width: 300, height: 340 })
+figma.showUI(__html__, { width: 300, height: 540 })
 
 // 获取是否选中图层
 onSelectionChange()

@@ -98,13 +98,12 @@ input:focus {
 .modal {
   /* height: 72%; */
 
-  padding: 0px 14px 14px 14px;
+  padding: 98px 14px 14px 14px;
   float: left;
   bottom: 0;
   width: 100%;
   height: auto;
-  top: 100px;
-  position: absolute;
+
 }
 
 .find_result_list_info {
@@ -191,7 +190,7 @@ input:focus {
   color: rgba(40, 40, 40, 1);
   font-size: 12px;
   flex-direction: column;
-  padding-top: 30%;
+  padding-top: 37%;
 }
 .list_disable {
   opacity: 0.3;
