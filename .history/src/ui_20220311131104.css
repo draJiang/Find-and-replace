@@ -95,7 +95,7 @@ input:focus {
 }
 
 .find_result_list,
-.modal,.find_result_list_info {
+.modal,find_result_list_info {
   /* height: 72%; */
 
   padding: 0px 14px 14px 14px;
@@ -108,7 +108,7 @@ input:focus {
 }
 
 .find_result_list_info {
-  height: auto;
+  height: 62%;
   display: flex;
   justify-content: center;
   align-items: center;

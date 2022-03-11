@@ -14,7 +14,7 @@ let fileType = figma.editorType; // 当前 figma 文件类型：figma/figjam
 let hasMissingFontCount = 0; // 替换时记录不支持字体的数量
 let req_cout = 0; // 搜索结果数量
 let node_list = []; // 存储所有 TEXT 图层
-console.log('2022-03-08');
+console.log('2022-03-11');
 // 启动插件时显示 UI
 figma.showUI(__html__, { width: 300, height: 340 });
 // 获取是否选中图层
