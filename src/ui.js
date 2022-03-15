@@ -124,12 +124,14 @@ class SearchResultsList extends React.Component {
                 }
                 // 字体位于组件或示例内时，显示 UI 提示
                 if (node['ancestor_type'] == 'COMPONENT' && node['characters'].indexOf('typeIcon') < 0) {
-                    let typeIcon = '<span title="Located within the component" class="typeIcon">C</span>';
-                    node['characters'] += typeIcon;
+                    // let typeIcon = '<span title="Located within the component" class="typeIcon">C</span>'
+                    let typeIcon = '<span class="typeIcon icon icon--component"></span>';
+                    node['characters'] = typeIcon + node['characters'];
                 }
                 if (node['ancestor_type'] == 'INSTANCE' && node['characters'].indexOf('typeIcon') < 0) {
-                    let typeIcon = '<span title="Located within the instance" class="typeIcon">I</span>';
-                    node['characters'] += typeIcon;
+                    // let typeIcon = '<span title="Located within the instance" class="typeIcon">I</span>'
+                    let typeIcon = '<span class="typeIcon icon icon--instance"></span>';
+                    node['characters'] = typeIcon + node['characters'];
                 }
             });
             const listItems = list.map((node, index) => React.createElement("li", { className: 'resultItem', onClick: this.listItemHandleClick.bind(node), key: node['id'] + ':' + index.toString(), dangerouslySetInnerHTML: { __html: node['characters'] } }));

@@ -16,7 +16,7 @@ let req_cout = 0; // 搜索结果数量
 let node_list = []; // 存储所有 TEXT 图层
 console.log('2022-03-11');
 // 启动插件时显示 UI
-figma.showUI(__html__, { width: 300, height: 340 });
+figma.showUI(__html__, { width: 300, height: 400 });
 // 获取是否选中图层
 onSelectionChange();
 // 绑定 Figma 图层选择变化事件
@@ -252,7 +252,7 @@ function findKeyWord(node_list, keyword) {
                         // 将查找的字符起始、终止位置发送给 UI
                         // 每个关键字的数据
                         data_temp = { 'id': node.id, 'characters': node.characters, 'start': index, 'end': index + keyword.length, 'hasMissingFont': node.hasMissingFont, 'ancestor_type': ancestor_type };
-                        if (req_cout < 10) {
+                        if (req_cout < 20) {
                             // 如果已经有搜索结果，则先发送一部分显示在 UI 中，提升搜索加载状态的体验
                             figma.ui.postMessage({ 'type': 'find', 'done': false, 'target_Text_Node': [data_temp] });
                         }
