@@ -177,8 +177,8 @@ class SearchResultsList extends React.Component
       // 渲染搜索结果列表
       list.forEach((node) => {
 
-        let this_start = node['start'] - 30 // 关键词前 x 个字符开始截取
-        let ellipsis = node['end'] + 30 < node['characters'].length ? true : false
+        let this_start = node['start'] - 24 // 关键词前 x 个字符开始截取
+        let ellipsis = node['end'] + 24 < node['characters'].length ? true : false
 
         if (this_start < 0) {
           // 关键词前不足 14 个字符时，从头开始截取
@@ -188,7 +188,7 @@ class SearchResultsList extends React.Component
         if (node['characters'].indexOf('<span class="heightLight">') < 0) {
 
           // 关键字高亮显示
-          node['characters'] = node['characters'].substring(this_start, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end'], node['end'] + 30)
+          node['characters'] = node['characters'].substring(this_start, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end'], node['end'] + 20)
 
           // 关键词在段落中靠后，则前面加省略号
           if (this_start > 0) {

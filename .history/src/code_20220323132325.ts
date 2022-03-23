@@ -7,7 +7,6 @@ let hasMissingFontCount = 0                // 替换时记录不支持字体的�
 let req_cout = 0                           // 搜索结果数量
 let node_list = []                         // 存储所有 TEXT 图层
 
-
 console.log('2022-03-23');
 
 // 启动插件时显示 UI
@@ -211,7 +210,7 @@ function find(data) {
 
 
   node_list = []            // 存储所有 TEXT 图层
-  // let children_list = []    // 拆分图层，逐个搜索，避免界面长时间挂起
+  let children_list = []    // 拆分图层，逐个搜索，避免界面长时间挂起
 
   let len = selection.length
 
@@ -287,8 +286,7 @@ function find(data) {
 
 
   // 遍历范围内的图层，获取 TEXT 图层
-  //@ts-ignore
-  figma.skipInvisibleInstanceChildren = true    // 忽略隐藏的图层
+
   for (let i = 0; i < len; i++) {
 
     setTimeout(() => {

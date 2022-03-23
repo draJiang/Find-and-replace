@@ -14,7 +14,7 @@ let fileType = figma.editorType; // 当前 figma 文件类型：figma/figjam
 let hasMissingFontCount = 0; // 替换时记录不支持字体的数量
 let req_cout = 0; // 搜索结果数量
 let node_list = []; // 存储所有 TEXT 图层
-console.log('2022-03-11');
+console.log('2022-03-23');
 // 启动插件时显示 UI
 figma.showUI(__html__, { width: 300, height: 400 });
 // 获取是否选中图层
@@ -157,8 +157,57 @@ function find(data) {
         // 在当前选中的图层中，搜索文本图层
     }
     node_list = []; // 存储所有 TEXT 图层
-    // 遍历范围内的图层，获取 TEXT 图层
+    // let children_list = []    // 拆分图层，逐个搜索，避免界面长时间挂起
     let len = selection.length;
+    // 拆分图层，逐个搜索，避免界面长时间挂起
+    // for (let j = 0; j < len; j++) {
+    //   //@ts-ignore
+    //   console.log(selection[j].children);
+    //   //@ts-ignore
+    //   if (selection[j].children == undefined) {
+    //     children_list = children_list.concat(selection[j])
+    //   } else {
+    //     // 如果图层下有子图层
+    //     //@ts-ignore
+    //     for (let k = 0; k < selection[j].children.length; k++) {
+    //       //@ts-ignore
+    //       const element = selection[j].children[k];
+    //       console.log('element:');
+    //       console.log(element);
+    //       console.log(element.children);
+    //       if (element.children == undefined) {
+    //         // 如果图层下没有子图层
+    //         children_list = children_list.concat(element)
+    //         console.log('children_list');
+    //       } else {
+    //         // 如果图层下有子图层
+    //         children_list = children_list.concat(element.children)
+    //       }
+    //     }
+    //   }
+    // }
+    // for (let i = 0; i < children_list.length; i++) {
+    //   setTimeout(() => {
+    //     // 如果图层本身就是文本图层
+    //     if (children_list[i].type == 'TEXT') {
+    //       node_list.push(children_list[i])
+    //     } else {
+    //       // 如果图层下没有子图层
+    //       //@ts-ignore
+    //       if (children_list[i].children == undefined) {
+    //       } else {
+    //         // 获取文本图层
+    //         console.log('findAllWithCriteria:');
+    //         console.log(children_list[i]['name']);
+    //         //@ts-ignore
+    //         node_list = node_list.concat(children_list[i].findAllWithCriteria({ types: ['TEXT'] }))
+    //       }
+    //     }
+    //   }, 10);
+    // }
+    // 遍历范围内的图层，获取 TEXT 图层
+    //@ts-ignore
+    figma.skipInvisibleInstanceChildren = true; // 忽略隐藏的图层
     for (let i = 0; i < len; i++) {
         setTimeout(() => {
             // 如果图层本身就是文本图层
@@ -172,6 +221,8 @@ function find(data) {
                 }
                 else {
                     // 获取文本图层
+                    console.log('findAllWithCriteria:');
+                    console.log(selection[i]['name']);
                     //@ts-ignore
                     node_list = node_list.concat(selection[i].findAllWithCriteria({ types: ['TEXT'] }));
                 }
@@ -254,7 +305,7 @@ function findKeyWord(node_list, keyword) {
                         data_temp = { 'id': node.id, 'characters': node.characters, 'start': index, 'end': index + keyword.length, 'hasMissingFont': node.hasMissingFont, 'ancestor_type': ancestor_type };
                         if (req_cout < 20) {
                             // 如果已经有搜索结果，则先发送一部分显示在 UI 中，提升搜索加载状态的体验
-                            figma.ui.postMessage({ 'type': 'find', 'done': false, 'target_Text_Node': [data_temp] });
+                            figma.ui.postMessage({ 'type': 'find', 'done': false, 'my_progress': { 'index': my_progress, 'total': len }, 'target_Text_Node': [data_temp] });
                         }
                         else {
                             data_item_list.push(data_temp);
@@ -268,7 +319,6 @@ function findKeyWord(node_list, keyword) {
             } // if (node['characters'].indexOf(keyword) > -1)
         }, 10); // setTimeout
     }
-    console.log('func findKeyWord end');
     return data_item_list;
 }
 // 替换

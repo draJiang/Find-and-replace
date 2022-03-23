@@ -7,7 +7,6 @@ let hasMissingFontCount = 0                // 替换时记录不支持字体的�
 let req_cout = 0                           // 搜索结果数量
 let node_list = []                         // 存储所有 TEXT 图层
 
-
 console.log('2022-03-23');
 
 // 启动插件时显示 UI
@@ -47,7 +46,7 @@ figma.ui.onmessage = msg => {
       let findKeyWord_end = new Date().getTime()
       console.log('》》》》》》》》》》findKeyWord:' + (findKeyWord_end - findKeyWord_start).toString());
 
-
+      
 
     }, 20)
 
@@ -64,11 +63,11 @@ figma.ui.onmessage = msg => {
         // figma.ui.postMessage({ 'type': 'done' })
 
         let end = new Date().getTime()
-        console.log('》》》》》》》》》》' + msg.data.keyword + ':' + (end - start).toString() + ' count:' + req_cout.toString());
-        if (req_cout > 30) {
-          figma.ui.resize(300, 540)
+        console.log('》》》》》》》》》》' + msg.data.keyword + ':' + (end - start).toString()+' count:'+req_cout.toString());
+        if (req_cout>30) {
+          figma.ui.resize(300,540)  
         }
-
+        
 
       }, 30)
     }, 40)
@@ -210,85 +209,10 @@ function find(data) {
   }
 
 
-  node_list = []            // 存储所有 TEXT 图层
-  // let children_list = []    // 拆分图层，逐个搜索，避免界面长时间挂起
-
-  let len = selection.length
-
-
-  // 拆分图层，逐个搜索，避免界面长时间挂起
-  // for (let j = 0; j < len; j++) {
-  //   //@ts-ignore
-  //   console.log(selection[j].children);
-
-    
-  //   //@ts-ignore
-  //   if (selection[j].children == undefined) {
-  //     children_list = children_list.concat(selection[j])
-  //   } else {
-  //     // 如果图层下有子图层
-
-  //     //@ts-ignore
-  //     for (let k = 0; k < selection[j].children.length; k++) {
-  //       //@ts-ignore
-  //       const element = selection[j].children[k];
-        
-  //       console.log('element:');
-  //       console.log(element);
-  //       console.log(element.children);
-  //       if (element.children == undefined) {
-  //         // 如果图层下没有子图层
-  //         children_list = children_list.concat(element)
-  //         console.log('children_list');
-          
-  //       } else {
-  //         // 如果图层下有子图层
-  //         children_list = children_list.concat(element.children)
-  //       }
-
-  //     }
-
-  //   }
-
-
-  // }
-
-
-  // for (let i = 0; i < children_list.length; i++) {
-
-  //   setTimeout(() => {
-  //     // 如果图层本身就是文本图层
-  //     if (children_list[i].type == 'TEXT') {
-
-  //       node_list.push(children_list[i])
-
-  //     } else {
-  //       // 如果图层下没有子图层
-  //       //@ts-ignore
-  //       if (children_list[i].children == undefined) {
-
-  //       } else {
-
-  //         // 获取文本图层
-  //         console.log('findAllWithCriteria:');
-
-  //         console.log(children_list[i]['name']);
-
-
-  //         //@ts-ignore
-  //         node_list = node_list.concat(children_list[i].findAllWithCriteria({ types: ['TEXT'] }))
-
-  //       }
-
-  //     }
-  //   }, 10);
-
-  // }
-
+  node_list = []        // 存储所有 TEXT 图层
 
   // 遍历范围内的图层，获取 TEXT 图层
-  //@ts-ignore
-  figma.skipInvisibleInstanceChildren = true    // 忽略隐藏的图层
+  let len = selection.length
   for (let i = 0; i < len; i++) {
 
     setTimeout(() => {
@@ -305,10 +229,9 @@ function find(data) {
         } else {
 
           // 获取文本图层
-          console.log('findAllWithCriteria:');
 
           console.log(selection[i]['name']);
-
+          
 
           //@ts-ignore
           node_list = node_list.concat(selection[i].findAllWithCriteria({ types: ['TEXT'] }))
@@ -337,10 +260,10 @@ function findKeyWord(node_list, keyword) {
   let my_progress = 0             // 进度信息
 
   // 忽略大小写
-  keyword = keyword.toLowerCase()
+  keyword = keyword.toLowerCase() 
   // console.log('keyword:');
   // console.log(keyword);
-
+  
 
   for (let i = 0; i < len; i++) {
     setTimeout(() => {
@@ -406,7 +329,7 @@ function findKeyWord(node_list, keyword) {
         let position = 0
         let index = 0
         let keyword_length = keyword.length
-
+        
         while (index >= 0) {
           // 由于单个 TEXT 图层内可能存在多个符合条件的字符，所以需要循环查找
           index = node_characters.indexOf(keyword, position)
@@ -418,7 +341,7 @@ function findKeyWord(node_list, keyword) {
             data_temp = { 'id': node.id, 'characters': node.characters, 'start': index, 'end': index + keyword.length, 'hasMissingFont': node.hasMissingFont, 'ancestor_type': ancestor_type }
             if (req_cout < 20) {
               // 如果已经有搜索结果，则先发送一部分显示在 UI 中，提升搜索加载状态的体验
-              figma.ui.postMessage({ 'type': 'find', 'done': false, 'my_progress': { 'index': my_progress, 'total': len }, 'target_Text_Node': [data_temp] })
+              figma.ui.postMessage({ 'type': 'find', 'done': false, 'target_Text_Node': [data_temp] })
             } else {
               data_item_list.push(data_temp)
             }
@@ -437,6 +360,8 @@ function findKeyWord(node_list, keyword) {
 
   }
 
+  console.log('func findKeyWord end');
+
   return data_item_list
 }
 
@@ -453,7 +378,7 @@ async function replace(data) {
     return
   }
 
-
+  
   myLoadFontAsync(target_Text_Node).then(() => {
     hasMissingFontCount = 0
     let len = target_Text_Node.length
@@ -517,7 +442,7 @@ async function replace(data) {
                     let insertStart = index + keyword.length + element['start']
                     // console.log('insertStart:' + insertStart.toString());
 
-
+                    
 
                     // 在索引后插入新字符
                     target_Text_Node[i]['node'].insertCharacters(insertStart + offsetEnd, newCharacters)
@@ -573,13 +498,13 @@ async function replace(data) {
 
           }// else
 
-          figma.ui.postMessage({ 'type': 'replace', 'done': false, 'my_progress': { 'index': my_progress, 'total': len }, 'hasMissingFontCount': hasMissingFontCount });
-
+          figma.ui.postMessage({ 'type': 'replace', 'done': false, 'my_progress': { 'index': my_progress, 'total': len},'hasMissingFontCount':hasMissingFontCount  });
+          
         }, 10)
 
       }
     }, 0);
-
+    
 
   })
 

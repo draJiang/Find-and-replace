@@ -7,7 +7,6 @@ let hasMissingFontCount = 0                // 替换时记录不支持字体的�
 let req_cout = 0                           // 搜索结果数量
 let node_list = []                         // 存储所有 TEXT 图层
 
-
 console.log('2022-03-23');
 
 // 启动插件时显示 UI
@@ -211,48 +210,51 @@ function find(data) {
 
 
   node_list = []            // 存储所有 TEXT 图层
-  // let children_list = []    // 拆分图层，逐个搜索，避免界面长时间挂起
+  let children_list = []    // 拆分图层，逐个搜索，避免界面长时间挂起
 
   let len = selection.length
 
 
   // 拆分图层，逐个搜索，避免界面长时间挂起
-  // for (let j = 0; j < len; j++) {
-  //   //@ts-ignore
-  //   console.log(selection[j].children);
+  for (let j = 0; j < len; j++) {
+    //@ts-ignore
+    console.log(selection[j].children);
 
     
-  //   //@ts-ignore
-  //   if (selection[j].children == undefined) {
-  //     children_list = children_list.concat(selection[j])
-  //   } else {
-  //     // 如果图层下有子图层
+    //@ts-ignore
+    if (selection[j].children == undefined) {
+      children_list = children_list.concat(selection[j])
+    } else {
+      // 如果图层下有子图层
 
-  //     //@ts-ignore
-  //     for (let k = 0; k < selection[j].children.length; k++) {
-  //       //@ts-ignore
-  //       const element = selection[j].children[k];
+      //@ts-ignore
+      for (let k = 0; k < selection[j].children.length; k++) {
+        //@ts-ignore
+        const element = selection[j].children[k];
         
-  //       console.log('element:');
-  //       console.log(element);
-  //       console.log(element.children);
-  //       if (element.children == undefined) {
-  //         // 如果图层下没有子图层
-  //         children_list = children_list.concat(element)
-  //         console.log('children_list');
+        console.log('element:');
+        console.log(element);
+        console.log(element.children);
+        if (element.children == undefined) {
+          // 如果图层下没有子图层
+          children_list = children_list.concat(element)
+          console.log('children_list');
           
-  //       } else {
-  //         // 如果图层下有子图层
-  //         children_list = children_list.concat(element.children)
-  //       }
+        } else {
+          // 如果图层下有子图层
+          children_list = children_list.concat(element.children)
+        }
 
-  //     }
+      }
 
-  //   }
+    }
 
 
-  // }
+  }
 
+  console.log('children_list:');
+  console.log(children_list);
+  
 
   // for (let i = 0; i < children_list.length; i++) {
 
@@ -287,8 +289,7 @@ function find(data) {
 
 
   // 遍历范围内的图层，获取 TEXT 图层
-  //@ts-ignore
-  figma.skipInvisibleInstanceChildren = true    // 忽略隐藏的图层
+
   for (let i = 0; i < len; i++) {
 
     setTimeout(() => {

@@ -41,11 +41,10 @@ button:active {
 }
 
 .heightLight {
-  color: rgba(40, 40, 40, 1);
-  background: #CDE1F4;
-  padding: 0 2px;
-  border-radius: 2px;
-  margin: 0 0.4px;
+  color: #fff;
+    background: #7AB8F4;
+    padding: 0 2px;
+    border-radius: 2px;
 }
 
 .inputBox {
@@ -99,8 +98,7 @@ input:focus {
 }
 
 .find_result_list,
-.modal,
-.find_result_list_info {
+.modal,.find_result_list_info {
   /* height: 72%; */
 
   padding: 0px 14px 14px 14px;
@@ -158,11 +156,11 @@ input:focus {
   border-radius: 2px;
   cursor: pointer;
 }
-.resultItem {
+.resultItem{
   /* display:flex; */
 }
 
-.missIcon {
+.missIcon{
   padding: 0px 2px 0px 2px;
   border-radius: 4px;
   font-size: 11px;

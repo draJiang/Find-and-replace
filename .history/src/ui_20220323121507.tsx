@@ -188,7 +188,7 @@ class SearchResultsList extends React.Component
         if (node['characters'].indexOf('<span class="heightLight">') < 0) {
 
           // 关键字高亮显示
-          node['characters'] = node['characters'].substring(this_start, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end'], node['end'] + 30)
+          node['characters'] = node['characters'].substring(this_start, node['start']) + '<span class="heightLight">' + node['characters'].substring(node['start'], node['end']) + '</span>' + node['characters'].substring(node['end'], node['end'] + 20)
 
           // 关键词在段落中靠后，则前面加省略号
           if (this_start > 0) {
