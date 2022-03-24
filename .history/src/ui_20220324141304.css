@@ -85,14 +85,8 @@ button:active {
   border-radius: 2px;
 }
 
-.icon--ellipses {
-  height: 84%;
-  border-radius: 2px;
-  margin-right: 2px;
-}
-
-.icon--ellipses:hover {
-  background-color: rgb(0 0 0 / 6%);
+.icon--ellipses:hover{
+  background-color:#18a0fb;
 }
 
 input:hover {

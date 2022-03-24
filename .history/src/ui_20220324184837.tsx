@@ -560,7 +560,7 @@ class App extends React.Component {
           <div className='inputBox'>
             <div>
               <input name='find' onInput={this.onFindInputChange} placeholder={input_placeholder} onKeyPress={this.onInputEnter} ref={this.keywordRef} />
-              <div onClick={this.handle_setingIcon_click} className="icon icon--ellipses"></div>
+              <div className="icon icon--ellipses"></div>
             </div>
             {findButton}
           </div>

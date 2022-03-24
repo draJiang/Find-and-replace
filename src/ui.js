@@ -244,6 +244,9 @@ class App extends React.Component {
                 // }
             }
         };
+        this.handle_setingIcon_click = () => {
+            console.log('handle_setingIcon_click');
+        };
         // 记录搜索结果是否为空
         this.result_list_emty = (type) => {
             // 状态有变化时才更新 UI
@@ -384,11 +387,12 @@ class App extends React.Component {
                 React.createElement("div", { className: 'inputBox' },
                     React.createElement("div", null,
                         React.createElement("input", { name: 'find', onInput: this.onFindInputChange, placeholder: input_placeholder, onKeyPress: this.onInputEnter, ref: this.keywordRef }),
-                        findButton)),
+                        React.createElement("div", { onClick: this.handle_setingIcon_click, className: "icon icon--ellipses" })),
+                    findButton),
                 React.createElement("div", { className: 'inputBox' },
                     React.createElement("div", null,
-                        React.createElement("input", { name: 'replace', placeholder: 'Replace', ref: this.replace_word_Ref, onKeyPress: this.onInputEnter }),
-                        replaceButton))),
+                        React.createElement("input", { name: 'replace', placeholder: 'Replace', ref: this.replace_word_Ref, onKeyPress: this.onInputEnter })),
+                    replaceButton)),
             React.createElement(SearchResultsList, { my_progress: this.state.my_progress, done: this.state.done, result_list_emty: this.result_list_emty, list_state: this.state.list_state, hasMissingFontCount: this.state.hasMissingFontCount, data: this.state.search_results_list })));
     }
 }

@@ -59,17 +59,15 @@ button:active {
   color: #999;
 }
 .inputBox > div {
-  display: flex;
-  align-items: center;
-
   box-shadow: 0px 1px rgb(0 0 0 / 10%);
-  border-radius: 1px;
+  border-radius: 2px;
+  display: flex;
   width: 100%;
 }
 
 .inputBox > div:hover {
   box-shadow: 0 0 0 1px rgb(0 0 0 / 10%);
-  border-radius: 1px;
+  border-radius: 2px;
 }
 
 .inputBox > div:focus {
@@ -83,16 +81,6 @@ button:active {
   /* box-shadow: inset 0px -1px rgb(0 0 0 / 10%);  */
   font-size: 12px;
   border-radius: 2px;
-}
-
-.icon--ellipses {
-  height: 84%;
-  border-radius: 2px;
-  margin-right: 2px;
-}
-
-.icon--ellipses:hover {
-  background-color: rgb(0 0 0 / 6%);
 }
 
 input:hover {

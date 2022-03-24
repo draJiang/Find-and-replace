@@ -553,7 +553,7 @@ class App extends React.Component {
     }
 
     return (
-      <div>
+      <div onClick={this.handle_setingIcon_click}>
 
         {/* 顶部表单区域 */}
         <div id='topBox'>

@@ -9,7 +9,7 @@ button {
   color: black;
   border: none;
   padding: 8px 15px;
-  margin: 0 10px;
+  margin: 0 5px;
   box-shadow: inset 0 0 0 1px black;
   outline: none;
   font-size: 12px;
@@ -42,7 +42,7 @@ button:active {
 
 .heightLight {
   color: rgba(40, 40, 40, 1);
-  background: #cde1f4;
+  background: #CDE1F4;
   padding: 0 2px;
   border-radius: 2px;
   margin: 0 0.4px;
@@ -58,58 +58,33 @@ button:active {
   font-size: 12px;
   color: #999;
 }
-.inputBox > div {
+.inputBox>div {
   display: flex;
-  align-items: center;
-
-  box-shadow: 0px 1px rgb(0 0 0 / 10%);
-  border-radius: 1px;
-  width: 100%;
+  border-bottom: 1px solid rgb(0 0 0 / 10%);
 }
-
-.inputBox > div:hover {
-  box-shadow: 0 0 0 1px rgb(0 0 0 / 10%);
-  border-radius: 1px;
-}
-
-.inputBox > div:focus {
-  border: 1px solid #18a0fb;
-}
-
 .inputBox input {
   width: 100%;
-
+  
   /* box-sizing: border-box; */
   /* box-shadow: inset 0px -1px rgb(0 0 0 / 10%);  */
   font-size: 12px;
   border-radius: 2px;
 }
-
-.icon--ellipses {
-  height: 84%;
-  border-radius: 2px;
-  margin-right: 2px;
-}
-
-.icon--ellipses:hover {
-  background-color: rgb(0 0 0 / 6%);
-}
-
 input:hover {
   /* box-shadow: inset 0 0 0 1px ;  */
   /* box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1); */
   /* border:none; */
 }
-.inputBox > div:focus-within {
-  box-shadow: 0 0 0 2px #18a0fb;
+input:focus {
+  /* box-shadow: inset 0 0 0 2px #18a0fb; */
 }
 
 .inputBox button {
   height: 30px;
-  /* text-align: center; */
+  text-align: center;
   line-height: 15px;
   vertical-align: middle;
-  width: 28%;
+  width: 32%;
   cursor: pointer;
   float: right;
   margin-right: 0;
