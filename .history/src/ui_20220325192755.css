@@ -36,7 +36,7 @@ input {
   box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.3);
 }
 #replace:active {
-  box-shadow: inset 0 0 0 2px #18A0FB;
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.3);
 }
 
 ::-webkit-input-placeholder {

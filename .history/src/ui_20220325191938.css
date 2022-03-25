@@ -32,11 +32,8 @@ input {
 }
 
 /* button:focus { box-shadow: inset 0 0 0 2px #18A0FB; } */
-#search:active {
+#search:focus {
   box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.3);
-}
-#replace:active {
-  box-shadow: inset 0 0 0 2px #18A0FB;
 }
 
 ::-webkit-input-placeholder {
@@ -257,10 +254,11 @@ button:active {
     0px 22.3363px 17.869px rgb(0 0 0 / 4%), 0px 12.5216px 10.0172px rgb(0 0 0 / 4%),
     0px 6.6501px 5.32008px rgb(0 0 0 / 3%), 0px 2.76726px 2.21381px rgb(0 0 0 / 2%);
   border: 1px solid rgba(0, 0, 0, 0.08);
+
 }
 
 /* 主要用于控制设置浮层的显示、隐藏 */
 .hidden {
   visibility: hidden;
-  transition: all 1.5s;
+  transition:all 1.5s;
 }
