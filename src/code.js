@@ -12,6 +12,7 @@ let target_Text_Node = []; // 存储符合搜索条件的 TEXT 图层
 let loaded_fonts = []; // 已加载的字体列表
 let fileType = figma.editorType; // 当前 figma 文件类型：figma/figjam
 let hasMissingFontCount = 0; // 替换时记录不支持字体的数量
+let seting_Aa = false; // 是否区分大小写
 let req_cout = 0; // 搜索结果数量
 let node_list = []; // 存储所有 TEXT 图层
 console.log('2022-03-23');
@@ -92,6 +93,10 @@ figma.ui.onmessage = msg => {
         //   figma.ui.postMessage({ 'type': 'replace', 'done': true, 'hasMissingFontCount': hasMissingFontCount });
         // }, 30);
     }
+    // UI 中进行搜索设置
+    if (msg.type === 'handle_seting_click') {
+        seting_Aa = msg['data']['data']['checked'];
+    }
 };
 // 加载字体
 function myLoadFontAsync(text_layer_List) {
@@ -159,52 +164,6 @@ function find(data) {
     node_list = []; // 存储所有 TEXT 图层
     // let children_list = []    // 拆分图层，逐个搜索，避免界面长时间挂起
     let len = selection.length;
-    // 拆分图层，逐个搜索，避免界面长时间挂起
-    // for (let j = 0; j < len; j++) {
-    //   //@ts-ignore
-    //   console.log(selection[j].children);
-    //   //@ts-ignore
-    //   if (selection[j].children == undefined) {
-    //     children_list = children_list.concat(selection[j])
-    //   } else {
-    //     // 如果图层下有子图层
-    //     //@ts-ignore
-    //     for (let k = 0; k < selection[j].children.length; k++) {
-    //       //@ts-ignore
-    //       const element = selection[j].children[k];
-    //       console.log('element:');
-    //       console.log(element);
-    //       console.log(element.children);
-    //       if (element.children == undefined) {
-    //         // 如果图层下没有子图层
-    //         children_list = children_list.concat(element)
-    //         console.log('children_list');
-    //       } else {
-    //         // 如果图层下有子图层
-    //         children_list = children_list.concat(element.children)
-    //       }
-    //     }
-    //   }
-    // }
-    // for (let i = 0; i < children_list.length; i++) {
-    //   setTimeout(() => {
-    //     // 如果图层本身就是文本图层
-    //     if (children_list[i].type == 'TEXT') {
-    //       node_list.push(children_list[i])
-    //     } else {
-    //       // 如果图层下没有子图层
-    //       //@ts-ignore
-    //       if (children_list[i].children == undefined) {
-    //       } else {
-    //         // 获取文本图层
-    //         console.log('findAllWithCriteria:');
-    //         console.log(children_list[i]['name']);
-    //         //@ts-ignore
-    //         node_list = node_list.concat(children_list[i].findAllWithCriteria({ types: ['TEXT'] }))
-    //       }
-    //     }
-    //   }, 10);
-    // }
     // 遍历范围内的图层，获取 TEXT 图层
     //@ts-ignore
     figma.skipInvisibleInstanceChildren = true; // 忽略隐藏的图层
@@ -221,8 +180,6 @@ function find(data) {
                 }
                 else {
                     // 获取文本图层
-                    console.log('findAllWithCriteria:');
-                    console.log(selection[i]['name']);
                     //@ts-ignore
                     node_list = node_list.concat(selection[i].findAllWithCriteria({ types: ['TEXT'] }));
                 }
@@ -241,7 +198,9 @@ function findKeyWord(node_list, keyword) {
     let len = node_list.length;
     let my_progress = 0; // 进度信息
     // 忽略大小写
-    keyword = keyword.toLowerCase();
+    if (seting_Aa != true) {
+        keyword = keyword.toLowerCase();
+    }
     // console.log('keyword:');
     // console.log(keyword);
     for (let i = 0; i < len; i++) {
@@ -249,7 +208,14 @@ function findKeyWord(node_list, keyword) {
             my_progress++;
             figma.ui.postMessage({ 'type': 'find', 'done': false, 'my_progress': { 'index': my_progress, 'total': node_list.length } });
             node = node_list[i];
-            let node_characters = node['characters'].toLowerCase();
+            let node_characters;
+            // 忽略大小写
+            if (seting_Aa != true) {
+                node_characters = node['characters'].toLowerCase();
+            }
+            else {
+                node_characters = node['characters'];
+            }
             if (node_characters.indexOf(keyword) > -1) {
                 // 找到关键词(忽略大小写)
                 // 判断祖先图层的状态，包括隐藏、锁定、组件、实例属性
@@ -336,8 +302,12 @@ function replace(data) {
             hasMissingFontCount = 0;
             let len = target_Text_Node.length;
             let my_progress = 0; // 进度信息
-            let keyword = data.data.keyword.toLowerCase(); // 关键字
+            let keyword = data.data.keyword; // 关键字
             let newCharacters = data.data.replace_word; // 需要替换成以下字符
+            // 忽略大小写
+            if (seting_Aa != true) {
+                keyword = keyword.toLowerCase();
+            }
             setTimeout(() => {
                 for (let i = len; i--;) {
                     setTimeout(() => {
@@ -368,11 +338,15 @@ function replace(data) {
                                 textStyle.forEach(element => {
                                     // console.log(element);
                                     let position = 0;
+                                    let element_characters = element.characters;
                                     let index;
+                                    if (seting_Aa != true) {
+                                        element_characters = element_characters.toLowerCase();
+                                    }
                                     // 由于单个段落内可能存在多个符合条件的字符，所以需要循环查找
                                     while (true) {
                                         // 获取匹配到的字符的索引
-                                        index = element.characters.toLowerCase().indexOf(keyword, position);
+                                        index = element_characters.indexOf(keyword, position);
                                         if (index > -1) {
                                             // 有匹配的字符
                                             // 记录新字符需要插入的位置

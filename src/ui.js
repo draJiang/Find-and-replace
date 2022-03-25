@@ -185,11 +185,6 @@ class App extends React.Component {
                     parent.postMessage({ pluginMessage: { type: 'search', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*');
                 }, 10);
             });
-            // setTimeout(() => {
-            //   const keyword = this.keyword.value
-            //   const replace_word = this.replace_word.value
-            //   parent.postMessage({ pluginMessage: { type: 'search', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')
-            // }, 0)
         };
         // 替换
         this.onReplace = () => {
@@ -244,8 +239,47 @@ class App extends React.Component {
                 // }
             }
         };
+        // 设置按钮点击
         this.handle_setingIcon_click = () => {
-            console.log('handle_setingIcon_click');
+            // 切换设置浮层的显示、隐藏状态
+            this.setState({
+                //@ts-ignore
+                show_seting_tips: !this.state.show_seting_tips
+            });
+        };
+        // 隐藏设置浮层
+        this.hidden_seting_tips = (nativeEvent) => {
+            // 点击对象的 ID
+            let target_id = nativeEvent['nativeEvent']['target']['id'];
+            // 点击对象的 className
+            let target_className = nativeEvent['nativeEvent']['target']['className'];
+            // 如果点击对象不是设置按钮、不是浮层本身、不是浮层内的选项
+            if (target_id != 'find_seting_icon' && target_className != 'seting_tips' && target_className.indexOf('checkbox') < 0) {
+                // 隐藏设置浮层
+                this.setState({
+                    //@ts-ignore
+                    show_seting_tips: false
+                });
+            }
+        };
+        // 设置浮层内的设置项点击
+        this.handle_seting_click = (nativeEvent) => {
+            let seting_type = nativeEvent['nativeEvent']['target']['id'];
+            // 区分大小写
+            if (seting_type == 'seting_Aa') {
+                // 更新 State 数据
+                this.setState({
+                    //@ts-ignore
+                    seting_data: {
+                        'seting_Aa': nativeEvent['nativeEvent']['target']['checked']
+                    }
+                });
+                // 通知 code.ts
+                parent.postMessage({ pluginMessage: { type: 'handle_seting_click', data: { 'type': seting_type, 'data': { 'checked': nativeEvent['nativeEvent']['target']['checked'] } } } }, '*');
+            }
+            // 搜索整个文档
+            // 搜索隐藏图层
+            // ……
         };
         // 记录搜索结果是否为空
         this.result_list_emty = (type) => {
@@ -273,6 +307,10 @@ class App extends React.Component {
             result_list_emty: true,
             done: true,
             hasMissingFontCount: 0,
+            show_seting_tips: false,
+            seting_data: {
+                'seting_Aa': false
+            },
             my_progress: {
                 'index': 0,
                 'total': 100
@@ -382,18 +420,37 @@ class App extends React.Component {
             // 在选中范围内搜索
             input_placeholder = 'Search in the selected layer';
         }
-        return (React.createElement("div", null,
+        // 控制 Tips 的显示、隐藏
+        let seting_tips_class = 'seting_tips';
+        if (this.state.show_seting_tips) {
+            seting_tips_class = 'seting_tips';
+        }
+        else {
+            seting_tips_class = 'seting_tips hidden';
+        }
+        // 如果任意设置开启，则入口设置为高亮样式
+        let seting_icon_is_active = 'icon icon--ellipses';
+        for (let key in this.state.seting_data) {
+            if (this.state.seting_data[key]) {
+                seting_icon_is_active = 'icon icon--ellipses icon--blue';
+            }
+        }
+        return (React.createElement("div", { className: 'box', onClick: this.hidden_seting_tips },
             React.createElement("div", { id: 'topBox' },
                 React.createElement("div", { className: 'inputBox' },
                     React.createElement("div", null,
                         React.createElement("input", { name: 'find', onInput: this.onFindInputChange, placeholder: input_placeholder, onKeyPress: this.onInputEnter, ref: this.keywordRef }),
-                        React.createElement("div", { onClick: this.handle_setingIcon_click, className: "icon icon--ellipses" })),
+                        React.createElement("div", { id: 'find_seting_icon', onClick: this.handle_setingIcon_click, className: seting_icon_is_active })),
                     findButton),
                 React.createElement("div", { className: 'inputBox' },
                     React.createElement("div", null,
                         React.createElement("input", { name: 'replace', placeholder: 'Replace', ref: this.replace_word_Ref, onKeyPress: this.onInputEnter })),
                     replaceButton)),
-            React.createElement(SearchResultsList, { my_progress: this.state.my_progress, done: this.state.done, result_list_emty: this.result_list_emty, list_state: this.state.list_state, hasMissingFontCount: this.state.hasMissingFontCount, data: this.state.search_results_list })));
+            React.createElement(SearchResultsList, { my_progress: this.state.my_progress, done: this.state.done, result_list_emty: this.result_list_emty, list_state: this.state.list_state, hasMissingFontCount: this.state.hasMissingFontCount, data: this.state.search_results_list }),
+            React.createElement("div", { className: seting_tips_class },
+                React.createElement("div", { className: "checkbox" },
+                    React.createElement("input", { onClick: this.handle_seting_click, id: "seting_Aa", type: "checkbox", className: "checkbox__box" }),
+                    React.createElement("label", { htmlFor: "seting_Aa", className: "checkbox__label" }, "Case sensitive")))));
     }
 }
 ReactDOM.render(React.createElement(App, null), document.getElementById('react-page'));
