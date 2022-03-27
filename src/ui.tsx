@@ -173,9 +173,16 @@ class SearchResultsList extends React.Component
       } else if (list.length) {
 
       }
-
+      console.log('list.length:');
+      console.log(list.length);
+      
       // 渲染搜索结果列表
       list.forEach((node) => {
+
+        
+        // console.log('ui.tsx list.forEach node:');
+        console.log(node);
+        
 
         let this_start = node['start'] - 30 // 关键词前 x 个字符开始截取
         let ellipsis = node['end'] + 30 < node['characters'].length ? true : false

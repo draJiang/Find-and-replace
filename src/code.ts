@@ -9,7 +9,9 @@ let req_cout = 0                           // 搜索结果数量
 let node_list = []                         // 存储所有 TEXT 图层
 
 
-console.log('2022-03-23');
+console.log('2022-03-26');
+console.log(figma.root);
+
 
 // 启动插件时显示 UI
 figma.showUI(__html__, { width: 300, height: 400 })
@@ -200,39 +202,29 @@ function find(data) {
 
   // 清空历史搜索数据，重新搜索
   target_Text_Node = []
-  // 当前选中的图层
-  let selection = figma.currentPage.selection
 
 
+  if (true) {
+    //搜索整个文档或部分
 
-  // 当前未选中图层，则在当前页面搜索
-  if (selection.length == 0) {
+    // 搜索整个文档
+    //@ts-ignore
+    let selection = figma.root.children
 
-    selection = figma.currentPage.children
+    node_list = []                                // 存储所有 TEXT 图层
+    let node_list_temp
+    let json_data_temp
+    let len = selection.length
 
-  } else {
-    // 当前有选中图层，则在选中的图层中搜索
-    // 在当前选中的图层中，搜索文本图层
-  }
+    //@ts-ignore
+    figma.skipInvisibleInstanceChildren = true    // 忽略隐藏的图层
 
+    for (let i = 0; i < len; i++) {
 
-  node_list = []            // 存储所有 TEXT 图层
-  // let children_list = []    // 拆分图层，逐个搜索，避免界面长时间挂起
+      node_list_temp = []
 
-  let len = selection.length
+      setTimeout(() => {
 
-  // 遍历范围内的图层，获取 TEXT 图层
-  //@ts-ignore
-  figma.skipInvisibleInstanceChildren = true    // 忽略隐藏的图层
-  for (let i = 0; i < len; i++) {
-
-    setTimeout(() => {
-      // 如果图层本身就是文本图层
-      if (selection[i].type == 'TEXT') {
-
-        node_list.push(selection[i])
-
-      } else {
         // 如果图层下没有子图层
         //@ts-ignore
         if (selection[i].children == undefined) {
@@ -242,23 +234,88 @@ function find(data) {
           // 获取文本图层
 
           //@ts-ignore
-          node_list = node_list.concat(selection[i].findAllWithCriteria({ types: ['TEXT'] }))
+          node_list_temp = selection[i].findAllWithCriteria({ types: ['TEXT'] })
+
+          json_data_temp = { 'page': selection[i]['name'], 'node_list': node_list_temp }
+          node_list.push(json_data_temp)
 
         }
 
-      }
-    }, 10);
+      }, 10);
+
+    }
+
+
+  } else {
+    // 当前选中的图层
+    let selection = figma.currentPage.selection
+
+    // 当前未选中图层，则在当前页面搜索
+    if (selection.length == 0) {
+
+      selection = figma.currentPage.children
+
+    } else {
+      // 当前有选中图层，则在选中的图层中搜索
+      // 在当前选中的图层中，搜索文本图层
+    }
+
+
+    node_list = []               // 存储所有 TEXT 图层
+    // let children_list = []    // 拆分图层，逐个搜索，避免界面长时间挂起
+
+    let len = selection.length
+    let node_list_temp
+    let json_data_temp
+
+    // 遍历范围内的图层，获取 TEXT 图层
+    //@ts-ignore
+    figma.skipInvisibleInstanceChildren = true    // 忽略隐藏的图层
+    for (let i = 0; i < len; i++) {
+
+      setTimeout(() => {
+        // 如果图层本身就是文本图层
+        if (selection[i].type == 'TEXT') {
+
+          node_list_temp.push(selection[i])
+
+        } else {
+          // 如果图层下没有子图层
+          //@ts-ignore
+          if (selection[i].children == undefined) {
+
+          } else {
+
+            // 获取文本图层
+
+            //@ts-ignore
+            node_list_temp = node_list_temp.concat(selection[i].findAllWithCriteria({ types: ['TEXT'] }))
+
+            node_list = [{ 'page': figma.currentPage['name'], 'node_list': node_list_temp }]
+
+          }
+
+        }
+      }, 10);
+
+    }
+
 
   }
 
-  return node_list
+
+
+  // return node_list
 
 }
 
 // 搜索：在文本图层中，匹配关键字
 function findKeyWord(node_list, keyword) {
 
-  // console.log('func findKeyWord begin');
+  console.log('func findKeyWord begin');
+  console.log(node_list);
+
+
   req_cout = 0                    // 搜索结果数量
 
   let data_item_list = []
@@ -268,115 +325,128 @@ function findKeyWord(node_list, keyword) {
   let my_progress = 0             // 进度信息
 
   // 忽略大小写
-  if (seting_Aa!=true) {
+  if (seting_Aa != true) {
     keyword = keyword.toLowerCase()
   }
 
   // console.log('keyword:');
   // console.log(keyword);
-
+  let node_len_sum = 0
+  node_list.forEach(item => {
+    node_len_sum += item['node_list'].length
+  });
 
   for (let i = 0; i < len; i++) {
-    setTimeout(() => {
-      my_progress++
-      figma.ui.postMessage({ 'type': 'find', 'done': false, 'my_progress': { 'index': my_progress, 'total': node_list.length } });
-
-
-      node = node_list[i]
-      let node_characters
-
-      // 忽略大小写
-      if (seting_Aa!=true) {
-        node_characters = node['characters'].toLowerCase()
-      } else {
-        node_characters = node['characters']
-      }
-
-
-      if (node_characters.indexOf(keyword) > -1) {
-        // 找到关键词(忽略大小写)
-
-        // 判断祖先图层的状态，包括隐藏、锁定、组件、实例属性
-        let this_parent
-        let ancestor_isVisible = true
-        let ancestor_isLocked = false
-        let ancestor_type = ''              // 组件/实例/其他
 
 
 
-        if (node.locked == true) {
-          ancestor_isLocked = true
-        }
-        if (node.visible == false) {
-          ancestor_isVisible = false
-        }
+    for (let j = node_list[i]['node_list'].length - 1; j >= 0; j--) {
 
-        if (ancestor_isVisible == false || ancestor_isLocked == true) {
-          // 如果图层本身就是锁定或隐藏状态
+      setTimeout(() => {
+        my_progress++
+        figma.ui.postMessage({ 'type': 'find', 'done': false, 'my_progress': { 'index': my_progress, 'total': node_len_sum } });
+
+
+        node = node_list[i]['node_list'][j]
+        let node_characters
+
+        // 忽略大小写
+        if (seting_Aa != true) {
+          node_characters = node['characters'].toLowerCase()
         } else {
-          // 获取祖先元素的状态
-          this_parent = node.parent
-          while (this_parent.type != 'PAGE') {
+          node_characters = node['characters']
+        }
 
-            if (this_parent.locked == true) {
-              ancestor_isLocked = true
-            }
-            if (this_parent.visible == false) {
-              ancestor_isVisible = false
-            }
 
-            if (this_parent.type == 'COMPONENT') {
-              ancestor_type = 'COMPONENT'
-            }
-            if (this_parent.type == 'INSTANCE') {
-              ancestor_type = 'INSTANCE'
-            }
+        if (node_characters.indexOf(keyword) > -1) {
+          // 找到关键词(忽略大小写)
 
-            if ((ancestor_isVisible == false || ancestor_isLocked == true) && ancestor_type != '') {
-              break
-            } else {
-              this_parent = this_parent.parent
+          // 判断祖先图层的状态，包括隐藏、锁定、组件、实例属性
+          let this_parent
+          let ancestor_isVisible = true
+          let ancestor_isLocked = false
+          let ancestor_type = ''              // 组件/实例/其他
+
+
+
+          if (node.locked == true) {
+            ancestor_isLocked = true
+          }
+          if (node.visible == false) {
+            ancestor_isVisible = false
+          }
+
+          if (ancestor_isVisible == false || ancestor_isLocked == true) {
+            // 如果图层本身就是锁定或隐藏状态
+          } else {
+            // 获取祖先元素的状态
+            this_parent = node.parent
+            while (this_parent.type != 'PAGE') {
+
+              if (this_parent.locked == true) {
+                ancestor_isLocked = true
+              }
+              if (this_parent.visible == false) {
+                ancestor_isVisible = false
+              }
+
+              if (this_parent.type == 'COMPONENT') {
+                ancestor_type = 'COMPONENT'
+              }
+              if (this_parent.type == 'INSTANCE') {
+                ancestor_type = 'INSTANCE'
+              }
+
+              if ((ancestor_isVisible == false || ancestor_isLocked == true) && ancestor_type != '') {
+                break
+              } else {
+                this_parent = this_parent.parent
+              }
             }
           }
-        }
 
 
 
-        // 单个图层的数据，存储到 target_Text_Node 中，拥有后续的替换工作
-        target_Text_Node.push({ 'node': node, 'ancestor_isVisible': ancestor_isVisible, 'ancestor_isLocked': ancestor_isLocked, 'ancestor_type': ancestor_type })
+          // 单个图层的数据，存储到 target_Text_Node 中，拥有后续的替换工作
+          target_Text_Node.push({ 'node': node, 'ancestor_isVisible': ancestor_isVisible, 'ancestor_isLocked': ancestor_isLocked, 'ancestor_type': ancestor_type })
 
-        // 构建数据，传送给 UI
-        let position = 0
-        let index = 0
-        let keyword_length = keyword.length
+          // 构建数据，传送给 UI
+          let position = 0
+          let index = 0
+          let keyword_length = keyword.length
 
-        while (index >= 0) {
-          // 由于单个 TEXT 图层内可能存在多个符合条件的字符，所以需要循环查找
-          index = node_characters.indexOf(keyword, position)
+          while (index >= 0) {
+            // 由于单个 TEXT 图层内可能存在多个符合条件的字符，所以需要循环查找
+            index = node_characters.indexOf(keyword, position)
 
-          if (index > -1) {
-            // 将查找的字符起始、终止位置发送给 UI
+            if (index > -1) {
+              // 将查找的字符起始、终止位置发送给 UI
 
-            // 每个关键字的数据
-            data_temp = { 'id': node.id, 'characters': node.characters, 'start': index, 'end': index + keyword.length, 'hasMissingFont': node.hasMissingFont, 'ancestor_type': ancestor_type }
-            if (req_cout < 20) {
-              // 如果已经有搜索结果，则先发送一部分显示在 UI 中，提升搜索加载状态的体验
-              figma.ui.postMessage({ 'type': 'find', 'done': false, 'my_progress': { 'index': my_progress, 'total': len }, 'target_Text_Node': [data_temp] })
-            } else {
-              data_item_list.push(data_temp)
-            }
+              // 每个关键字的数据
+              data_temp = { 'page_name':node_list[i]['page'],'id': node.id, 'characters': node.characters, 'start': index, 'end': index + keyword.length, 'hasMissingFont': node.hasMissingFont, 'ancestor_type': ancestor_type }
 
-            // 统计搜索结果数量
-            req_cout++
-            // 设置查找目标字符串的偏移
-            position = index + keyword_length
+              if (req_cout < 20) {
+                // 如果已经有搜索结果，则先发送一部分显示在 UI 中，提升搜索加载状态的体验
+                figma.ui.postMessage({ 'type': 'find', 'done': false, 'my_progress': { 'index': my_progress, 'total': node_len_sum }, 'target_Text_Node': [data_temp] })
 
-          } // if
-        } // while
-      } // if (node['characters'].indexOf(keyword) > -1)
-    }, 10); // setTimeout
+                console.log('data_temp:');
+                console.log(data_temp);
 
+              } else {
+                data_item_list.push(data_temp)
+              }
 
+              // 统计搜索结果数量
+              req_cout++
+              // 设置查找目标字符串的偏移
+              position = index + keyword_length
+
+            } // if
+          } // while
+        } // if (node['characters'].indexOf(keyword) > -1)
+      }, 10); // setTimeout
+
+    }
 
   }
 
@@ -406,7 +476,7 @@ async function replace(data) {
     let newCharacters = data.data.replace_word    // 需要替换成以下字符
 
     // 忽略大小写
-    if (seting_Aa!=true){
+    if (seting_Aa != true) {
       keyword = keyword.toLowerCase()
     }
 
@@ -453,7 +523,7 @@ async function replace(data) {
                 let element_characters = element.characters
                 let index
 
-                if (seting_Aa!=true){
+                if (seting_Aa != true) {
                   element_characters = element_characters.toLowerCase()
                 }
 

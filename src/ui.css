@@ -176,6 +176,8 @@ button:active {
   text-overflow: ellipsis;
   overflow-x: clip;
   overflow: hidden;
+
+  cursor:default;
 }
 
 .find_result_list .clicked {
