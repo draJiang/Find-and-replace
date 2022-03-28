@@ -44,7 +44,7 @@ input {
 }
 button:hover {
   /* transform: translateY(-2px); */
-  opacity: 0.9;
+  opacity: 0.8;
 }
 button:active {
   /* transform: translateY(2px); */
@@ -265,7 +265,7 @@ button:active {
 /* 设置浮层 */
 .seting_tips {
   background: #fff;
-  padding: 4px;
+  padding: 8px 4px 4px 4px;
   align-items: flex-start;
   width: 80%;
   position: absolute;
@@ -278,6 +278,10 @@ button:active {
     0px 22.3363px 17.869px rgb(0 0 0 / 4%), 0px 12.5216px 10.0172px rgb(0 0 0 / 4%),
     0px 6.6501px 5.32008px rgb(0 0 0 / 3%), 0px 2.76726px 2.21381px rgb(0 0 0 / 2%);
   border: 1px solid rgba(0, 0, 0, 0.08);
+}
+.checkbox {
+  height: 24px;
+  margin-bottom: 4px;
 }
 
 /* 主要用于控制设置浮层的显示、隐藏 */

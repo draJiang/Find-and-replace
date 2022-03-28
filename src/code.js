@@ -17,7 +17,6 @@ let find_all = false; // 是否搜索整个文档
 let req_cout = 0; // 搜索结果数量
 let node_list = []; // 存储所有 TEXT 图层
 console.log('2022-03-26');
-console.log(figma.root);
 // 启动插件时显示 UI
 figma.showUI(__html__, { width: 300, height: 400 });
 // 获取是否选中图层
@@ -68,7 +67,6 @@ figma.ui.onmessage = msg => {
         var targetNode;
         // console.log('forEach:');
         // 搜索结果是否在当前页面
-        console.log(msg);
         let currentPage = figma.currentPage;
         let click_obj_target_page_id = msg['data']['page'];
         if (currentPage['id'] != click_obj_target_page_id) {
@@ -98,7 +96,6 @@ figma.ui.onmessage = msg => {
     // UI 中点击了「替换」按钮
     if (msg.type === 'replace') {
         console.log('code.ts replace');
-        console.log(msg);
         // 执行替换
         replace(msg).then(() => {
             setTimeout(() => {
@@ -241,7 +238,6 @@ function find(data) {
                         // 获取文本图层
                         //@ts-ignore
                         node_list_temp = node_list_temp.concat(selection[i].findAllWithCriteria({ types: ['TEXT'] }));
-                        console.log(node_list_temp);
                     }
                 }
                 node_list = [{ 'page': figma.currentPage['name'], 'page_id': figma.currentPage['id'], 'node_list': node_list_temp }];
@@ -253,7 +249,6 @@ function find(data) {
 // 搜索：在文本图层中，匹配关键字
 function findKeyWord(node_list, keyword) {
     console.log('func findKeyWord begin');
-    console.log(node_list);
     req_cout = 0; // 搜索结果数量
     let data_item_list = [];
     let data_temp;
@@ -270,8 +265,9 @@ function findKeyWord(node_list, keyword) {
     node_list.forEach(item => {
         node_len_sum += item['node_list'].length;
     });
-    for (let i = len - 1; i > -1; i--) {
-        for (let j = node_list[i]['node_list'].length - 1; j >= 0; j--) {
+    for (let i = 0; i < len; i++) {
+        let list_length = node_list[i]['node_list'].length;
+        for (let j = 0; j < list_length; j++) {
             setTimeout(() => {
                 my_progress++;
                 figma.ui.postMessage({ 'type': 'find', 'done': false, 'my_progress': { 'index': my_progress, 'total': node_len_sum } });
@@ -340,8 +336,6 @@ function findKeyWord(node_list, keyword) {
                             if (req_cout < 20) {
                                 // 如果已经有搜索结果，则先发送一部分显示在 UI 中，提升搜索加载状态的体验
                                 figma.ui.postMessage({ 'type': 'find', 'done': false, 'my_progress': { 'index': my_progress, 'total': node_len_sum }, 'target_Text_Node': [data_temp] });
-                                console.log('data_temp:');
-                                console.log(data_temp);
                             }
                             else {
                                 data_item_list.push(data_temp);

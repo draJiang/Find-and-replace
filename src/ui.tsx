@@ -251,7 +251,7 @@ class SearchResultsList extends React.Component
 
       let list_length = list.length
       // (let index = list_length-1;index>-1;index--)
-      for (let index = 0;index<list_length;index++) {
+      for (let index = 0; index < list_length; index++) {
 
         if (list[index]['page_id'] != last_page_id) {
           listItems.push(<div className='list_page_name' key={list[index]['page_name'] + list[index]['id'] + ':' + index.toString()}>{list[index]['page_name']}</div>)
@@ -675,13 +675,19 @@ class App extends React.Component {
 
     // 搜索文本框的提示文字，根据是否选中图层显示不同提示
     var input_placeholder
-    if (this.state.selectionPage) {
-      // 在当前页面内搜索
-      input_placeholder = 'Search in the current page'
+
+    if (this.state.seting_data.find_all) {
+      input_placeholder = 'Find in all pages'
     } else {
-      // 在选中范围内搜索
-      input_placeholder = 'Search in the selected layer'
+      if (this.state.selectionPage) {
+        // 在当前页面内搜索
+        input_placeholder = 'Find in the current page'
+      } else {
+        // 在选中范围内搜索
+        input_placeholder = 'Find in the selected layer'
+      }
     }
+
 
     // 控制 Tips 的显示、隐藏
     let seting_tips_class = 'seting_tips'
