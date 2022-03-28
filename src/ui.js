@@ -34,6 +34,12 @@ class Loading extends React.Component {
 class SearchResultsList extends React.Component {
     constructor(props) {
         super(props);
+        // 列表锚链接
+        this.list_linker = (e) => {
+            console.log(e);
+            let this_node = e['nativeEvent']['target'];
+            this_node.scrollIntoView();
+        };
         // 搜索无结果时，通过此方法通知父组件更新 UI（主要是置灰替换按钮）
         this.result_list_emty = (type) => {
             this.props.result_list_emty(type);
@@ -42,10 +48,15 @@ class SearchResultsList extends React.Component {
         // data: this.props
         };
     }
+    // 更新时
+    componentDidUpdate() {
+        // console.log(this.props);
+    }
     // 搜索结果项点击时
     listItemHandleClick(item) {
+        console.log(this);
         // 通知 code.ts
-        parent.postMessage({ pluginMessage: { type: 'listOnClik', data: { 'item': this['id'], 'start': this['start'], 'end': this['end'] } } }, '*');
+        parent.postMessage({ pluginMessage: { type: 'listOnClik', data: { 'page': this['page_id'], 'item': this['id'], 'start': this['start'], 'end': this['end'] } } }, '*');
         // 设置点击对象为「已点」样式
         for (let i = 0; i < item.nativeEvent.path.length; i++) {
             if (item.nativeEvent.path[i].className == 'resultItem') {
@@ -56,7 +67,6 @@ class SearchResultsList extends React.Component {
     }
     render() {
         // console.log('resultList render:');
-        // console.log(this.props);
         var list = this.props.data;
         // 搜索加载状态
         // if (this.props['done'] == false && this.props['list_state'] != 'find') {
@@ -97,12 +107,10 @@ class SearchResultsList extends React.Component {
             }
             else if (list.length) {
             }
-            console.log('list.length:');
-            console.log(list.length);
             // 渲染搜索结果列表
             list.forEach((node) => {
                 // console.log('ui.tsx list.forEach node:');
-                console.log(node);
+                // console.log(node);
                 let this_start = node['start'] - 30; // 关键词前 x 个字符开始截取
                 let ellipsis = node['end'] + 30 < node['characters'].length ? true : false;
                 if (this_start < 0) {
@@ -138,7 +146,22 @@ class SearchResultsList extends React.Component {
                     node['characters'] = typeIcon + node['characters'];
                 }
             });
-            const listItems = list.map((node, index) => React.createElement("li", { className: 'resultItem', onClick: this.listItemHandleClick.bind(node), key: node['id'] + ':' + index.toString(), dangerouslySetInnerHTML: { __html: node['characters'] } }));
+            let listItems = [];
+            let last_page_id = '';
+            let list_length = list.length;
+            // (let index = list_length-1;index>-1;index--)
+            for (let index = 0; index < list_length; index++) {
+                if (list[index]['page_id'] != last_page_id) {
+                    listItems.push(React.createElement("div", { className: 'list_page_name', key: list[index]['page_name'] + list[index]['id'] + ':' + index.toString() }, list[index]['page_name']));
+                }
+                listItems.push(React.createElement("li", { className: 'resultItem', onClick: this.listItemHandleClick.bind(list[index]), key: list[index]['id'] + ':' + index.toString(), dangerouslySetInnerHTML: { __html: list[index]['characters'] } }));
+                last_page_id = list[index]['page_id'];
+            }
+            // list.forEach((node, index) => {
+            // })
+            // const listItems = list.map((node, index) =>
+            //   <li className='resultItem' onClick={this.listItemHandleClick.bind(node)} key={node['id'] + ':' + index.toString()} dangerouslySetInnerHTML={{ __html: node['characters'] }} ></li>
+            // )
             // 已搜索完毕
             if (this.props['done']) {
                 return (React.createElement("div", null,
@@ -273,15 +296,29 @@ class App extends React.Component {
             if (seting_type == 'seting_Aa') {
                 // 更新 State 数据
                 this.setState({
-                    //@ts-ignore
                     seting_data: {
-                        'seting_Aa': nativeEvent['nativeEvent']['target']['checked']
+                        seting_Aa: nativeEvent['nativeEvent']['target']['checked'],
+                        //@ts-ignore
+                        find_all: this.state.seting_data.find_all
                     }
                 });
                 // 通知 code.ts
                 parent.postMessage({ pluginMessage: { type: 'handle_seting_click', data: { 'type': seting_type, 'data': { 'checked': nativeEvent['nativeEvent']['target']['checked'] } } } }, '*');
             }
             // 搜索整个文档
+            if (seting_type == 'find_all') {
+                // 更新 State 数据
+                this.setState({
+                    //@ts-ignore
+                    seting_data: {
+                        //@ts-ignore
+                        seting_Aa: this.state.seting_data.seting_Aa,
+                        find_all: nativeEvent['nativeEvent']['target']['checked']
+                    }
+                });
+                // 通知 code.ts
+                parent.postMessage({ pluginMessage: { type: 'handle_seting_click', data: { 'type': seting_type, 'data': { 'checked': nativeEvent['nativeEvent']['target']['checked'] } } } }, '*');
+            }
             // 搜索隐藏图层
             // ……
         };
@@ -312,8 +349,10 @@ class App extends React.Component {
             done: true,
             hasMissingFontCount: 0,
             show_seting_tips: false,
+            currentpage: '',
             seting_data: {
-                'seting_Aa': false
+                seting_Aa: false,
+                find_all: false
             },
             my_progress: {
                 'index': 0,
@@ -391,6 +430,14 @@ class App extends React.Component {
                     selectionPage: event.data.pluginMessage['selectionPage']
                 });
             }
+            // 选中的页面发生变化
+            if (event.data.pluginMessage['type'] == 'onCurrentpagechange') {
+                console.log('currentpagechange');
+                console.log(event);
+                this.setState({
+                    currentpage: event.data.pluginMessage['currentPage']
+                });
+            }
         };
     }
     render() {
@@ -450,11 +497,14 @@ class App extends React.Component {
                     React.createElement("div", null,
                         React.createElement("input", { name: 'replace', placeholder: 'Replace', ref: this.replace_word_Ref, onKeyPress: this.onInputEnter })),
                     replaceButton)),
-            React.createElement(SearchResultsList, { my_progress: this.state.my_progress, done: this.state.done, result_list_emty: this.result_list_emty, list_state: this.state.list_state, hasMissingFontCount: this.state.hasMissingFontCount, data: this.state.search_results_list }),
+            React.createElement(SearchResultsList, { currentpage: this.state.currentpage, my_progress: this.state.my_progress, done: this.state.done, result_list_emty: this.result_list_emty, list_state: this.state.list_state, hasMissingFontCount: this.state.hasMissingFontCount, data: this.state.search_results_list }),
             React.createElement("div", { className: seting_tips_class },
                 React.createElement("div", { className: "checkbox" },
                     React.createElement("input", { onClick: this.handle_seting_click, id: "seting_Aa", type: "checkbox", className: "checkbox__box" }),
-                    React.createElement("label", { htmlFor: "seting_Aa", className: "checkbox__label" }, "Case sensitive")))));
+                    React.createElement("label", { htmlFor: "seting_Aa", className: "checkbox__label" }, "Case sensitive")),
+                React.createElement("div", { className: "checkbox" },
+                    React.createElement("input", { onClick: this.handle_seting_click, id: "find_all", type: "checkbox", className: "checkbox__box" }),
+                    React.createElement("label", { htmlFor: "find_all", className: "checkbox__label" }, "Find in all pages")))));
     }
 }
 ReactDOM.render(React.createElement(App, null), document.getElementById('react-page'));

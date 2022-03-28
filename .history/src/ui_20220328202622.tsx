@@ -250,7 +250,6 @@ class SearchResultsList extends React.Component
       let last_page_id = ''
 
       let list_length = list.length
-      // (let index = list_length-1;index>-1;index--)
       for (let index = 0;index<list_length;index++) {
 
         if (list[index]['page_id'] != last_page_id) {

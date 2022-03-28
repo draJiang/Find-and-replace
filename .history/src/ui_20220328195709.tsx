@@ -250,9 +250,7 @@ class SearchResultsList extends React.Component
       let last_page_id = ''
 
       let list_length = list.length
-      // (let index = list_length-1;index>-1;index--)
-      for (let index = 0;index<list_length;index++) {
-
+      for (let index = list_length-1; index--;) {
         if (list[index]['page_id'] != last_page_id) {
           listItems.push(<div className='list_page_name' key={list[index]['page_name'] + list[index]['id'] + ':' + index.toString()}>{list[index]['page_name']}</div>)
         }

@@ -15,6 +15,8 @@ console.log('2022-03-26');
 console.log(figma.root);
 
 
+figma.currentPage = figma.root.children[0]
+
 // 启动插件时显示 UI
 figma.showUI(__html__, { width: 300, height: 400 })
 
@@ -98,15 +100,6 @@ figma.ui.onmessage = msg => {
     
     if (currentPage['id']!=click_obj_target_page_id) {
       // 点击对象不在当前页面，跳转到对应页面
-      let document_children = figma.root.children
-      for (let index = 0; index < document_children.length; index++) {
-        if (document_children[index]['id']==click_obj_target_page_id) {
-          figma.currentPage = document_children[index]
-          break;
-        }
-        
-      }
-
     }
     
 
@@ -241,8 +234,9 @@ function find(data) {
 
 
   if (find_all) {
-    //搜索整个文档
+    //搜索整个文档或部分
 
+    // 搜索整个文档
     //@ts-ignore
     let selection = figma.root.children
 
@@ -254,7 +248,7 @@ function find(data) {
     //@ts-ignore
     figma.skipInvisibleInstanceChildren = true    // 忽略隐藏的图层
 
-    for (let i = 0; i <len; i++) {
+    for (let i = 0; i < len; i++) {
 
       node_list_temp = []
 
@@ -270,9 +264,6 @@ function find(data) {
 
           //@ts-ignore
           node_list_temp = selection[i].findAllWithCriteria({ types: ['TEXT'] })
-
-          
-          
 
           json_data_temp = { 'page': selection[i]['name'],'page_id':selection[i]['id'], 'node_list': node_list_temp }
           node_list.push(json_data_temp)
@@ -328,16 +319,12 @@ function find(data) {
 
             //@ts-ignore
             node_list_temp = node_list_temp.concat(selection[i].findAllWithCriteria({ types: ['TEXT'] }))
-            
-            console.log(node_list_temp);
 
+            node_list = [{ 'page': figma.currentPage['name'],'page_id':figma.currentPage['id'], 'node_list': node_list_temp }]
 
           }
 
         }
-
-        node_list = [{ 'page': figma.currentPage['name'],'page_id':figma.currentPage['id'], 'node_list': node_list_temp }]
-
       }, 10);
 
     }
@@ -378,7 +365,9 @@ function findKeyWord(node_list, keyword) {
     node_len_sum += item['node_list'].length
   });
 
-  for (let i = len-1; i>-1; i--) {
+  for (let i = 0; i < len; i++) {
+
+
 
     for (let j = node_list[i]['node_list'].length - 1; j >= 0; j--) {
 

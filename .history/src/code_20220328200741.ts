@@ -241,8 +241,9 @@ function find(data) {
 
 
   if (find_all) {
-    //搜索整个文档
+    //搜索整个文档或部分
 
+    // 搜索整个文档
     //@ts-ignore
     let selection = figma.root.children
 
@@ -254,7 +255,7 @@ function find(data) {
     //@ts-ignore
     figma.skipInvisibleInstanceChildren = true    // 忽略隐藏的图层
 
-    for (let i = 0; i <len; i++) {
+    for (let i = len-1; i > -1; i--) {
 
       node_list_temp = []
 
@@ -270,9 +271,6 @@ function find(data) {
 
           //@ts-ignore
           node_list_temp = selection[i].findAllWithCriteria({ types: ['TEXT'] })
-
-          
-          
 
           json_data_temp = { 'page': selection[i]['name'],'page_id':selection[i]['id'], 'node_list': node_list_temp }
           node_list.push(json_data_temp)
@@ -328,16 +326,12 @@ function find(data) {
 
             //@ts-ignore
             node_list_temp = node_list_temp.concat(selection[i].findAllWithCriteria({ types: ['TEXT'] }))
-            
-            console.log(node_list_temp);
 
+            node_list = [{ 'page': figma.currentPage['name'],'page_id':figma.currentPage['id'], 'node_list': node_list_temp }]
 
           }
 
         }
-
-        node_list = [{ 'page': figma.currentPage['name'],'page_id':figma.currentPage['id'], 'node_list': node_list_temp }]
-
       }, 10);
 
     }
@@ -378,7 +372,7 @@ function findKeyWord(node_list, keyword) {
     node_len_sum += item['node_list'].length
   });
 
-  for (let i = len-1; i>-1; i--) {
+  for (let i = 0; i <len; i++) {
 
     for (let j = node_list[i]['node_list'].length - 1; j >= 0; j--) {
 

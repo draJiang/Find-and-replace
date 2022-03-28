@@ -378,7 +378,7 @@ function findKeyWord(node_list, keyword) {
     node_len_sum += item['node_list'].length
   });
 
-  for (let i = len-1; i>-1; i--) {
+  for (let i = len; i>-1; i--) {
 
     for (let j = node_list[i]['node_list'].length - 1; j >= 0; j--) {
 

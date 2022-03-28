@@ -241,8 +241,9 @@ function find(data) {
 
 
   if (find_all) {
-    //搜索整个文档
+    //搜索整个文档或部分
 
+    // 搜索整个文档
     //@ts-ignore
     let selection = figma.root.children
 
@@ -378,7 +379,7 @@ function findKeyWord(node_list, keyword) {
     node_len_sum += item['node_list'].length
   });
 
-  for (let i = len-1; i>-1; i--) {
+  for (let i = 0; i <len; i++) {
 
     for (let j = node_list[i]['node_list'].length - 1; j >= 0; j--) {
 

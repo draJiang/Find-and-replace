@@ -36,7 +36,7 @@ input {
   box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.3);
 }
 #replace:active {
-  box-shadow: inset 0 0 0 2px #18a0fb;
+  box-shadow: inset 0 0 0 2px #18A0FB;
 }
 
 ::-webkit-input-placeholder {
@@ -129,9 +129,6 @@ button:active {
 .find_result_list {
   overflow-y: auto;
   margin-top: 8px;
-
-  /* 锚链接时平滑滚动 */
-  scroll-behavior: smooth;
 }
 
 .find_result_list,
@@ -180,7 +177,7 @@ button:active {
   overflow-x: clip;
   overflow: hidden;
 
-  cursor: default;
+  cursor:default;
 }
 
 .find_result_list .clicked {
@@ -198,19 +195,12 @@ button:active {
 }
 
 /* 搜索结果中的标题 */
-.list_page_name {
-  margin: 20px 0 20px 0;
-  color: var(--black8);
-  /* cursor: pointer; */
-  text-align: left;
-  padding-left: 4px;
-  border-left: 4px solid var(--blue);
-  line-height: 14px;
-  cursor: default;
+.list_page_name{
+  margin: 10px 0;
 }
-
-.list_page_name:hover {
-  /* color: var(--blue); */
+.list_page_name::after{
+  width: auto;
+  height: 1px;
 }
 
 .missIcon {

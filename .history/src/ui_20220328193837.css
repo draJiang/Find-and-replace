@@ -206,7 +206,7 @@ button:active {
   padding-left: 4px;
   border-left: 4px solid var(--blue);
   line-height: 14px;
-  cursor: default;
+  /* cursor: pointer; */
 }
 
 .list_page_name:hover {

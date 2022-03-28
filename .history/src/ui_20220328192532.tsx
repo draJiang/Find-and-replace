@@ -70,7 +70,7 @@ class SearchResultsList extends React.Component
     result_list_emty?: Function;
     done?: boolean;
     hasMissingFontCount?: number;
-    currentpage?: string;
+    currentpage?:string;
   },
   {
     data?: Array<object>;
@@ -79,7 +79,7 @@ class SearchResultsList extends React.Component
     result_list_emty?: Function;
     done?: boolean;
     hasMissingFontCount?: number;
-    currentpage?: string;
+    currentpage?:string;
   }>
 {
   constructor(props) {
@@ -91,7 +91,7 @@ class SearchResultsList extends React.Component
 
 
   // 更新时
-  componentDidUpdate() {
+  componentDidUpdate(){
 
     // console.log(this.props);
 
@@ -101,9 +101,9 @@ class SearchResultsList extends React.Component
   listItemHandleClick(item) {
 
     console.log(this);
-
+    
     // 通知 code.ts
-    parent.postMessage({ pluginMessage: { type: 'listOnClik', data: { 'page': this['page_id'], 'item': this['id'], 'start': this['start'], 'end': this['end'] } } }, '*')
+    parent.postMessage({ pluginMessage: { type: 'listOnClik', data: { 'item': this['id'], 'start': this['start'], 'end': this['end'] } } }, '*')
 
     // 设置点击对象为「已点」样式
     for (let i = 0; i < item.nativeEvent.path.length; i++) {
@@ -130,7 +130,7 @@ class SearchResultsList extends React.Component
   render() {
     // console.log('resultList render:');
 
-
+    
     var list = this.props.data
 
     // 搜索加载状态
@@ -248,25 +248,16 @@ class SearchResultsList extends React.Component
 
       let listItems = []
       let last_page_id = ''
+      list.forEach((node, index) => {
 
-      let list_length = list.length
-      // (let index = list_length-1;index>-1;index--)
-      for (let index = 0;index<list_length;index++) {
-
-        if (list[index]['page_id'] != last_page_id) {
-          listItems.push(<div className='list_page_name' key={list[index]['page_name'] + list[index]['id'] + ':' + index.toString()}>{list[index]['page_name']}</div>)
+        if (node['page_id'] != last_page_id) {
+          listItems.push(<div onClick={this.list_linker} className='list_page_name' key={node['page_name'] + node['id'] + ':' + index.toString()}>{node['page_name']}</div>)
         }
 
-        listItems.push(<li className='resultItem' onClick={this.listItemHandleClick.bind(list[index])} key={list[index]['id'] + ':' + index.toString()} dangerouslySetInnerHTML={{ __html: list[index]['characters'] }} ></li>)
+        listItems.push(<li className='resultItem' onClick={this.listItemHandleClick.bind(node)} key={node['id'] + ':' + index.toString()} dangerouslySetInnerHTML={{ __html: node['characters'] }} ></li>)
 
-        last_page_id = list[index]['page_id']
-
-      }
-
-      // list.forEach((node, index) => {
-
-
-      // })
+        last_page_id = node['page_id']
+      })
 
       // const listItems = list.map((node, index) =>
 
@@ -332,10 +323,10 @@ class App extends React.Component {
       done: true,                          // 搜索是否完成
       hasMissingFontCount: 0,
       show_seting_tips: false,             // 是否显示浮层
-      currentpage: '',                      // 当前选中的页面
+      currentpage:'',                      // 当前选中的页面
       seting_data: {
         seting_Aa: false,
-        find_all: false
+        find_all:false
       },
       my_progress: {
         'index': 0,
@@ -458,7 +449,7 @@ class App extends React.Component {
         this.setState({
           currentpage: event.data.pluginMessage['currentPage']
         })
-
+          
       }
 
     }
@@ -592,12 +583,12 @@ class App extends React.Component {
 
       // 更新 State 数据
       this.setState({
-
+        
         seting_data: {
-
+          
           seting_Aa: nativeEvent['nativeEvent']['target']['checked'],
           //@ts-ignore
-          find_all: this.state.seting_data.find_all
+          find_all:this.state.seting_data.find_all
         }
       })
 
@@ -615,7 +606,7 @@ class App extends React.Component {
         //@ts-ignore
         seting_data: {
           //@ts-ignore
-          seting_Aa: this.state.seting_data.seting_Aa,
+          seting_Aa:this.state.seting_data.seting_Aa,
           find_all: nativeEvent['nativeEvent']['target']['checked']
         }
       })
@@ -694,9 +685,9 @@ class App extends React.Component {
 
     // 如果任意设置开启，则入口设置为高亮样式
     let seting_icon_is_active = 'icon icon--ellipses'
-
+    
     for (let key in this.state.seting_data) {
-
+      
       if (this.state.seting_data[key]) {
         seting_icon_is_active = 'icon icon--ellipses icon--blue'
       }
@@ -736,7 +727,7 @@ class App extends React.Component {
           {/* 搜索整个文档 */}
           <div className="checkbox">
             <input onClick={this.handle_seting_click} id="find_all" type="checkbox" className="checkbox__box" />
-            <label htmlFor="find_all" className="checkbox__label">Find in all pages</label>
+            <label htmlFor="find_all" className="checkbox__label">find_all</label>
           </div>
 
         </div>

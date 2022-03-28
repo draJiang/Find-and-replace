@@ -3,9 +3,7 @@ let target_Text_Node: Array<any> = []      // 存储符合搜索条件的 TEXT �
 let loaded_fonts: Array<FontName> = []     // 已加载的字体列表
 let fileType = figma.editorType            // 当前 figma 文件类型：figma/figjam
 let hasMissingFontCount = 0                // 替换时记录不支持字体的数量
-
 let seting_Aa = false                      // 是否区分大小写
-let find_all = false                       // 是否搜索整个文档
 
 let req_cout = 0                           // 搜索结果数量
 let node_list = []                         // 存储所有 TEXT 图层
@@ -23,11 +21,6 @@ onSelectionChange()
 
 // 绑定 Figma 图层选择变化事件
 figma.on("selectionchange", () => { onSelectionChange() })
-
-// 选中的页面发生变化
-figma.on("currentpagechange",()=>{
-  onCurrentpagechange()
-})
 
 // UI 发来消息
 figma.ui.onmessage = msg => {
@@ -90,25 +83,6 @@ figma.ui.onmessage = msg => {
 
     var targetNode
     // console.log('forEach:');
-    
-    // 搜索结果是否在当前页面
-    console.log(msg);
-    let currentPage = figma.currentPage
-    let click_obj_target_page_id = msg['data']['page']
-    
-    if (currentPage['id']!=click_obj_target_page_id) {
-      // 点击对象不在当前页面，跳转到对应页面
-      let document_children = figma.root.children
-      for (let index = 0; index < document_children.length; index++) {
-        if (document_children[index]['id']==click_obj_target_page_id) {
-          figma.currentPage = document_children[index]
-          break;
-        }
-        
-      }
-
-    }
-    
 
     // 遍历搜索结果
     let len = target_Text_Node.length
@@ -159,17 +133,7 @@ figma.ui.onmessage = msg => {
 
   // UI 中进行搜索设置
   if (msg.type === 'handle_seting_click') {
-    switch (msg['data']['type']) {
-      case 'seting_Aa':
-        seting_Aa = msg['data']['data']['checked']
-        break;
-      case 'find_all':
-        find_all = msg['data']['data']['checked']
-        break;
-      default:
-        break;
-    }
-
+    seting_Aa = msg['data']['data']['checked']
   }
 
 }
@@ -240,9 +204,10 @@ function find(data) {
   target_Text_Node = []
 
 
-  if (find_all) {
-    //搜索整个文档
+  if (false) {
+    //搜索整个文档或部分
 
+    // 搜索整个文档
     //@ts-ignore
     let selection = figma.root.children
 
@@ -254,7 +219,7 @@ function find(data) {
     //@ts-ignore
     figma.skipInvisibleInstanceChildren = true    // 忽略隐藏的图层
 
-    for (let i = 0; i <len; i++) {
+    for (let i = 0; i < len; i++) {
 
       node_list_temp = []
 
@@ -271,10 +236,7 @@ function find(data) {
           //@ts-ignore
           node_list_temp = selection[i].findAllWithCriteria({ types: ['TEXT'] })
 
-          
-          
-
-          json_data_temp = { 'page': selection[i]['name'],'page_id':selection[i]['id'], 'node_list': node_list_temp }
+          json_data_temp = { 'page': selection[i]['name'], 'node_list': node_list_temp }
           node_list.push(json_data_temp)
 
         }
@@ -328,16 +290,12 @@ function find(data) {
 
             //@ts-ignore
             node_list_temp = node_list_temp.concat(selection[i].findAllWithCriteria({ types: ['TEXT'] }))
-            
-            console.log(node_list_temp);
 
+            node_list = [{ 'page': figma.currentPage['name'], 'node_list': node_list_temp }]
 
           }
 
         }
-
-        node_list = [{ 'page': figma.currentPage['name'],'page_id':figma.currentPage['id'], 'node_list': node_list_temp }]
-
       }, 10);
 
     }
@@ -378,7 +336,9 @@ function findKeyWord(node_list, keyword) {
     node_len_sum += item['node_list'].length
   });
 
-  for (let i = len-1; i>-1; i--) {
+  for (let i = 0; i < len; i++) {
+
+
 
     for (let j = node_list[i]['node_list'].length - 1; j >= 0; j--) {
 
@@ -463,7 +423,7 @@ function findKeyWord(node_list, keyword) {
               // 将查找的字符起始、终止位置发送给 UI
 
               // 每个关键字的数据
-              data_temp = { 'page_name': node_list[i]['page'],'page_id': node_list[i]['page_id'], 'id': node.id, 'characters': node.characters, 'start': index, 'end': index + keyword.length, 'hasMissingFont': node.hasMissingFont, 'ancestor_type': ancestor_type }
+              data_temp = { 'page_name':node_list[i]['page'],'id': node.id, 'characters': node.characters, 'start': index, 'end': index + keyword.length, 'hasMissingFont': node.hasMissingFont, 'ancestor_type': ancestor_type }
 
               if (req_cout < 20) {
                 // 如果已经有搜索结果，则先发送一部分显示在 UI 中，提升搜索加载状态的体验
@@ -660,10 +620,5 @@ function onSelectionChange() {
   } else {
     figma.ui.postMessage({ 'type': 'onSelectionChange', 'selectionPage': false })
   }
-}
-
-function onCurrentpagechange() {
-  console.log(figma.currentPage);
-  // figma.ui.postMessage({ 'type': 'onCurrentpagechange', 'currentPage': figma.currentPage['id'] })
 }
 
