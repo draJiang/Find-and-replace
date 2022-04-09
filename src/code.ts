@@ -1,17 +1,21 @@
 /// <reference path="../node_modules/@figma/plugin-typings/index.d.ts" />
-let target_Text_Node: Array<any> = []      // 存储符合搜索条件的 TEXT 图层
-let loaded_fonts: Array<FontName> = []     // 已加载的字体列表
-let fileType = figma.editorType            // 当前 figma 文件类型：figma/figjam
-let hasMissingFontCount = 0                // 替换时记录不支持字体的数量
+let target_Text_Node: Array<any> = []         // 存储符合搜索条件的 TEXT 图层
+let loaded_fonts: Array<FontName> = []        // 已加载的字体列表
+let fileType = figma.editorType               // 当前 figma 文件类型：figma/figjam
+let hasMissingFontCount = 0                   // 替换时记录不支持字体的数量
 
-let seting_Aa = false                      // 是否区分大小写
-let find_all = false                       // 是否搜索整个文档
+let seting_Aa = false                         // 是否区分大小写
+let find_all = false                          // 是否搜索整个文档
 
-let req_cout = 0                           // 搜索结果数量
-let node_list = []                         // 存储所有 TEXT 图层
+let req_cout = 0                              // 搜索结果数量
+let node_list = []                            // 存储所有 TEXT 图层
 
+let currentPage = figma.currentPage           // 存储当前页面
 
-console.log('2022-03-26');
+//@ts-ignore
+figma.skipInvisibleInstanceChildren = true    // 忽略隐藏的图层
+
+console.log('2022-04-09 14:19');
 
 
 // 启动插件时显示 UI
@@ -30,7 +34,7 @@ figma.on("currentpagechange",()=>{
 
 // UI 发来消息
 figma.ui.onmessage = msg => {
-
+  
   // UI 中点击了「搜索」按钮
   if (msg.type === 'search') {
 
@@ -87,17 +91,19 @@ figma.ui.onmessage = msg => {
   // UI 中点击搜索结果项
   if (msg.type === 'listOnClik') {
 
-    var targetNode
-    // console.log('forEach:');
+    let msg_data = msg['data']
+    let targetNode
     
     // 搜索结果是否在当前页面
-    let currentPage = figma.currentPage
-    let click_obj_target_page_id = msg['data']['page']
+    let click_obj_target_page_id = msg_data['page']
     
     if (currentPage['id']!=click_obj_target_page_id) {
       // 点击对象不在当前页面，跳转到对应页面
       let document_children = figma.root.children
-      for (let index = 0; index < document_children.length; index++) {
+      let document_children_length = document_children.length
+
+      for (let index = document_children_length-1; index >-1 ; index--) {
+
         if (document_children[index]['id']==click_obj_target_page_id) {
           figma.currentPage = document_children[index]
           break;
@@ -110,16 +116,16 @@ figma.ui.onmessage = msg => {
 
     // 遍历搜索结果
     let len = target_Text_Node.length
-    for (var i = 0; i < len; i++) {
+    for (let i = len-1;i>-1;i--) {
 
-      if (target_Text_Node[i]['node'].id == msg.data['item']) {
+      if (target_Text_Node[i]['node'].id == msg_data['item']) {
         // 找到用户点击的图层
 
-        targetNode === target_Text_Node[i]['node']
+        targetNode = target_Text_Node[i]['node']
         // Figma 视图定位到对应图层
-        figma.viewport.scrollAndZoomIntoView([target_Text_Node[i]['node']]);
+        figma.viewport.scrollAndZoomIntoView([targetNode]);
         // Figma 选中对应文本
-        figma.currentPage.selectedTextRange = { 'node': target_Text_Node[i]['node'], 'start': msg.data['start'], 'end': msg.data['end'] }
+        figma.currentPage.selectedTextRange = { 'node': targetNode, 'start': msg_data['start'], 'end': msg_data['end'] }
 
         break
       }
@@ -141,16 +147,6 @@ figma.ui.onmessage = msg => {
       }, 100);
 
     })
-
-
-    // setTimeout(() => {
-    //   console.log('code.ts replace done');
-    //   // 替换完毕，通知 UI 更新
-    //   figma.ui.postMessage({ 'type': 'replace', 'done': true, 'hasMissingFontCount': hasMissingFontCount });
-    // }, 30);
-
-
-
 
   }
 
@@ -175,7 +171,6 @@ figma.ui.onmessage = msg => {
 async function myLoadFontAsync(text_layer_List) {
   console.log('myLoadFontAsync:');
   // console.log(text_layer_List);
-
 
 
   for (let layer of text_layer_List) {
@@ -247,9 +242,6 @@ function find(data) {
     let node_list_temp
     let json_data_temp
     let len = selection.length
-
-    //@ts-ignore
-    figma.skipInvisibleInstanceChildren = true    // 忽略隐藏的图层
 
     for (let i = 0; i <len; i++) {
 
@@ -627,7 +619,21 @@ async function replace(data) {
 
           }// else
 
-          figma.ui.postMessage({ 'type': 'replace', 'done': false, 'my_progress': { 'index': my_progress, 'total': len }, 'hasMissingFontCount': hasMissingFontCount });
+          let is_done = false
+          
+          if(my_progress>=len){
+            console.log('my_progress==len-1');
+            
+            // console.log(my_progress);
+            // console.log(len);
+
+            is_done = true
+          }else{
+
+            
+          }
+
+          figma.ui.postMessage({ 'type': 'replace', 'done': is_done, 'my_progress': { 'index': my_progress, 'total': len }, 'hasMissingFontCount': hasMissingFontCount });
 
         }, 10)
 
@@ -654,7 +660,8 @@ function onSelectionChange() {
 }
 
 function onCurrentpagechange() {
-  console.log(figma.currentPage);
+  // console.log(figma.currentPage);
+  currentPage = figma.currentPage
   // figma.ui.postMessage({ 'type': 'onCurrentpagechange', 'currentPage': figma.currentPage['id'] })
 }
 

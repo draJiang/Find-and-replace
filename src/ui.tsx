@@ -467,43 +467,54 @@ class App extends React.Component {
 
   // 搜索
   onSearch = () => {
-    console.log('设置搜索中状态：');
+    console.log('onSearch 设置搜索中状态：');
 
-    this.setState({
-      list_state: 'find',
-      done: false,
-      my_progress: { 'index': 0, 'total': 100 },
-      search_results_list: []    // 每次搜索清空历史记录
-    }, () => {
+    if (this.state['done']) {
+      this.setState({
+        list_state: 'find',
+        done: false,
+        my_progress: { 'index': 0, 'total': 100 },
+        search_results_list: []    // 每次搜索清空历史记录
+      }, () => {
 
-      // 放在 timeout 内是为了避免阻塞 UI 导致加载状态无法显示
-      setTimeout(() => {
-        const keyword = this.keyword.value
-        const replace_word = this.replace_word.value
-        parent.postMessage({ pluginMessage: { type: 'search', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')
-      }, 10)
-    })
+        // 放在 timeout 内是为了避免阻塞 UI 导致加载状态无法显示
+        setTimeout(() => {
+          const keyword = this.keyword.value
+          const replace_word = this.replace_word.value
+          parent.postMessage({ pluginMessage: { type: 'search', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')
+        }, 10)
+      })
+    } else {
+      console.log('Searching...');
+    }
+
 
   }
 
   // 替换
   onReplace = () => {
-    this.setState({
-      list_state: 'replace',
-      done: false,
-      my_progress: { 'index': 0, 'total': 100 },
-    })
+    
+    if (this.state['done']) {
+      this.setState({
+        list_state: 'replace',
+        done: false,
+        my_progress: { 'index': 0, 'total': 100 },
+      })
 
-    setTimeout(() => {
-      console.log('onReplace');
-      const keyword = this.keyword.value
-      const replace_word = this.replace_word.value
-      parent.postMessage({ pluginMessage: { type: 'replace', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')
-    }, 0);
+      setTimeout(() => {
+        console.log('onReplace');
+        const keyword = this.keyword.value
+        const replace_word = this.replace_word.value
+        parent.postMessage({ pluginMessage: { type: 'replace', data: { 'keyword': keyword, 'replace_word': replace_word } } }, '*')
+      }, 0);
+    } else {
+
+    }
+
 
   }
 
-  // 文本框输入时
+  // 监听输入框敲击回车
   onInputEnter = (e) => {
     // console.log('enter');
     // console.log(e.nativeEvent);
