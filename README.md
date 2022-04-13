@@ -1,4 +1,5 @@
-![Find and Replace](https://jiangzilong-image.oss-cn-beijing.aliyuncs.com/uPic/Company/20220106190154.jpg)
+![Find and Replace](https://user-images.githubusercontent.com/38482112/163181220-24d365bb-363c-48a9-ad61-72454fab7716.png)
+
 
 [![install_count](https://img.shields.io/badge/dynamic/json?style=for-the-badge&color=important&logoColor=ffffff&label=Install&query=%24.meta.plugin.install_count&url=https://www.figma.com/api/plugins/1052801241204192805/versions?org_id=)](https://www.figma.com/community/plugin/1052801241204192805/Find-and-Replace)    [![View](https://img.shields.io/badge/dynamic/json?style=for-the-badge&color=informational&logoColor=ffffff&label=View&query=%24.meta.plugin.view_count&url=https://www.figma.com/api/plugins/1052801241204192805/versions?org_id=)](https://www.figma.com/community/plugin/1052801241204192805/Find-and-Replace)   [![like_count](https://img.shields.io/badge/dynamic/json?style=for-the-badge&color=red&logoColor=ffffff&label=Like&query=%24.meta.plugin.like_count&url=https://www.figma.com/api/plugins/1052801241204192805/versions?org_id=)](https://www.figma.com/community/plugin/1052801241204192805/Find-and-Replace)
 
