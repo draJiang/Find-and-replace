@@ -450,6 +450,7 @@ class App extends React.Component {
         };
     }
     render() {
+        console.log('box render');
         // console.log('APP render this.state.search_results_list:');
         var note_list = this.state.search_results_list;
         // console.log(note_list);
@@ -493,8 +494,20 @@ class App extends React.Component {
         else {
             seting_tips_class = 'seting_tips hidden';
         }
+        const figmaStyle = document.getElementsByTagName("html")[0]['className'];
+        console.log('figmaStyle');
+        console.log(figmaStyle);
+        let seting_icon_is_active, checkbox__label_style;
+        seting_icon_is_active = 'icon icon--ellipses';
+        checkbox__label_style = 'checkbox__label';
         // 如果任意设置开启，则入口设置为高亮样式
-        let seting_icon_is_active = 'icon icon--ellipses';
+        // if (figmaStyle == 'figma-dark') {
+        //   seting_icon_is_active = 'icon icon--ellipses icon--white'
+        //   checkbox__label_style = 'checkbox__label icon--white'
+        // } else {
+        //   seting_icon_is_active = 'icon icon--ellipses'
+        //   checkbox__label_style = 'checkbox__label'
+        // }
         for (let key in this.state.seting_data) {
             if (this.state.seting_data[key]) {
                 seting_icon_is_active = 'icon icon--ellipses icon--blue';
@@ -515,10 +528,10 @@ class App extends React.Component {
             React.createElement("div", { className: seting_tips_class },
                 React.createElement("div", { className: "checkbox" },
                     React.createElement("input", { onClick: this.handle_seting_click, id: "seting_Aa", type: "checkbox", className: "checkbox__box" }),
-                    React.createElement("label", { htmlFor: "seting_Aa", className: "checkbox__label" }, "Case sensitive")),
+                    React.createElement("label", { htmlFor: "seting_Aa", className: checkbox__label_style }, "Case sensitive")),
                 React.createElement("div", { className: "checkbox" },
                     React.createElement("input", { onClick: this.handle_seting_click, id: "find_all", type: "checkbox", className: "checkbox__box" }),
-                    React.createElement("label", { htmlFor: "find_all", className: "checkbox__label" }, "Find in all pages")))));
+                    React.createElement("label", { htmlFor: "find_all", className: checkbox__label_style }, "Find in all pages")))));
     }
 }
 ReactDOM.render(React.createElement(App, null), document.getElementById('react-page'));

@@ -19,9 +19,10 @@ let node_list = []; // 存储所有 TEXT 图层
 let currentPage = figma.currentPage; // 存储当前页面
 //@ts-ignore
 figma.skipInvisibleInstanceChildren = true; // 忽略隐藏的图层
-console.log('2022-04-09 14:19');
+console.log('2022-05-12 12:28');
 // 启动插件时显示 UI
-figma.showUI(__html__, { width: 300, height: 400 });
+//@ts-ignore
+figma.showUI(__html__, { themeColors: true, width: 300, height: 400 });
 // 获取是否选中图层
 onSelectionChange();
 // 绑定 Figma 图层选择变化事件
@@ -472,6 +473,7 @@ function replace(data) {
 } // async function replace
 // Figma 图层选择变化时，通知 UI 显示不同的提示
 function onSelectionChange() {
+    console.log('onSelectionChange');
     var selection = figma.currentPage.selection;
     // 当前未选中图层，则在当前页面搜索
     if (selection.length == 0) {
