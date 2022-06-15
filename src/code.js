@@ -19,10 +19,21 @@ let node_list = []; // 存储所有 TEXT 图层
 let currentPage = figma.currentPage; // 存储当前页面
 //@ts-ignore
 figma.skipInvisibleInstanceChildren = true; // 忽略隐藏的图层
-console.log('2022-05-12 12:28');
-// 启动插件时显示 UI
+console.log('2022-06-15 17:38');
+// 显示 UI
 //@ts-ignore
 figma.showUI(__html__, { themeColors: true, width: 300, height: 400 });
+// 读取用户的设置记录
+figma.clientStorage.getAsync('find_all').then(find_all_value => {
+    console.log(find_all_value);
+    find_all = find_all_value;
+    figma.clientStorage.getAsync('seting_Aa').then(seting_Aa_value => {
+        console.log(seting_Aa_value);
+        seting_Aa = seting_Aa_value;
+        // 将设置记录发送给 UI
+        figma.ui.postMessage({ 'type': 'getClientStorage', 'done': true, 'data': { 'seting_Aa': seting_Aa, 'find_all': find_all } });
+    });
+});
 // 获取是否选中图层
 onSelectionChange();
 // 绑定 Figma 图层选择变化事件
@@ -121,6 +132,9 @@ figma.ui.onmessage = msg => {
             default:
                 break;
         }
+        // 将最近一次设置记录下来
+        figma.clientStorage.setAsync('find_all', find_all);
+        figma.clientStorage.setAsync('seting_Aa', seting_Aa);
     }
 };
 // 加载字体

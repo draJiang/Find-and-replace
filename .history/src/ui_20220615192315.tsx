@@ -791,7 +791,7 @@ class App extends React.Component {
           </div>
           {/* 搜索整个文档 */}
           <div className="checkbox">
-            <input onClick={this.handle_seting_click} onChange={this.handle_seting_item_change} id="find_all" type="checkbox" className="checkbox__box" checked={this.state.seting_data.find_all} />
+            <input onClick={this.handle_seting_click}  onChange={this.handle_seting_item_change}  id="find_all" type="checkbox" className="checkbox__box" checked={this.state.seting_data.find_all} />
             <label htmlFor="find_all" className={checkbox__label_style}>Find in all pages</label>
           </div>
 

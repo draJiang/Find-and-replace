@@ -239,8 +239,6 @@ class App extends React.Component {
         // 监听输入框敲击回车
         this.onInputEnter = (e) => {
             // console.log('enter');
-            // console.log(e.nativeEvent);
-            // console.log(this);
             // 监听回车键
             if (e.nativeEvent.keyCode == 13) {
                 // 搜索
@@ -330,6 +328,8 @@ class App extends React.Component {
             }
             // 搜索隐藏图层
             // ……
+        };
+        this.handle_seting_item_change = () => {
         };
         // 记录搜索结果是否为空
         this.result_list_emty = (type) => {
@@ -447,10 +447,20 @@ class App extends React.Component {
                     currentpage: event.data.pluginMessage['currentPage']
                 });
             }
+            // 渲染默认的设置选项
+            if (event.data.pluginMessage['type'] == 'getClientStorage') {
+                // 更新 State 数据
+                this.setState({
+                    seting_data: {
+                        seting_Aa: event.data.pluginMessage.data.seting_Aa,
+                        //@ts-ignore
+                        find_all: event.data.pluginMessage.data.find_all
+                    }
+                });
+            }
         };
     }
     render() {
-        console.log('box render');
         // console.log('APP render this.state.search_results_list:');
         var note_list = this.state.search_results_list;
         // console.log(note_list);
@@ -495,8 +505,6 @@ class App extends React.Component {
             seting_tips_class = 'seting_tips hidden';
         }
         const figmaStyle = document.getElementsByTagName("html")[0]['className'];
-        console.log('figmaStyle');
-        console.log(figmaStyle);
         let seting_icon_is_active, checkbox__label_style;
         seting_icon_is_active = 'icon icon--ellipses';
         checkbox__label_style = 'checkbox__label';
@@ -527,10 +535,10 @@ class App extends React.Component {
             React.createElement(SearchResultsList, { currentpage: this.state.currentpage, my_progress: this.state.my_progress, done: this.state.done, result_list_emty: this.result_list_emty, list_state: this.state.list_state, hasMissingFontCount: this.state.hasMissingFontCount, data: this.state.search_results_list }),
             React.createElement("div", { className: seting_tips_class },
                 React.createElement("div", { className: "checkbox" },
-                    React.createElement("input", { onClick: this.handle_seting_click, id: "seting_Aa", type: "checkbox", className: "checkbox__box" }),
+                    React.createElement("input", { onClick: this.handle_seting_click, onChange: this.handle_seting_item_change, id: "seting_Aa", type: "checkbox", className: "checkbox__box", checked: this.state.seting_data.seting_Aa }),
                     React.createElement("label", { htmlFor: "seting_Aa", className: checkbox__label_style }, "Case sensitive")),
                 React.createElement("div", { className: "checkbox" },
-                    React.createElement("input", { onClick: this.handle_seting_click, id: "find_all", type: "checkbox", className: "checkbox__box" }),
+                    React.createElement("input", { onClick: this.handle_seting_click, onChange: this.handle_seting_item_change, id: "find_all", type: "checkbox", className: "checkbox__box", checked: this.state.seting_data.find_all }),
                     React.createElement("label", { htmlFor: "find_all", className: checkbox__label_style }, "Find in all pages")))));
     }
 }

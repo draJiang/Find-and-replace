@@ -310,7 +310,7 @@ button:active {
 
 
 
-.figma-dark .icon--ellipses,
+.figma-dark .icon--ellipses:not(.icon--blue),
 .figma-dark .icon--instance,
 .figma-dark .icon--component,
 .figma-dark .checkbox__label,
@@ -318,6 +318,6 @@ button:active {
   filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(269deg) brightness(103%) contrast(104%);
 }
 
-.figma-dark .icon--blue{
-  filter: invert(54%) sepia(16%) saturate(7499%) hue-rotate(179deg) brightness(98%) contrast(101%) !important
+.figma-dark #find_seting_icon{
+  filter: invert(54%) sepia(16%) saturate(7499%) hue-rotate(179deg) brightness(98%) contrast(101%);
 }

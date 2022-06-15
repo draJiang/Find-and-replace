@@ -662,10 +662,6 @@ class App extends React.Component {
 
   }
 
-  handle_seting_item_change = ()=>{
-
-  }
-
   // 记录搜索结果是否为空
   result_list_emty = (type) => {
 
@@ -685,6 +681,8 @@ class App extends React.Component {
   }
 
   render(this) {
+
+    console.log('box render')
 
     // console.log('APP render this.state.search_results_list:');
     var note_list = this.state.search_results_list
@@ -786,12 +784,12 @@ class App extends React.Component {
 
           {/* 区分大小写 */}
           <div className="checkbox">
-            <input onClick={this.handle_seting_click} onChange={this.handle_seting_item_change} id="seting_Aa" type="checkbox" className="checkbox__box" checked={this.state.seting_data.seting_Aa}  />
+            <input onClick={this.handle_seting_click} id="seting_Aa" type="checkbox" className="checkbox__box" checked={this.state.seting_data.seting_Aa}  />
             <label htmlFor="seting_Aa" className={checkbox__label_style}>Case sensitive</label>
           </div>
           {/* 搜索整个文档 */}
           <div className="checkbox">
-            <input onClick={this.handle_seting_click} onChange={this.handle_seting_item_change} id="find_all" type="checkbox" className="checkbox__box" checked={this.state.seting_data.find_all} />
+            <input onClick={this.handle_seting_click} id="find_all" type="checkbox" className="checkbox__box" checked={this.state.seting_data.find_all} />
             <label htmlFor="find_all" className={checkbox__label_style}>Find in all pages</label>
           </div>
 

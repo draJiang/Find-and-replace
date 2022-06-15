@@ -466,16 +466,16 @@ class App extends React.Component {
       }
 
       // 渲染默认的设置选项
-      if (event.data.pluginMessage['type'] == 'getClientStorage') {
+      if (event.data.pluginMessage['type'] == 'onSelectionChange') {
         
         // 更新 State 数据
         this.setState({
 
           seting_data: {
 
-            seting_Aa: event.data.pluginMessage.data.seting_Aa,
+            seting_Aa: true,
             //@ts-ignore
-            find_all: event.data.pluginMessage.data.find_all
+            find_all: true
           }
         })
       }
@@ -662,10 +662,6 @@ class App extends React.Component {
 
   }
 
-  handle_seting_item_change = ()=>{
-
-  }
-
   // 记录搜索结果是否为空
   result_list_emty = (type) => {
 
@@ -685,6 +681,8 @@ class App extends React.Component {
   }
 
   render(this) {
+
+    console.log('box render')
 
     // console.log('APP render this.state.search_results_list:');
     var note_list = this.state.search_results_list
@@ -733,6 +731,10 @@ class App extends React.Component {
     }
 
     const figmaStyle = document.getElementsByTagName("html")[0]['className'];
+    console.log('figmaStyle');
+    console.log(figmaStyle);
+
+
 
     let seting_icon_is_active, checkbox__label_style
     seting_icon_is_active = 'icon icon--ellipses'
@@ -754,7 +756,6 @@ class App extends React.Component {
         seting_icon_is_active = 'icon icon--ellipses icon--blue'
       }
     }
-
 
     return (
 
@@ -786,12 +787,12 @@ class App extends React.Component {
 
           {/* 区分大小写 */}
           <div className="checkbox">
-            <input onClick={this.handle_seting_click} onChange={this.handle_seting_item_change} id="seting_Aa" type="checkbox" className="checkbox__box" checked={this.state.seting_data.seting_Aa}  />
+            <input onClick={this.handle_seting_click} id="seting_Aa" type="checkbox" className="checkbox__box" />
             <label htmlFor="seting_Aa" className={checkbox__label_style}>Case sensitive</label>
           </div>
           {/* 搜索整个文档 */}
           <div className="checkbox">
-            <input onClick={this.handle_seting_click} onChange={this.handle_seting_item_change} id="find_all" type="checkbox" className="checkbox__box" checked={this.state.seting_data.find_all} />
+            <input onClick={this.handle_seting_click} id="find_all" type="checkbox" className="checkbox__box" checked />
             <label htmlFor="find_all" className={checkbox__label_style}>Find in all pages</label>
           </div>
 

@@ -4,8 +4,8 @@ let loaded_fonts: Array<FontName> = []        // 已加载的字体列表
 let fileType = figma.editorType               // 当前 figma 文件类型：figma/figjam
 let hasMissingFontCount = 0                   // 替换时记录不支持字体的数量
 
-let seting_Aa = false                         // 是否区分大小写
-let find_all = false                          // 是否搜索整个文档
+let seting_Aa:any = false                         // 是否区分大小写
+let find_all:any = false                          // 是否搜索整个文档
 
 let req_cout = 0                              // 搜索结果数量
 let node_list = []                            // 存储所有 TEXT 图层
@@ -19,26 +19,13 @@ console.log('2022-06-15 17:38');
 
 
 
-// 显示 UI
+// 启动插件时显示 UI
 //@ts-ignore
-figma.showUI(__html__, { themeColors: true, width: 300, height: 400 })
+figma.showUI(__html__, {themeColors: true,width: 300, height: 400 })
 
 // 读取用户的设置记录
-figma.clientStorage.getAsync('find_all').then(find_all_value => {
-  console.log(find_all_value);
-  find_all = find_all_value
-
-  figma.clientStorage.getAsync('seting_Aa').then(seting_Aa_value => {
-    console.log(seting_Aa_value);
-    seting_Aa = seting_Aa_value
-
-    // 将设置记录发送给 UI
-    figma.ui.postMessage({ 'type': 'getClientStorage', 'done': true, 'data': { 'seting_Aa': seting_Aa, 'find_all': find_all } });
-
-  })
-
-})
-
+find_all = figma.clientStorage.getAsync('find_all')
+seting_Aa = figma.clientStorage.getAsync('seting_Aa')
 
 // 获取是否选中图层
 onSelectionChange()
@@ -47,13 +34,13 @@ onSelectionChange()
 figma.on("selectionchange", () => { onSelectionChange() })
 
 // 选中的页面发生变化
-figma.on("currentpagechange", () => {
+figma.on("currentpagechange",()=>{
   onCurrentpagechange()
 })
 
 // UI 发来消息
 figma.ui.onmessage = msg => {
-
+  
   // UI 中点击了「搜索」按钮
   if (msg.type === 'search') {
 
@@ -112,30 +99,30 @@ figma.ui.onmessage = msg => {
 
     let msg_data = msg['data']
     let targetNode
-
+    
     // 搜索结果是否在当前页面
     let click_obj_target_page_id = msg_data['page']
-
-    if (currentPage['id'] != click_obj_target_page_id) {
+    
+    if (currentPage['id']!=click_obj_target_page_id) {
       // 点击对象不在当前页面，跳转到对应页面
       let document_children = figma.root.children
       let document_children_length = document_children.length
 
-      for (let index = document_children_length - 1; index > -1; index--) {
+      for (let index = document_children_length-1; index >-1 ; index--) {
 
-        if (document_children[index]['id'] == click_obj_target_page_id) {
+        if (document_children[index]['id']==click_obj_target_page_id) {
           figma.currentPage = document_children[index]
           break;
         }
-
+        
       }
 
     }
-
+    
 
     // 遍历搜索结果
     let len = target_Text_Node.length
-    for (let i = len - 1; i > -1; i--) {
+    for (let i = len-1;i>-1;i--) {
 
       if (target_Text_Node[i]['node'].id == msg_data['item']) {
         // 找到用户点击的图层
@@ -183,8 +170,8 @@ figma.ui.onmessage = msg => {
     }
 
     // 将最近一次设置记录下来
-    figma.clientStorage.setAsync('find_all', find_all)
-    figma.clientStorage.setAsync('seting_Aa', seting_Aa)
+    figma.clientStorage.setAsync('find_all',find_all)
+    figma.clientStorage.setAsync('seting_Aa',seting_Aa)
 
   }
 
@@ -266,7 +253,7 @@ function find(data) {
     let json_data_temp
     let len = selection.length
 
-    for (let i = 0; i < len; i++) {
+    for (let i = 0; i <len; i++) {
 
       node_list_temp = []
 
@@ -283,10 +270,10 @@ function find(data) {
           //@ts-ignore
           node_list_temp = selection[i].findAllWithCriteria({ types: ['TEXT'] })
 
+          
+          
 
-
-
-          json_data_temp = { 'page': selection[i]['name'], 'page_id': selection[i]['id'], 'node_list': node_list_temp }
+          json_data_temp = { 'page': selection[i]['name'],'page_id':selection[i]['id'], 'node_list': node_list_temp }
           node_list.push(json_data_temp)
 
         }
@@ -340,13 +327,13 @@ function find(data) {
 
             //@ts-ignore
             node_list_temp = node_list_temp.concat(selection[i].findAllWithCriteria({ types: ['TEXT'] }))
-
+            
 
           }
 
         }
 
-        node_list = [{ 'page': figma.currentPage['name'], 'page_id': figma.currentPage['id'], 'node_list': node_list_temp }]
+        node_list = [{ 'page': figma.currentPage['name'],'page_id':figma.currentPage['id'], 'node_list': node_list_temp }]
 
       }, 10);
 
@@ -386,10 +373,10 @@ function findKeyWord(node_list, keyword) {
     node_len_sum += item['node_list'].length
   });
 
-  for (let i = 0; i < len; i++) {
+  for (let i = 0; i<len; i++) {
     let list_length = node_list[i]['node_list'].length
 
-    for (let j = 0; j < list_length; j++) {
+    for (let j =  0; j <list_length; j++) {
 
       setTimeout(() => {
         my_progress++
@@ -472,7 +459,7 @@ function findKeyWord(node_list, keyword) {
               // 将查找的字符起始、终止位置发送给 UI
 
               // 每个关键字的数据
-              data_temp = { 'page_name': node_list[i]['page'], 'page_id': node_list[i]['page_id'], 'id': node.id, 'characters': node.characters, 'start': index, 'end': index + keyword.length, 'hasMissingFont': node.hasMissingFont, 'ancestor_type': ancestor_type }
+              data_temp = { 'page_name': node_list[i]['page'],'page_id': node_list[i]['page_id'], 'id': node.id, 'characters': node.characters, 'start': index, 'end': index + keyword.length, 'hasMissingFont': node.hasMissingFont, 'ancestor_type': ancestor_type }
 
               if (req_cout < 20) {
                 // 如果已经有搜索结果，则先发送一部分显示在 UI 中，提升搜索加载状态的体验
@@ -643,17 +630,17 @@ async function replace(data) {
           }// else
 
           let is_done = false
-
-          if (my_progress >= len) {
+          
+          if(my_progress>=len){
             console.log('my_progress==len-1');
-
+            
             // console.log(my_progress);
             // console.log(len);
 
             is_done = true
-          } else {
+          }else{
 
-
+            
           }
 
           figma.ui.postMessage({ 'type': 'replace', 'done': is_done, 'my_progress': { 'index': my_progress, 'total': len }, 'hasMissingFontCount': hasMissingFontCount });
@@ -673,7 +660,7 @@ async function replace(data) {
 // Figma 图层选择变化时，通知 UI 显示不同的提示
 function onSelectionChange() {
   console.log('onSelectionChange');
-
+  
   var selection = figma.currentPage.selection
   // 当前未选中图层，则在当前页面搜索
   if (selection.length == 0) {

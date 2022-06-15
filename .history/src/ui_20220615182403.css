@@ -308,8 +308,6 @@ button:active {
   transition: all 1.5s;
 }
 
-
-
 .figma-dark .icon--ellipses,
 .figma-dark .icon--instance,
 .figma-dark .icon--component,
@@ -318,6 +316,6 @@ button:active {
   filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(269deg) brightness(103%) contrast(104%);
 }
 
-.figma-dark .icon--blue{
-  filter: invert(54%) sepia(16%) saturate(7499%) hue-rotate(179deg) brightness(98%) contrast(101%) !important
+.icon--blue{
+  filter: invert(54%) sepia(16%) saturate(7499%) hue-rotate(179deg) brightness(98%) contrast(101%);
 }

@@ -19,11 +19,12 @@ console.log('2022-06-15 17:38');
 
 
 
-// 显示 UI
-//@ts-ignore
-figma.showUI(__html__, { themeColors: true, width: 300, height: 400 })
+
 
 // 读取用户的设置记录
+// find_all = figma.clientStorage.getAsync('find_all')
+// seting_Aa = figma.clientStorage.getAsync('seting_Aa')
+console.log('读取用户的设置记录:');
 figma.clientStorage.getAsync('find_all').then(find_all_value => {
   console.log(find_all_value);
   find_all = find_all_value
@@ -32,8 +33,9 @@ figma.clientStorage.getAsync('find_all').then(find_all_value => {
     console.log(seting_Aa_value);
     seting_Aa = seting_Aa_value
 
-    // 将设置记录发送给 UI
-    figma.ui.postMessage({ 'type': 'getClientStorage', 'done': true, 'data': { 'seting_Aa': seting_Aa, 'find_all': find_all } });
+    // 显示 UI
+    //@ts-ignore
+    figma.showUI(__html__, { themeColors: true, width: 300, height: 400 })
 
   })
 
